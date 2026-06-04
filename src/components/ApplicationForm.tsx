@@ -1,7 +1,8 @@
 import React from "react";
-import { Check, ChevronRight, Info, HelpCircle, Lock, Upload, BellRing, RefreshCw } from "lucide-react";
+import { Check, ChevronRight, Info, HelpCircle, Lock, Upload, BellRing, RefreshCw, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Employee } from "../types/visa";
+import PageHeader from "./ui/PageHeader";
 
 interface ApplicationFormProps {
   userRole: 'individual' | 'business_admin';
@@ -43,6 +44,13 @@ interface ApplicationFormProps {
   khurLoading: boolean;
   smsNotifications: boolean;
   setSmsNotifications: (val: boolean) => void;
+  isUserVerified: boolean;
+  onOpenDanModal: () => void;
+  sendingSmsId: string | null;
+  smsSentEmployees: string[];
+  onSendEmployeeSms: (empId: string) => void;
+  formError?: string | null;
+  onClearFormError?: () => void;
 }
 
 export default function ApplicationForm({
@@ -61,7 +69,22 @@ export default function ApplicationForm({
   khurLoading,
   smsNotifications,
   setSmsNotifications,
+  isUserVerified,
+  onOpenDanModal,
+  sendingSmsId,
+  smsSentEmployees,
+  onSendEmployeeSms,
+  formError,
+  onClearFormError,
 }: ApplicationFormProps) {
+  const steps = [
+    { step: 1, label: "Улс", full: "Улс сонгох" },
+    { step: 2, label: "ХУР", full: "Лавлагаа" },
+    { step: 3, label: "Баримт", full: "Материал" },
+    { step: 4, label: "Хяналт", full: "Хяналт" },
+    { step: 5, label: "Төлбөр", full: "Төлбөр" },
+  ];
+
   return (
     <motion.div 
       key="apply"
@@ -71,40 +94,62 @@ export default function ApplicationForm({
       transition={{ duration: 0.15 }}
       className="space-y-6 max-w-3xl"
     >
-      {/* Stepper timeline */}
-      <div className="premium-card p-5 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
-        <div className="flex justify-between items-center max-w-xl mx-auto">
-          {[
-            { step: 1, label: "Улс сонгох" },
-            { step: 2, label: "Лавлагаа (KHUR)" },
-            { step: 3, label: "Материал" },
-            { step: 4, label: "Хяналт" },
-            { step: 5, label: "Төлбөр" }
-          ].map((s) => (
-            <div key={s.step} className="flex flex-col items-center flex-1 relative">
-              <div className={`w-7 h-7 rounded-full border text-[11px] font-bold font-mono flex items-center justify-center transition-all z-10 ${
-                newApp.step === s.step 
-                  ? 'bg-[#0066ff] border-[#0066ff] text-white shadow-md' 
-                  : newApp.step > s.step 
-                    ? 'bg-[#10b981] border-[#10b981] text-white' 
-                    : 'bg-[#0e0f15] border-[#1e2030] text-[#8f95b2]'
-              }`}>
-                {newApp.step > s.step ? <Check className="w-3.5 h-3.5" /> : s.step}
+      <PageHeader
+        title={userRole === "business_admin" ? "Ажилтанд виз мэдүүлэх" : "Виз мэдүүлэх"}
+        description={`Алхам ${newApp.step} / 5 — ${steps.find((s) => s.step === newApp.step)?.full}`}
+      />
+
+      <div className="premium-card p-4 md:p-5 bg-[#0e0f15] border border-[#1e2030] rounded-xl overflow-x-auto">
+        <div className="flex items-center min-w-[min(100%,20rem)] max-w-xl mx-auto gap-0" role="list" aria-label="Мэдүүлгийн алхмууд">
+          {steps.map((s, i) => (
+            <React.Fragment key={s.step}>
+              <div className="flex flex-col items-center flex-1 min-w-[3.5rem]" role="listitem">
+                <div
+                  className={`w-8 h-8 rounded-full border text-[11px] font-bold font-mono flex items-center justify-center transition-all ${
+                    newApp.step === s.step
+                      ? "bg-[#0066ff] border-[#0066ff] text-white shadow-[0_0_12px_rgba(0,102,255,0.35)]"
+                      : newApp.step > s.step
+                        ? "bg-[#10b981] border-[#10b981] text-white"
+                        : "bg-[#0e0f15] border-[#1e2030] text-[#8f95b2]"
+                  }`}
+                  aria-current={newApp.step === s.step ? "step" : undefined}
+                >
+                  {newApp.step > s.step ? <Check className="w-3.5 h-3.5" aria-hidden /> : s.step}
+                </div>
+                <span
+                  className={`text-[9px] sm:text-[10px] mt-1.5 font-bold text-center ${
+                    newApp.step === s.step ? "text-white" : "text-[#8f95b2]"
+                  }`}
+                >
+                  <span className="sm:hidden">{s.label}</span>
+                  <span className="hidden sm:inline">{s.full}</span>
+                </span>
               </div>
-              <span className={`text-[10px] mt-2 font-bold tracking-tight ${newApp.step === s.step ? 'text-white' : 'text-[#8f95b2]'}`}>
-                {s.label}
-              </span>
-              {s.step < 5 && (
-                <div className={`absolute top-3.5 left-[60%] right-[-40%] h-[1px] ${
-                  newApp.step > s.step ? 'bg-[#10b981]' : 'bg-[#1e2030]'
-                }`}></div>
+              {i < steps.length - 1 && (
+                <div
+                  className={`h-px flex-1 min-w-[8px] mb-5 ${
+                    newApp.step > s.step ? "bg-[#10b981]" : "bg-[#1e2030]"
+                  }`}
+                  aria-hidden
+                />
               )}
-            </div>
+            </React.Fragment>
           ))}
         </div>
       </div>
 
-      {/* Form Body */}
+      {formError && (
+        <div className="form-error-banner" role="alert">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
+          <span className="flex-1">{formError}</span>
+          {onClearFormError && (
+            <button type="button" onClick={onClearFormError} className="text-[10px] font-bold underline shrink-0">
+              Хаах
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="premium-card p-6 md:p-8 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
         
         {/* STEP 1: Country select */}
@@ -145,8 +190,12 @@ export default function ApplicationForm({
 
             <div className="flex justify-end pt-4 border-t border-[#1e2030]">
               <button 
-                onClick={() => setNewApp(prev => ({ ...prev, step: 2 }))}
-                className="px-5 py-2.5 rounded-lg bg-[#0066ff] hover:bg-opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow"
+                type="button"
+                onClick={() => {
+                  onClearFormError?.();
+                  setNewApp(prev => ({ ...prev, step: 2 }));
+                }}
+                className="btn-primary"
               >
                 Үргэлжлүүлэх <ChevronRight className="w-4 h-4" />
               </button>
@@ -264,31 +313,118 @@ export default function ApplicationForm({
             <div className="space-y-4 pt-4 border-t border-[#1e2030]">
               <span className="text-xs font-bold text-white block">Төрийн мэдээлэл баталгаажуулалт (KHUR)</span>
               
-              {((userRole === 'business_admin' && newApp.selectedEmployeeId) || (userRole === 'individual' && newApp.applicantType === 'myself')) && (
-                <>
-                  {khurLoading ? (
-                    <div className="p-6 bg-[#0e0f15] rounded-xl border border-[#1e2030] flex flex-col items-center justify-center gap-3 text-center">
-                      <RefreshCw className="w-6 h-6 text-[#0066ff] animate-spin" />
-                      <p className="text-[10px] font-mono text-[#8f95b2]">API Query: 150.129.143.18 / E-Mongolia secure link</p>
-                    </div>
-                  ) : newApp.khurChecked ? (
-                    <div className="p-4 bg-[#10b981]/5 border border-[#10b981]/25 rounded-xl space-y-3">
-                      <p className="text-xs text-white font-bold flex items-center gap-1.5">
-                        <Check className="w-4 h-4 text-[#10b981]" /> Нийгмийн Даатгалын шимтгэл төлөлт баталгаажлаа.
-                      </p>
-                      <div className="grid grid-cols-2 gap-4 text-[10.5px] font-mono text-[#8f95b2] pt-2">
-                        <div>Ажил олгогч: <span className="text-white font-bold">{newApp.khurEmployer}</span></div>
-                        <div>Сүүлийн цалин: <span className="text-white font-bold">{newApp.khurSalary.toLocaleString()} ₮</span></div>
+              {userRole === 'business_admin' && newApp.selectedEmployeeId && (
+                (() => {
+                  const selectedEmp = employees.find(e => e.id === newApp.selectedEmployeeId);
+                  const isEmpVerified = selectedEmp?.danVerified;
+                  
+                  if (!isEmpVerified) {
+                    return (
+                      <div className="p-4 bg-rose-500/5 border border-rose-500/20 rounded-xl space-y-3">
+                        <p className="text-xs text-rose-400 font-bold">
+                          Ажилтан DAN системээр нэвтэрч баталгаажуулаагүй байна.
+                        </p>
+                        <p className="text-[10.5px] text-[#8f95b2] leading-relaxed">
+                          Мэдээллийг татахын тулд ажилтан руу баталгаажуулах хүсэлт илгээнэ үү. Ажилтан гар утсан дээрээ зөвшөөрсний дараа ХУР лавлагаа идэвхжинэ.
+                        </p>
+                        {sendingSmsId === selectedEmp?.id ? (
+                          <div className="flex items-center gap-2 text-[11px] text-[#0066ff] font-semibold py-1">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> SMS хүсэлт илгээж байна...
+                          </div>
+                        ) : smsSentEmployees.includes(selectedEmp?.id || "") ? (
+                          <div className="space-y-2">
+                            <p className="text-[11px] text-[#10b981] font-bold">✓ SMS хүсэлт илгээгдсэн. Ажилтны хариуг хүлээж байна...</p>
+                            <p className="text-[10px] text-[#8f95b2] font-mono italic">Ажилтан баталгаажуулж байгааг загварчлахын тулд 3 секундын дараа автоматаар шинэчлэгдэнэ.</p>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => onSendEmployeeSms(selectedEmp!.id)}
+                            className="px-4 py-2 rounded-lg bg-[#0066ff] hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
+                          >
+                            Баталгаажуулах SMS илгээх
+                          </button>
+                        )}
                       </div>
+                    );
+                  }
+                  
+                  return (
+                    <>
+                      {khurLoading ? (
+                        <div className="p-6 bg-[#0e0f15] rounded-xl border border-[#1e2030] flex flex-col items-center justify-center gap-3 text-center">
+                          <RefreshCw className="w-6 h-6 text-[#0066ff] animate-spin" />
+                          <p className="text-[10px] font-mono text-[#8f95b2]">API Query: 150.129.143.18 / E-Mongolia secure link</p>
+                        </div>
+                      ) : newApp.khurChecked ? (
+                        <div className="p-4 bg-[#10b981]/5 border border-[#10b981]/25 rounded-xl space-y-3">
+                          <p className="text-xs text-white font-bold flex items-center gap-1.5">
+                            <Check className="w-4 h-4 text-[#10b981]" /> Нийгмийн Даатгалын шимтгэл төлөлт баталгаажлаа.
+                          </p>
+                          <div className="grid grid-cols-2 gap-4 text-[10.5px] font-mono text-[#8f95b2] pt-2">
+                            <div>Ажил олгогч: <span className="text-white font-bold">{newApp.khurEmployer}</span></div>
+                            <div>Сүүлийн цалин: <span className="text-white font-bold">{newApp.khurSalary.toLocaleString()} ₮</span></div>
+                          </div>
+                        </div>
+                      ) : (
+                        <button 
+                          type="button"
+                          onClick={onPullKhurData}
+                          className="w-full py-2.5 rounded-lg bg-[#0066ff] hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
+                        >
+                          ХУР системээс ажил олгогч, даатгалын лавлагааг татах
+                        </button>
+                      )}
+                    </>
+                  );
+                })()
+              )}
+
+              {userRole === 'individual' && newApp.applicantType === 'myself' && (
+                <>
+                  {!isUserVerified ? (
+                    <div className="p-4 bg-amber-500/5 border border-amber-500/25 rounded-xl space-y-3">
+                      <p className="text-xs text-amber-500 font-bold">
+                        DAN системээр холбогдоогүй байна.
+                      </p>
+                      <p className="text-[10.5px] text-[#8f95b2] leading-relaxed">
+                        ХУР системээс лавлагаа мэдээллээ татахын тулд эхлээд өөрийн биеэр нэвтэрч баталгаажсан байх шаардлагатай.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={onOpenDanModal}
+                        className="px-4 py-2 rounded-lg bg-[#0066ff] hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
+                      >
+                        DAN системээр нэвтрэх
+                      </button>
                     </div>
                   ) : (
-                    <button 
-                      type="button"
-                      onClick={onPullKhurData}
-                      className="w-full py-2.5 rounded-lg bg-[#0066ff] hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
-                    >
-                      ХУР системээс ажил олгогч, даатгалын лавлагааг татах
-                    </button>
+                    <>
+                      {khurLoading ? (
+                        <div className="p-6 bg-[#0e0f15] rounded-xl border border-[#1e2030] flex flex-col items-center justify-center gap-3 text-center">
+                          <RefreshCw className="w-6 h-6 text-[#0066ff] animate-spin" />
+                          <p className="text-[10px] font-mono text-[#8f95b2]">API Query: 150.129.143.18 / E-Mongolia secure link</p>
+                        </div>
+                      ) : newApp.khurChecked ? (
+                        <div className="p-4 bg-[#10b981]/5 border border-[#10b981]/25 rounded-xl space-y-3">
+                          <p className="text-xs text-white font-bold flex items-center gap-1.5">
+                            <Check className="w-4 h-4 text-[#10b981]" /> Нийгмийн Даатгалын шимтгэл төлөлт баталгаажлаа.
+                          </p>
+                          <div className="grid grid-cols-2 gap-4 text-[10.5px] font-mono text-[#8f95b2] pt-2">
+                            <div>Ажил олгогч: <span className="text-white font-bold">{newApp.khurEmployer}</span></div>
+                            <div>Сүүлийн цалин: <span className="text-white font-bold">{newApp.khurSalary.toLocaleString()} ₮</span></div>
+                          </div>
+                        </div>
+                      ) : (
+                        <button 
+                          type="button"
+                          onClick={onPullKhurData}
+                          className="w-full py-2.5 rounded-lg bg-[#0066ff] hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
+                        >
+                          ХУР системээс ажил олгогч, даатгалын лавлагааг татах
+                        </button>
+                      )}
+                    </>
                   )}
                 </>
               )}
@@ -305,7 +441,10 @@ export default function ApplicationForm({
               <button 
                 type="button"
                 onClick={() => setNewApp(prev => ({ ...prev, step: 3 }))}
-                disabled={((userRole === 'business_admin' && !newApp.selectedEmployeeId) || (userRole === 'individual' && newApp.applicantType === 'myself' && !newApp.khurChecked))}
+                disabled={
+                  (userRole === 'business_admin' && (!newApp.selectedEmployeeId || !newApp.khurChecked)) || 
+                  (userRole === 'individual' && newApp.applicantType === 'myself' && !newApp.khurChecked)
+                }
                 className="px-5 py-2.5 rounded-lg bg-[#0066ff] hover:bg-opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all disabled:opacity-50"
               >
                 Үргэлжлүүлэх <ChevronRight className="w-4 h-4" />
@@ -441,7 +580,7 @@ export default function ApplicationForm({
             {userRole === 'business_admin' ? (
               <div className="p-3 bg-[#0e0f15] rounded-lg border border-[#1e2030] text-[11px] leading-relaxed text-[#8f95b2] flex gap-2">
                 <Info className="w-4 h-4 text-[#0066ff] shrink-0" />
-                <p>Байгууллагын хувиар та энэхүү нэхэмжлэхийг одоо шууд төлөх эсвэл түр хадгалж байгаад бусад ажилчдын мэдүүлэгтэй хамт **Нэгдсэн Төлбөр** хэлбэрээр төлөх боломжтой.</p>
+                <p>Одоо төлөх эсвэл түр хадгалаад бусад ажилтны мэдүүлэгтэй нэгдсэн QPay нэхэмжлэхээр төлөх боломжтой.</p>
               </div>
             ) : (
               <div className="p-3 bg-[#0e0f15] rounded-lg border border-[#1e2030] flex items-center justify-between">

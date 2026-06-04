@@ -1,7 +1,9 @@
 import React from "react";
-import { Info, CreditCard, Check, CheckSquare, Square } from "lucide-react";
+import { Info, CreditCard, Check, CheckSquare, Square, FileText, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { VisaApplication, Employee } from "../types/visa";
+import PageHeader from "./ui/PageHeader";
+import EmptyState from "./ui/EmptyState";
 
 interface DashboardProps {
   userRole: 'individual' | 'business_admin';
@@ -19,6 +21,9 @@ interface DashboardProps {
   onStartEmployeeVisa: (employeeId: string) => void;
   onStartB2CVisa: (countryName: string, countryCode: string, embassyFee: number, serviceFee: number) => void;
   getStatusConfig: (status: VisaApplication['status']) => { text: string; bg: string; bar: string };
+  isUserVerified: boolean;
+  onOpenDanModal: () => void;
+  onGoToApply?: () => void;
 }
 
 export default function Dashboard({
@@ -37,6 +42,9 @@ export default function Dashboard({
   onStartEmployeeVisa,
   onStartB2CVisa,
   getStatusConfig,
+  isUserVerified,
+  onOpenDanModal,
+  onGoToApply,
 }: DashboardProps) {
   
   const b2bApplications = applications.filter(a => a.applicantType === 'employee');
@@ -51,17 +59,26 @@ export default function Dashboard({
       transition={{ duration: 0.15 }}
       className="space-y-6 max-w-5xl"
     >
-      {/* Header Headline */}
-      <div className="space-y-1">
-        <h2 className="text-xl font-bold text-white tracking-tight">
-          {userRole === 'business_admin' ? `Байгууллагын хянах хэсэг: ${companyName}` : `Сайн байна уу, ${userName.split(" ")[1]}?`}
-        </h2>
-        <p className="text-xs text-[#8f95b2]">
-          {userRole === 'business_admin' 
-            ? 'Ажилтны визний мэдүүлгийг хянах, нэгдсэн төлбөр тооцоо болон байгууллагын бүртгэл хөтлөх хэсэг.'
-            : 'Визийн материалаа гэрээсээ бэлдэж, ЭСЯ руу шууд илгээнэ үү.'}
-        </p>
-      </div>
+      <PageHeader
+        title={
+          userRole === "business_admin"
+            ? `Байгууллагын хянах хэсэг`
+            : `Сайн байна уу, ${userName.split(" ").slice(-1)[0] || userName}?`
+        }
+        description={
+          userRole === "business_admin"
+            ? `${companyName} — ажилтны виз, нэгдсэн төлбөр, бүртгэл.`
+            : "Визийн материалаа гэрээсээ бэлдэж, ЭСЯ руу шууд илгээнэ үү."
+        }
+        action={
+          onGoToApply ? (
+            <button type="button" onClick={onGoToApply} className="btn-primary">
+              <Plus className="w-4 h-4" />
+              Шинэ мэдүүлэг
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* B2B Dynamic Banner Info Alert */}
       {userRole === 'business_admin' && (
@@ -70,7 +87,7 @@ export default function Dashboard({
           <div className="space-y-1">
             <p className="font-bold text-white">Байгууллагын нэгдсэн нэхэмжлэх & цалин шалгалт</p>
             <p className="text-[11px] text-[#8f95b2]">
-              Та ажилчдынхаа регистрийг оруулан ХУР системээр нийгмийн даатгалыг нь баталгаажуулж, бэлэн болсон визний төлбөрүүдийг нэгтгэн **QPay нэгдсэн нэхэмжлэхээр** байгууллагын данснаас settle хийх боломжтой.
+              Ажилчдын регистрээр ХУР-аар нийгмийн даатгал баталгаажуулж, бэлэн төлбөрүүдийг QPay нэгдсэн нэхэмжлэхээр төлнө.
             </p>
           </div>
         </div>
@@ -83,14 +100,19 @@ export default function Dashboard({
             <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
               <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Идэвхтэй Ажилчид</p>
               <p className="text-sm font-bold text-white">{employees.length} ажилтан</p>
-              <p className="text-[10px] text-[#10b981] font-mono">3 нь DAN баталгаажуулсан</p>
+              <p className="text-[10px] text-[#10b981] font-mono">
+                {employees.filter((e) => e.danVerified).length} нь DAN баталгаажсан
+              </p>
             </div>
             <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
               <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Нэгдсэн Виз шийдвэрлэлт</p>
               <p className="text-sm font-bold text-white">
                 {b2bApplications.length} мэдүүлэг
               </p>
-              <p className="text-[10px] text-[#8f95b2]">Шалгагдаж буй: 1</p>
+              <p className="text-[10px] text-[#8f95b2]">
+                Төлбөр хүлээгдэж буй:{" "}
+                {b2bApplications.filter((a) => a.status === "payment_pending").length}
+              </p>
             </div>
             <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
               <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Байгууллагын РД</p>
@@ -100,17 +122,34 @@ export default function Dashboard({
           </>
         ) : (
           <>
-            <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
-              <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Биеийн Баталгаажуулалт</p>
-              <p className="text-sm font-bold text-white">DAN Холбогдсон</p>
-              <p className="text-[10px] text-[#10b981] font-mono">Нийгмийн даатгал идэвхтэй</p>
+            <div className="premium-card p-5 space-y-1.5 bg-[#0e0f15] border border-[#1e2030] rounded-xl flex flex-col justify-between">
+              <div>
+                <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Биеийн Баталгаажуулалт</p>
+                <p className="text-sm font-bold text-white">
+                  {isUserVerified ? "DAN Холбогдсон" : "DAN Холбогдоогүй"}
+                </p>
+                <p className={`text-[10px] font-mono ${isUserVerified ? "text-[#10b981]" : "text-amber-500"}`}>
+                  {isUserVerified ? "Нийгмийн даатгал идэвхтэй" : "Лавлагаа татах боломжгүй"}
+                </p>
+              </div>
+              {!isUserVerified && (
+                <button
+                  type="button"
+                  onClick={onOpenDanModal}
+                  className="w-full mt-1.5 btn-primary text-[10px] py-1.5"
+                >
+                  DAN холбох
+                </button>
+              )}
             </div>
             <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
               <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Миний мэдүүлгүүд</p>
               <p className="text-sm font-bold text-white">
                 Нийт {b2cApplications.length} мэдүүлэг
               </p>
-              <p className="text-[10px] text-[#8f95b2]">Гэр бүлийн гишүүн: 1</p>
+              <p className="text-[10px] text-[#8f95b2]">
+                Гэр бүл: {b2cApplications.filter((a) => a.applicantType === "family").length}
+              </p>
             </div>
             <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
               <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Явцын мэдээлэл</p>
@@ -141,6 +180,20 @@ export default function Dashboard({
               )}
             </div>
             
+            {b2bApplications.length === 0 ? (
+              <EmptyState
+                icon={FileText}
+                title="Ажилчдын виз байхгүй"
+                description="Эхлээд ажилтанд виз мэдүүлэг үүсгэж, төлбөр болон явцыг энд хянана."
+                action={
+                  onGoToApply ? (
+                    <button type="button" onClick={onGoToApply} className="btn-primary">
+                      Виз мэдүүлэх
+                    </button>
+                  ) : undefined
+                }
+              />
+            ) : (
             <div className="premium-card overflow-hidden bg-[#0e0f15] border border-[#1e2030] rounded-xl">
               <div className="overflow-x-auto text-[12px]">
                 <table className="w-full text-left border-collapse">
@@ -216,6 +269,7 @@ export default function Dashboard({
                 </table>
               </div>
             </div>
+            )}
           </div>
 
           {/* Company Staff list section */}
@@ -316,6 +370,13 @@ export default function Dashboard({
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#8f95b2] font-mono">Миний виз мэдүүлгийн түүх</h4>
             <div className="space-y-3">
+              {b2cApplications.length === 0 ? (
+                <EmptyState
+                  icon={FileText}
+                  title="Виз мэдүүлэг байхгүй"
+                  description="Доорх улсаас сонгож эхний мэдүүлгээ эхлүүлнэ үү."
+                />
+              ) : null}
               {b2cApplications.map((app) => (
                 <div key={app.id} className="premium-card p-5 space-y-4 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">

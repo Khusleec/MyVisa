@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, QrCode, RefreshCw, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface DanModalProps {
   isOpen: boolean;
@@ -13,6 +14,8 @@ export default function DanModal({ isOpen, onClose, onSuccess }: DanModalProps) 
   const [danOtpSent, setDanOtpSent] = useState<boolean>(false);
   const [danOtpCode, setDanOtpCode] = useState<string>("");
   const [danVerifying, setDanVerifying] = useState<boolean>(false);
+
+  useEscapeKey(isOpen, onClose);
 
   const startDanVerification = () => {
     setDanVerifying(true);
@@ -29,16 +32,26 @@ export default function DanModal({ isOpen, onClose, onSuccess }: DanModalProps) 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm"
+          role="presentation"
+          onClick={onClose}
+        >
           <motion.div 
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.98, opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dan-modal-title"
+            onClick={(e) => e.stopPropagation()}
             className="bg-[#0e0f15] border border-[#1e2030] rounded-xl w-full max-w-sm p-6 overflow-hidden shadow-2xl relative"
           >
             <button 
+              type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 text-[#8f95b2] hover:text-white p-1"
+              className="absolute top-4 right-4 text-[#8f95b2] hover:text-white p-1 rounded-lg"
+              aria-label="Хаах"
             >
               <X className="w-4 h-4" />
             </button>
@@ -47,7 +60,7 @@ export default function DanModal({ isOpen, onClose, onSuccess }: DanModalProps) 
               <span className="inline-block bg-[#0f4c81]/15 text-[#0f4c81] border border-[#0f4c81]/30 text-[9.5px] font-mono px-3 py-1 rounded-full uppercase tracking-wider font-bold">
                 DAN • Таних систем
               </span>
-              <h4 className="text-sm font-bold text-white">Төрийн Цахим Нэвтрэлт</h4>
+              <h4 id="dan-modal-title" className="text-sm font-bold text-white">Төрийн Цахим Нэвтрэлт</h4>
             </div>
 
             <div className="flex gap-2 p-1 bg-[#090a0f] rounded-lg border border-[#1e2030] my-4">
@@ -75,7 +88,7 @@ export default function DanModal({ isOpen, onClose, onSuccess }: DanModalProps) 
                     </div>
                   </div>
                   <p className="text-[11px] text-[#8f95b2]">
-                    Та гар утасны **E-Mongolia** апп-аар дээрх QR кодыг уншуулж нэвтрэлтийг баталгаажуулна уу.
+                    E-Mongolia апп-аар QR кодыг уншуулж нэвтрэлтийг баталгаажуулна уу.
                   </p>
                 </div>
               ) : (

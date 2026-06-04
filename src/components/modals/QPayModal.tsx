@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, QrCode, Clock, RefreshCw, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
 interface QPayModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface QPayModalProps {
 
 export default function QPayModal({ isOpen, onClose, invoiceId, amount, countdown, onPaymentSuccess }: QPayModalProps) {
   const [qpayPolling, setQpayPolling] = useState<boolean>(false);
+  useEscapeKey(isOpen, onClose);
 
   const formatTime = (secs: number) => {
     const mins = Math.floor(secs / 60);
@@ -32,23 +34,33 @@ export default function QPayModal({ isOpen, onClose, invoiceId, amount, countdow
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm"
+          role="presentation"
+          onClick={onClose}
+        >
           <motion.div 
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.98, opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="qpay-modal-title"
+            onClick={(e) => e.stopPropagation()}
             className="bg-[#0e0f15] border border-[#1e2030] rounded-xl w-full max-w-sm p-6 overflow-hidden shadow-2xl relative"
           >
             <button 
+              type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 text-[#8f95b2] hover:text-white p-1"
+              className="absolute top-4 right-4 text-[#8f95b2] hover:text-white p-1 rounded-lg"
+              aria-label="Хаах"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="text-center pb-4 border-b border-[#1e2030] space-y-1">
               <span className="text-[10px] font-bold text-red-500 font-mono tracking-widest uppercase">qpay • төлбөр</span>
-              <h4 className="text-sm font-bold text-white">
+              <h4 id="qpay-modal-title" className="text-sm font-bold text-white">
                 {invoiceId === 'bulk_invoice' ? 'Байгууллагын нэгдсэн нэхэмжлэх' : 'Төлбөрийн нэхэмжлэх'}
               </h4>
             </div>

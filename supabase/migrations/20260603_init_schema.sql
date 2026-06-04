@@ -61,6 +61,38 @@ ALTER TABLE public.visa_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
 
 --------------------------------------------------------------------------------
+-- HELPER FUNCTIONS FOR RLS POLICIES (To avoid infinite recursion)
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.get_my_role()
+RETURNS public.user_role
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  my_role public.user_role;
+BEGIN
+  SELECT role INTO my_role FROM public.profiles WHERE id = auth.uid();
+  RETURN my_role;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_my_company_id()
+RETURNS UUID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  my_company_id UUID;
+BEGIN
+  SELECT company_id INTO my_company_id FROM public.profiles WHERE id = auth.uid();
+  RETURN my_company_id;
+END;
+$$;
+
+--------------------------------------------------------------------------------
 -- ROW LEVEL SECURITY (RLS) POLICIES
 --------------------------------------------------------------------------------
 
@@ -72,12 +104,8 @@ CREATE POLICY "Users can view their own profile"
 CREATE POLICY "Business admins can view company employee profiles"
     ON public.profiles FOR SELECT
     USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles admin_p
-            WHERE admin_p.id = auth.uid() 
-            AND admin_p.role = 'business_admin' 
-            AND admin_p.company_id = public.profiles.company_id
-        )
+        public.get_my_role() = 'business_admin'::public.user_role 
+        AND public.get_my_company_id() = company_id
     );
 
 CREATE POLICY "Users can update their own profile"
@@ -88,22 +116,18 @@ CREATE POLICY "Users can update their own profile"
 CREATE POLICY "Users can view their linked company"
     ON public.companies FOR SELECT
     USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles p
-            WHERE p.id = auth.uid() 
-            AND p.company_id = public.companies.id
-        )
+        id = public.get_my_company_id()
     );
+
+CREATE POLICY "Anyone can insert a company"
+    ON public.companies FOR INSERT
+    WITH CHECK (true);
 
 CREATE POLICY "Admins can update company details"
     ON public.companies FOR UPDATE
     USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles p
-            WHERE p.id = auth.uid() 
-            AND p.role = 'business_admin'
-            AND p.company_id = public.companies.id
-        )
+        public.get_my_role() = 'business_admin'::public.user_role
+        AND id = public.get_my_company_id()
     );
 
 -- Visa Applications Policies
@@ -114,12 +138,8 @@ CREATE POLICY "Individuals can view their own applications"
 CREATE POLICY "Business admins can view company applications"
     ON public.visa_applications FOR SELECT
     USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles admin_p
-            WHERE admin_p.id = auth.uid()
-            AND admin_p.role = 'business_admin'
-            AND admin_p.company_id = public.visa_applications.company_id
-        )
+        public.get_my_role() = 'business_admin'::public.user_role
+        AND company_id = public.get_my_company_id()
     );
 
 CREATE POLICY "Individuals can insert their own applications"
@@ -129,12 +149,8 @@ CREATE POLICY "Individuals can insert their own applications"
 CREATE POLICY "Business admins can insert applications for their company"
     ON public.visa_applications FOR INSERT
     WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM public.profiles admin_p
-            WHERE admin_p.id = auth.uid()
-            AND admin_p.role = 'business_admin'
-            AND admin_p.company_id = company_id
-        )
+        public.get_my_role() = 'business_admin'::public.user_role
+        AND company_id = public.get_my_company_id()
     );
 
 CREATE POLICY "Users can edit their own applications (draft stage)"
@@ -142,18 +158,21 @@ CREATE POLICY "Users can edit their own applications (draft stage)"
     USING (
         (auth.uid() = user_id OR auth.uid() = created_by) 
         AND status = 'draft'::application_status
+    )
+    WITH CHECK (
+        auth.uid() = user_id OR auth.uid() = created_by
     );
 
 CREATE POLICY "Business admins can edit company applications (draft stage)"
     ON public.visa_applications FOR UPDATE
     USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles admin_p
-            WHERE admin_p.id = auth.uid()
-            AND admin_p.role = 'business_admin'
-            AND admin_p.company_id = public.visa_applications.company_id
-        )
+        public.get_my_role() = 'business_admin'::public.user_role
+        AND company_id = public.get_my_company_id()
         AND status = 'draft'::application_status
+    )
+    WITH CHECK (
+        public.get_my_role() = 'business_admin'::public.user_role
+        AND company_id = public.get_my_company_id()
     );
 
 -- Payments Policies
@@ -170,10 +189,35 @@ CREATE POLICY "Users can view their own payments"
 CREATE POLICY "Business admins can view their company payments"
     ON public.payments FOR SELECT
     USING (
-        EXISTS (
-            SELECT 1 FROM public.profiles admin_p
-            WHERE admin_p.id = auth.uid()
-            AND admin_p.role = 'business_admin'
-            AND admin_p.company_id = public.payments.company_id
-        )
+        public.get_my_role() = 'business_admin'::public.user_role
+        AND company_id = public.get_my_company_id()
     );
+
+--------------------------------------------------------------------------------
+-- TRIGGERS FOR PROFILE AUTO-CREATION ON SIGN UP
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, name, register_no, phone, role, company_id, is_verified)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'name', 'Шинэ Хэрэглэгч'),
+    NEW.raw_user_meta_data->>'register_no',
+    NEW.raw_user_meta_data->>'phone',
+    COALESCE((NEW.raw_user_meta_data->>'role')::public.user_role, 'individual'::public.user_role),
+    (NEW.raw_user_meta_data->>'company_id')::uuid,
+    COALESCE((NEW.raw_user_meta_data->>'is_verified')::boolean, false)
+  );
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

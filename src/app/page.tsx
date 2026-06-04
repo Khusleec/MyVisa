@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { VisaApplication, Employee } from "../types/visa";
 import Sidebar from "../components/Sidebar";
 import Dashboard from "../components/Dashboard";
@@ -8,11 +8,34 @@ import ApplicationForm from "../components/ApplicationForm";
 import ApplicationsList from "../components/ApplicationsList";
 import DanModal from "../components/modals/DanModal";
 import QPayModal from "../components/modals/QPayModal";
+import Auth from "../components/Auth";
+import Settings from "../components/Settings";
+import Chat from "../components/Chat";
+import LoadingScreen from "../components/ui/LoadingScreen";
+import { useToast } from "../components/ui/Toast";
+import { supabase } from "../lib/supabase";
+import { Session } from "@supabase/supabase-js";
 import { AnimatePresence } from "framer-motion";
+import type { AppTab } from "../components/Sidebar";
+
+const TAB_TITLES: Record<AppTab, string> = {
+  dashboard: "Нүүр",
+  apply: "Мэдүүлэх",
+  applications: "Визүүд",
+  chat: "Зурвас холбоо",
+  settings: "Тохиргоо",
+};
 
 export default function Home() {
-  const [userRole, setUserRole] = useState<'individual' | 'business_admin'>('individual');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'apply' | 'applications' | 'settings'>('dashboard');
+  const { toast } = useToast();
+
+  const [session, setSession] = useState<Session | null>(null);
+  const [loadingSession, setLoadingSession] = useState<boolean>(true);
+  const [profile, setProfile] = useState<{ id: string; role: 'individual' | 'business_admin' | 'business_employee' | 'visa_issuer'; company_id: string | null; name: string } | null>(null);
+
+  const [userRole, setUserRole] = useState<'individual' | 'business_admin' | 'visa_issuer'>('individual');
+  const [activeTab, setActiveTab] = useState<AppTab>('dashboard');
+  const [formError, setFormError] = useState<string | null>(null);
   const [isDanModalOpen, setIsDanModalOpen] = useState<boolean>(false);
   const [smsNotifications, setSmsNotifications] = useState<boolean>(true);
   
@@ -21,92 +44,38 @@ export default function Home() {
     name: "Бат-Эрдэнэ Болд",
     registerNo: "УУ94021512",
     phone: "+976 9911-2233",
-    isVerified: true
+    isVerified: false
   });
 
   // Business Profile
-  const company = {
+  const [company, setCompany] = useState({
     name: "Юнител Групп ХХК",
     registrationNo: "5091234",
     industry: "Мэдээлэл Технологи",
-    employeesCount: 4
-  };
+    employeesCount: 0
+  });
 
   // Company Employees
-  const employees: Employee[] = [
+  const [employees, setEmployees] = useState<Employee[]>([
     { id: "EMP-101", name: "Т.Ананд", registerNo: "УУ98041211", position: "Ахлах Инженер", danVerified: true, activeVisaId: "VISA-2026-0892" },
     { id: "EMP-102", name: "Г.Марал", registerNo: "УУ99052042", position: "Дата Аналист", danVerified: true },
     { id: "EMP-103", name: "С.Билгүүн", registerNo: "УУ95110312", position: "Төслийн Менежер", danVerified: false },
     { id: "EMP-104", name: "О.Золбоо", registerNo: "УУ96081531", position: "Мэдээллийн ажилтан", danVerified: true }
-  ];
-
-  // Visa applications mock database (incorporates both B2C and B2B contexts)
-  const [applications, setApplications] = useState<VisaApplication[]>([
-    {
-      id: "VISA-2026-0892",
-      applicantType: "employee",
-      applicantName: "Т.Ананд",
-      companyName: "Юнител Групп ХХК",
-      country: "Бүгд Найрамдах Солонгос Улс",
-      countryCode: "KR",
-      visaType: "Аялал жуулчлалын виз (C-3-9)",
-      status: "payment_pending",
-      userRegister: "УУ98041211",
-      khurSalary: 3800000,
-      khurEmployer: "Юнител Групп ХХК",
-      khurInsuranceMonths: 36,
-      embassyFee: 110000,
-      serviceFee: 40000,
-      createdAt: "2026-06-02",
-      paymentStatus: "unpaid"
-    },
-    {
-      id: "VISA-2026-0891",
-      applicantType: "myself",
-      applicantName: "Бат-Эрдэнэ Болд",
-      country: "Бүгд Найрамдах Солонгос Улс",
-      countryCode: "KR",
-      visaType: "Аялал жуулчлалын виз (C-3-9)",
-      status: "payment_pending",
-      userRegister: "УУ94021512",
-      khurSalary: 2850000,
-      khurEmployer: "Юнител Групп ХХК",
-      khurInsuranceMonths: 24,
-      embassyFee: 110000,
-      serviceFee: 40000,
-      createdAt: "2026-06-01",
-      paymentStatus: "unpaid"
-    },
-    {
-      id: "VISA-2025-5421",
-      applicantType: "family",
-      applicantName: "Нэргүй Амин-Эрдэнэ",
-      applicantRelation: "Охин",
-      country: "Япон Улс",
-      countryCode: "JP",
-      visaType: "Богино хугацааны жуулчны виз",
-      status: "approved",
-      userRegister: "УУ18230492",
-      khurSalary: 0,
-      khurEmployer: "Сурагч",
-      khurInsuranceMonths: 0,
-      embassyFee: 50000,
-      serviceFee: 30000,
-      createdAt: "2025-11-15",
-      paymentStatus: "paid"
-    }
   ]);
+
+  // Visa applications database
+  const [applications, setApplications] = useState<VisaApplication[]>([]);
 
   // Form State for new application
   const [newApp, setNewApp] = useState({
     applicantType: "myself" as 'myself' | 'family' | 'employee',
     applicantRelation: "Эхнэр/Нөхөр",
-    applicantName: "Бат-Эрдэнэ Болд",
+    applicantName: "",
     selectedEmployeeId: "",
     country: "Бүгд Найрамдах Солонгос Улс",
     countryCode: "KR",
     visaType: "Аялал жуулчлалын виз (C-3-9)",
-    registerNo: "УУ94021512",
+    registerNo: "",
     step: 1, 
     khurSalary: 0,
     khurEmployer: "",
@@ -130,6 +99,153 @@ export default function Home() {
   const [activePaymentId, setActivePaymentId] = useState<string | null>(null);
   const [qpayAmount, setQpayAmount] = useState<number>(0);
   const [qpayCountdown, setQpayCountdown] = useState<number>(300);
+
+  // SMS Simulation states
+  const [sendingSmsId, setSendingSmsId] = useState<string | null>(null);
+  const [smsSentEmployees, setSmsSentEmployees] = useState<string[]>([]);
+
+  const loadUserData = async (userId: string) => {
+    setLoadingSession(true);
+    try {
+      // 1. Fetch Profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (profileError || !profileData) {
+        console.error("Error loading profile:", profileError);
+        setLoadingSession(false);
+        return;
+      }
+
+      setProfile(profileData);
+      setUserRole(profileData.role);
+      if (profileData.role === 'visa_issuer') {
+        setActiveTab('chat');
+      }
+      setUser({
+        name: profileData.name,
+        registerNo: profileData.register_no || "",
+        phone: profileData.phone || "",
+        isVerified: profileData.is_verified
+      });
+
+      // Update newApp state defaults
+      setNewApp(prev => ({
+        ...prev,
+        applicantName: profileData.name,
+        registerNo: profileData.register_no || "",
+        applicantType: profileData.role === 'business_admin' ? 'employee' : 'myself'
+      }));
+
+      // 2. Fetch Company if B2B
+      if (profileData.role === 'business_admin' && profileData.company_id) {
+        const { data: compData, error: compError } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('id', profileData.company_id)
+          .single();
+
+        if (!compError && compData) {
+          setCompany({
+            name: compData.name,
+            registrationNo: compData.registration_no,
+            industry: "Мэдээлэл Технологи",
+            employeesCount: employees.length
+          });
+        }
+      }
+
+      // 3. Load applications from DB
+      await loadApplications(profileData);
+
+    } catch (err) {
+      console.error("Unexpected error loading user data:", err);
+    } finally {
+      setLoadingSession(false);
+    }
+  };
+
+  const loadApplications = async (userProfile: { id: string; role: string; company_id: string | null }) => {
+    try {
+      let query = supabase.from('visa_applications').select('*');
+      
+      if (userProfile.role === 'business_admin') {
+        if (userProfile.company_id) {
+          query = query.eq('company_id', userProfile.company_id);
+        } else {
+          query = query.eq('created_by', userProfile.id);
+        }
+      } else {
+        query = query.or(`user_id.eq.${userProfile.id},created_by.eq.${userProfile.id}`);
+      }
+
+      const { data: appsData, error } = await query.order('created_at', { ascending: false });
+
+      if (!error && appsData) {
+        const formattedApps: VisaApplication[] = appsData.map(app => {
+          const eFee = app.country_code === 'KR' ? 110000 : app.country_code === 'JP' ? 50000 : 290000;
+          const sFee = app.country_code === 'KR' ? 40000 : app.country_code === 'JP' ? 30000 : 50000;
+          return {
+            id: app.id,
+            applicantType: app.applicant_relation === 'Self' ? 'myself' : app.applicant_relation === 'Employee' ? 'employee' : 'family',
+            applicantName: app.applicant_name,
+            applicantRelation: app.applicant_relation !== 'Self' && app.applicant_relation !== 'Employee' ? app.applicant_relation : undefined,
+            companyName: app.company_id ? company.name : undefined,
+            country: app.country,
+            countryCode: app.country_code,
+            visaType: app.country_code === 'KR' ? "Аялал жуулчлалын виз (C-3-9)" : app.country_code === 'JP' ? "Богино хугацааны жуулчны виз" : "Шенгений жуулчны виз (Төрөл C)",
+            status: app.status,
+            userRegister: app.applicant_relation === 'Employee' ? (employees.find(e => e.name === app.applicant_name)?.registerNo || "") : user.registerNo,
+            khurSalary: app.khur_salary || undefined,
+            khurEmployer: app.khur_employer || undefined,
+            khurInsuranceMonths: app.khur_insurance_months || undefined,
+            passportUrl: app.passport_url || undefined,
+            embassyFee: eFee,
+            serviceFee: sFee,
+            createdAt: app.created_at ? new Date(app.created_at).toISOString().split('T')[0] : "",
+            paymentStatus: app.status === 'draft' || app.status === 'payment_pending' ? 'unpaid' : 'paid'
+          };
+        });
+        setApplications(formattedApps);
+      }
+    } catch (e) {
+      console.error("Error loading applications:", e);
+    }
+  };
+
+  // Fetch Session on Mount
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        loadUserData(session.user.id);
+      } else {
+        setLoadingSession(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) {
+        loadUserData(session.user.id);
+      } else {
+        setProfile(null);
+        setLoadingSession(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+    setProfile(null);
+  };
 
   React.useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -256,13 +372,18 @@ export default function Home() {
 
   const handleNextToPricing = () => {
     if (!newApp.passportFile || !newApp.photoFile) {
-      alert("Гадаад паспорт болон цээж зургийг заавал оруулна уу.");
+      const msg = "Гадаад паспорт болон цээж зургийг заавал оруулна уу.";
+      setFormError(msg);
+      toast(msg, "error");
       return;
     }
     if (newApp.countryCode === 'KR' && !newApp.bankStatementFile) {
-      alert("Солонгос улсын визэнд дансны хуулга шаардлагатай.");
+      const msg = "Солонгос улсын визэнд дансны хуулга шаардлагатай.";
+      setFormError(msg);
+      toast(msg, "error");
       return;
     }
+    setFormError(null);
     setNewApp(prev => ({ ...prev, step: 4 }));
   };
 
@@ -297,48 +418,91 @@ export default function Home() {
     );
   };
 
-  const simulatePaymentSuccess = () => {
-    if (activePaymentId === 'bulk_invoice') {
-      // Bulk payments paid
-      setApplications(prev => prev.map(app => {
-        if (bulkSelectIds.includes(app.id)) {
-          return { ...app, status: 'submitted', paymentStatus: 'paid' };
+  const simulatePaymentSuccess = async () => {
+    if (!profile) return;
+
+    try {
+      if (activePaymentId === 'bulk_invoice') {
+        const unpaidApps = applications.filter(app => bulkSelectIds.includes(app.id));
+        
+        for (const app of unpaidApps) {
+          // Update database
+          await supabase
+            .from('visa_applications')
+            .update({ status: 'submitted' })
+            .eq('id', app.id);
+          
+          await supabase
+            .from('payments')
+            .insert({
+              application_id: app.id,
+              company_id: profile.company_id || null,
+              amount: app.embassyFee + app.serviceFee,
+              qpay_invoice: `QPAY-INV-${Math.floor(100000 + Math.random() * 900000)}`,
+              status: 'paid'
+            });
         }
-        return app;
-      }));
-      setBulkSelectIds([]);
-    } else if (activePaymentId && activePaymentId !== 'new_app_invoice') {
-      // Single existing application paid
-      setApplications(prev => prev.map(app => {
-        if (app.id === activePaymentId) {
-          return { ...app, status: 'submitted', paymentStatus: 'paid' };
+        
+        setBulkSelectIds([]);
+      } else if (activePaymentId && activePaymentId !== 'new_app_invoice') {
+        // Single existing application payment
+        const app = applications.find(a => a.id === activePaymentId);
+        if (app) {
+          await supabase
+            .from('visa_applications')
+            .update({ status: 'submitted' })
+            .eq('id', activePaymentId);
+
+          await supabase
+            .from('payments')
+            .insert({
+              application_id: activePaymentId,
+              company_id: profile.company_id || null,
+              amount: app.embassyFee + app.serviceFee,
+              qpay_invoice: `QPAY-INV-${Math.floor(100000 + Math.random() * 900000)}`,
+              status: 'paid'
+            });
         }
-        return app;
-      }));
-    } else {
-      // Newly filled application paid
-      const completedApp: VisaApplication = {
-        id: `VISA-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-        applicantType: newApp.applicantType,
-        applicantName: newApp.applicantName || user.name,
-        applicantRelation: newApp.applicantType === 'family' ? newApp.applicantRelation : undefined,
-        companyName: newApp.applicantType === 'employee' ? company.name : undefined,
-        country: newApp.country,
-        countryCode: newApp.countryCode,
-        visaType: newApp.visaType,
-        status: 'submitted',
-        userRegister: newApp.registerNo,
-        khurSalary: newApp.khurSalary || undefined,
-        khurEmployer: newApp.khurEmployer || undefined,
-        khurInsuranceMonths: newApp.khurInsuranceMonths || undefined,
-        passportUrl: newApp.passportFile || undefined,
-        embassyFee: newApp.embassyFee,
-        serviceFee: newApp.serviceFee,
-        createdAt: new Date().toISOString().split('T')[0],
-        paymentStatus: 'paid'
-      };
-      setApplications(prev => [completedApp, ...prev]);
+      } else {
+        // Newly filled application payment
+        const applicantRel = newApp.applicantType === 'myself' ? 'Self' : newApp.applicantType === 'employee' ? 'Employee' : newApp.applicantRelation;
+
+        const { data: newDbApp, error: appError } = await supabase
+          .from('visa_applications')
+          .insert({
+            user_id: newApp.applicantType === 'myself' ? profile.id : null,
+            created_by: profile.id,
+            company_id: newApp.applicantType === 'employee' ? profile.company_id : null,
+            applicant_name: newApp.applicantName,
+            applicant_relation: applicantRel,
+            country: newApp.country,
+            country_code: newApp.countryCode,
+            status: 'submitted',
+            khur_salary: newApp.khurSalary || null,
+            khur_employer: newApp.khurEmployer || null,
+            khur_insurance_months: newApp.khurInsuranceMonths || null,
+          })
+          .select('*')
+          .single();
+
+        if (appError) throw appError;
+
+        await supabase
+          .from('payments')
+          .insert({
+            application_id: newDbApp.id,
+            company_id: newApp.applicantType === 'employee' ? profile.company_id : null,
+            amount: newApp.embassyFee + newApp.serviceFee,
+            qpay_invoice: newApp.qpayInvoice || `QPAY-INV-${Math.floor(100000 + Math.random() * 900000)}`,
+            status: 'paid'
+          });
+      }
+
+      await loadApplications(profile);
       setActiveTab('applications');
+      toast("Төлбөр амжилттай баталгаажлаа", "success");
+      
+      // Reset App State
       setNewApp({
         applicantType: userRole === 'business_admin' ? 'employee' : 'myself',
         applicantRelation: "Эхнэр/Нөхөр",
@@ -361,8 +525,32 @@ export default function Home() {
         qpayInvoice: "",
         paymentStatus: "unpaid"
       });
+
+    } catch (e: unknown) {
+      const error = e as Error;
+      toast(`Төлбөр баталгаажуулахад алдаа: ${error.message}`, "error");
+    } finally {
+      setActivePaymentId(null);
+      setIsQPayModalOpen(false);
     }
-    setActivePaymentId(null);
+  };
+
+  const handleDanSuccess = async () => {
+    if (!profile) return;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_verified: true })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+      
+      setUser(prev => ({ ...prev, isVerified: true }));
+      toast("DAN баталгаажуулалт амжилттай", "success");
+    } catch (e: unknown) {
+      console.error("Error saving DAN verification:", e);
+      toast("DAN хадгалахад алдаа гарлаа", "error");
+    }
   };
 
   const handleRoleToggle = (role: 'individual' | 'business_admin') => {
@@ -390,38 +578,78 @@ export default function Home() {
     setActiveTab('apply');
   };
 
-  const handleSaveAsDraft = () => {
-    const draftApp: VisaApplication = {
-      id: `VISA-2026-${Math.floor(1000 + Math.random() * 9000)}`,
-      applicantType: 'employee',
-      applicantName: newApp.applicantName,
-      companyName: company.name,
-      country: newApp.country,
-      countryCode: newApp.countryCode,
-      visaType: newApp.visaType,
-      status: 'payment_pending',
-      userRegister: newApp.registerNo,
-      khurSalary: newApp.khurSalary || undefined,
-      khurEmployer: newApp.khurEmployer || undefined,
-      khurInsuranceMonths: newApp.khurInsuranceMonths || undefined,
-      passportUrl: newApp.passportFile || undefined,
-      embassyFee: newApp.embassyFee,
-      serviceFee: newApp.serviceFee,
-      createdAt: new Date().toISOString().split('T')[0],
-      paymentStatus: 'unpaid'
-    };
-    setApplications(prev => [draftApp, ...prev]);
-    setActiveTab('dashboard');
+  const handleSaveAsDraft = async () => {
+    if (!profile) return;
+    
+    try {
+      const applicantRel = newApp.applicantType === 'myself' ? 'Self' : newApp.applicantType === 'employee' ? 'Employee' : newApp.applicantRelation;
+
+      const { error } = await supabase
+        .from('visa_applications')
+        .insert({
+          user_id: newApp.applicantType === 'myself' ? profile.id : null,
+          created_by: profile.id,
+          company_id: newApp.applicantType === 'employee' ? profile.company_id : null,
+          applicant_name: newApp.applicantName,
+          applicant_relation: applicantRel,
+          country: newApp.country,
+          country_code: newApp.countryCode,
+          status: 'draft',
+          khur_salary: newApp.khurSalary || null,
+          khur_employer: newApp.khurEmployer || null,
+          khur_insurance_months: newApp.khurInsuranceMonths || null,
+        })
+        .select('*')
+        .single();
+
+      if (error) throw error;
+
+      await loadApplications(profile);
+      setActiveTab('dashboard');
+      toast("Ноорог амжилттай хадгалагдлаа", "success");
+    } catch (e: unknown) {
+      const error = e as Error;
+      toast(`Ноорог хадгалахад алдаа: ${error.message}`, "error");
+    }
   };
+
+  const handleSendEmployeeSms = (empId: string) => {
+    setSendingSmsId(empId);
+    setTimeout(() => {
+      setSendingSmsId(null);
+      setSmsSentEmployees(prev => [...prev, empId]);
+      
+      // Auto-verify after 3 seconds to simulate employee clicking the link on their phone
+      setTimeout(() => {
+        setEmployees(prev => prev.map(e => e.id === empId ? { ...e, danVerified: true } : e));
+      }, 3000);
+    }, 1200);
+  };
+
+  // Profile Loader View
+  if (loadingSession) {
+    return <LoadingScreen />;
+  }
+
+  // Not Logged In View
+  if (!session) {
+    return <Auth onAuthSuccess={() => {}} />;
+  }
 
   const applicationsCount = userRole === 'business_admin' 
     ? applications.filter(a => a.applicantType === 'employee').length 
     : applications.filter(a => a.applicantType !== 'employee').length;
 
+  const goToApply = () => {
+    setFormError(null);
+    setActiveTab("apply");
+  };
+
+  const showRoleSwitcher = profile?.role === "business_admin";
+
   return (
-    <div className="min-h-screen bg-[#090a0f] text-[#f4f5f6] flex flex-col md:flex-row antialiased font-sans pb-16 md:pb-0">
+    <div className="min-h-screen bg-[#090a0f] text-[#f4f5f6] flex flex-col md:flex-row antialiased font-sans mobile-nav-safe">
       
-      {/* Sidebar Navigation */}
       <Sidebar 
         userRole={userRole}
         onRoleChange={handleRoleToggle}
@@ -432,16 +660,34 @@ export default function Home() {
         userRegister={user.registerNo}
         companyName={company.name}
         companyRegistration={company.registrationNo}
+        onSignOut={handleSignOut}
+        showRoleSwitcher={showRoleSwitcher}
       />
 
-      {/* Main Viewport */}
-      <main className="flex-1 flex flex-col min-h-0 bg-[#090a0f] p-4 md:p-8 overflow-y-auto">
+      <main className="flex-1 flex flex-col min-h-0 bg-[#090a0f] overflow-y-auto">
+        <header className="md:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b border-[#1e2030] bg-[#090a0f]/90 backdrop-blur-md">
+          <div>
+            <p className="text-[10px] font-mono text-[#8f95b2] uppercase tracking-wider">MyVisa.mn</p>
+            <h2 className="text-sm font-bold text-white">{TAB_TITLES[activeTab]}</h2>
+          </div>
+          {!user.isVerified && userRole === "individual" && activeTab !== "settings" && (
+            <button
+              type="button"
+              onClick={() => setIsDanModalOpen(true)}
+              className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/25"
+            >
+              DAN
+            </button>
+          )}
+        </header>
+
+        <div className="flex-1 p-4 md:p-8">
         <AnimatePresence mode="wait">
           
           {/* TAB 1: Dashboard */}
           {activeTab === 'dashboard' && (
             <Dashboard 
-              userRole={userRole}
+              userRole={userRole as 'individual' | 'business_admin'}
               userName={user.name}
               companyName={company.name}
               companyRegistration={company.registrationNo}
@@ -456,13 +702,15 @@ export default function Home() {
               onStartEmployeeVisa={handleStartEmployeeVisa}
               onStartB2CVisa={handleStartB2CVisa}
               getStatusConfig={getStatusConfig}
+              isUserVerified={user.isVerified}
+              onOpenDanModal={() => setIsDanModalOpen(true)}
+              onGoToApply={goToApply}
             />
           )}
 
-          {/* TAB 2: Visa Application Form */}
           {activeTab === 'apply' && (
             <ApplicationForm 
-              userRole={userRole}
+              userRole={userRole as 'individual' | 'business_admin'}
               employees={employees}
               newApp={newApp}
               setNewApp={setNewApp}
@@ -477,27 +725,56 @@ export default function Home() {
               khurLoading={khurLoading}
               smsNotifications={smsNotifications}
               setSmsNotifications={setSmsNotifications}
+              isUserVerified={user.isVerified}
+              onOpenDanModal={() => setIsDanModalOpen(true)}
+              sendingSmsId={sendingSmsId}
+              smsSentEmployees={smsSentEmployees}
+              onSendEmployeeSms={handleSendEmployeeSms}
+              formError={formError}
+              onClearFormError={() => setFormError(null)}
             />
           )}
 
-          {/* TAB 3: Applications Tracker */}
           {activeTab === 'applications' && (
             <ApplicationsList 
-              userRole={userRole}
+              userRole={userRole as 'individual' | 'business_admin'}
               applications={applications}
               openQPayInvoice={openQPayInvoice}
               getStatusConfig={getStatusConfig}
+              onGoToApply={goToApply}
             />
           )}
 
+          {activeTab === "settings" && (
+            <Settings
+              userRole={userRole}
+              userName={user.name}
+              userRegister={user.registerNo}
+              userPhone={user.phone}
+              userEmail={session.user.email}
+              isUserVerified={user.isVerified}
+              companyName={company.name}
+              companyRegistration={company.registrationNo}
+              smsNotifications={smsNotifications}
+              onSmsToggle={setSmsNotifications}
+              onOpenDanModal={() => setIsDanModalOpen(true)}
+              onSignOut={handleSignOut}
+            />
+          )}
+
+          {activeTab === "chat" && profile && (
+            <Chat currentProfile={profile} />
+          )}
+
         </AnimatePresence>
+        </div>
       </main>
 
       {/* DAN SYSTEM MODAL SIMULATOR */}
       <DanModal 
         isOpen={isDanModalOpen}
         onClose={() => setIsDanModalOpen(false)}
-        onSuccess={() => setUser(prev => ({ ...prev, isVerified: true }))}
+        onSuccess={handleDanSuccess}
       />
 
       {/* QPAY SIMULATION INVOICE MODAL */}
