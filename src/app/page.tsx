@@ -38,6 +38,26 @@ export default function Home() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isDanModalOpen, setIsDanModalOpen] = useState<boolean>(false);
   const [smsNotifications, setSmsNotifications] = useState<boolean>(true);
+
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
+    if (savedTheme) {
+      const timer = setTimeout(() => {
+        setTheme(savedTheme);
+      }, 0);
+      document.documentElement.className = savedTheme === 'light' ? 'light-theme' : '';
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.className = newTheme === 'light' ? 'light-theme' : '';
+  };
   
   // Consumer profile
   const [user, setUser] = useState({
@@ -662,6 +682,8 @@ export default function Home() {
         companyRegistration={company.registrationNo}
         onSignOut={handleSignOut}
         showRoleSwitcher={showRoleSwitcher}
+        theme={theme}
+        onThemeToggle={toggleTheme}
       />
 
       <main className="flex-1 flex flex-col min-h-0 bg-[#090a0f] overflow-y-auto">

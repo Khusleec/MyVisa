@@ -10,6 +10,8 @@ import {
   Settings,
   LogOut,
   MessageSquare,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 export type AppTab = "dashboard" | "apply" | "applications" | "settings" | "chat";
@@ -27,6 +29,8 @@ interface SidebarProps {
   onSignOut?: () => void;
   /** Hide demo role switcher when user only has one role from DB */
   showRoleSwitcher?: boolean;
+  theme?: "light" | "dark";
+  onThemeToggle?: () => void;
 }
 
 const navBtnClass = (active: boolean) =>
@@ -48,6 +52,8 @@ export default function Sidebar({
   companyRegistration,
   onSignOut,
   showRoleSwitcher = true,
+  theme = "dark",
+  onThemeToggle,
 }: SidebarProps) {
   const allNavItems: { id: AppTab; icon: React.ElementType; label: string; mobileLabel: string }[] = [
     {
@@ -192,6 +198,25 @@ export default function Sidebar({
                 </p>
               </div>
             </div>
+            {onThemeToggle && (
+              <button
+                type="button"
+                onClick={onThemeToggle}
+                className="w-full py-1.5 rounded-lg bg-[#1a1c29]/60 hover:bg-[#1f2133]/80 text-[#8f95b2] hover:text-white text-[10px] font-bold transition-all border border-[#1e2030] flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                {theme === 'light' ? (
+                  <>
+                    <Moon className="w-3 h-3 text-[#3b82f6]" />
+                    <span>Харанхуй горим</span>
+                  </>
+                ) : (
+                  <>
+                    <Sun className="w-3 h-3 text-amber-400 animate-pulse" />
+                    <span>Гэрэлт горим</span>
+                  </>
+                )}
+              </button>
+            )}
             {onSignOut && (
               <button
                 type="button"
