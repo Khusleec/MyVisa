@@ -82,11 +82,11 @@ export default function Dashboard({
 
       {/* B2B Dynamic Banner Info Alert */}
       {userRole === 'business_admin' && (
-        <div className="p-4 rounded-xl border border-[#0066ff]/20 bg-[#0066ff]/5 flex gap-3 text-xs leading-relaxed text-slate-300">
-          <Info className="w-4.5 h-4.5 text-[#0066ff] shrink-0 mt-0.5" />
+        <div className="p-4 rounded-xl border border-accent/20 bg-accent/5 flex gap-3 text-xs leading-relaxed text-muted">
+          <Info className="w-4.5 h-4.5 text-accent shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-bold text-white">Байгууллагын нэгдсэн нэхэмжлэх & цалин шалгалт</p>
-            <p className="text-[11px] text-[#8f95b2]">
+            <p className="font-bold text-foreground">Байгууллагын нэгдсэн нэхэмжлэх & цалин шалгалт</p>
+            <p className="text-[11px] text-muted">
               Ажилчдын регистрээр ХУР-аар нийгмийн даатгал баталгаажуулж, бэлэн төлбөрүүдийг QPay нэгдсэн нэхэмжлэхээр төлнө.
             </p>
           </div>
@@ -97,38 +97,38 @@ export default function Dashboard({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {userRole === 'business_admin' ? (
           <>
-            <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
-              <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Идэвхтэй Ажилчид</p>
-              <p className="text-sm font-bold text-white">{employees.length} ажилтан</p>
-              <p className="text-[10px] text-[#10b981] font-mono">
+            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Идэвхтэй Ажилчид</p>
+              <p className="text-sm font-bold text-foreground">{employees.length} ажилтан</p>
+              <p className="text-[10px] text-positive font-mono">
                 {employees.filter((e) => e.danVerified).length} нь DAN баталгаажсан
               </p>
             </div>
-            <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
-              <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Нэгдсэн Виз шийдвэрлэлт</p>
-              <p className="text-sm font-bold text-white">
+            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Нэгдсэн Виз шийдвэрлэлт</p>
+              <p className="text-sm font-bold text-foreground">
                 {b2bApplications.length} мэдүүлэг
               </p>
-              <p className="text-[10px] text-[#8f95b2]">
+              <p className="text-[10px] text-muted">
                 Төлбөр хүлээгдэж буй:{" "}
                 {b2bApplications.filter((a) => a.status === "payment_pending").length}
               </p>
             </div>
-            <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
-              <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Байгууллагын РД</p>
-              <p className="text-sm font-bold text-white">{companyRegistration}</p>
-              <p className="text-[10px] text-[#0066ff] font-mono">Industry: {companyIndustry}</p>
+            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Байгууллагын РД</p>
+              <p className="text-sm font-bold text-foreground">{companyRegistration}</p>
+              <p className="text-[10px] text-accent font-mono">Industry: {companyIndustry}</p>
             </div>
           </>
         ) : (
           <>
-            <div className="premium-card p-5 space-y-1.5 bg-[#0e0f15] border border-[#1e2030] rounded-xl flex flex-col justify-between">
+            <div className="premium-card p-5 space-y-1.5 bg-surface border border-line rounded-xl flex flex-col justify-between">
               <div>
-                <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Биеийн Баталгаажуулалт</p>
-                <p className="text-sm font-bold text-white">
+                <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Биеийн Баталгаажуулалт</p>
+                <p className="text-sm font-bold text-foreground">
                   {isUserVerified ? "DAN Холбогдсон" : "DAN Холбогдоогүй"}
                 </p>
-                <p className={`text-[10px] font-mono ${isUserVerified ? "text-[#10b981]" : "text-amber-500"}`}>
+                <p className={`text-[10px] font-mono ${isUserVerified ? "text-positive" : "text-amber-500"}`}>
                   {isUserVerified ? "Нийгмийн даатгал идэвхтэй" : "Лавлагаа татах боломжгүй"}
                 </p>
               </div>
@@ -142,19 +142,19 @@ export default function Dashboard({
                 </button>
               )}
             </div>
-            <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
-              <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Миний мэдүүлгүүд</p>
-              <p className="text-sm font-bold text-white">
+            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Миний мэдүүлгүүд</p>
+              <p className="text-sm font-bold text-foreground">
                 Нийт {b2cApplications.length} мэдүүлэг
               </p>
-              <p className="text-[10px] text-[#8f95b2]">
+              <p className="text-[10px] text-muted">
                 Гэр бүл: {b2cApplications.filter((a) => a.applicantType === "family").length}
               </p>
             </div>
-            <div className="premium-card p-5 space-y-1 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
-              <p className="text-[10px] text-[#8f95b2] font-mono uppercase tracking-wider">Явцын мэдээлэл</p>
-              <p className="text-sm font-bold text-white">SMS суваг идэвхтэй</p>
-              <p className="text-[10px] text-[#0066ff] font-mono">{userPhone}</p>
+            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Явцын мэдээлэл</p>
+              <p className="text-sm font-bold text-foreground">SMS суваг идэвхтэй</p>
+              <p className="text-[10px] text-accent font-mono">{userPhone}</p>
             </div>
           </>
         )}
@@ -166,13 +166,13 @@ export default function Dashboard({
           {/* Employees Visa Applications Status Table */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#8f95b2] font-mono">Ажилчдын виз мэдүүлгийн түүх</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Ажилчдын виз мэдүүлгийн түүх</h4>
               
               {/* Bulk pay button */}
               {bulkSelectIds.length > 0 && (
                 <button 
                   onClick={openBulkPaymentInvoice}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#0066ff] text-white text-xs font-bold hover:bg-opacity-95 transition-all flex items-center gap-1.5 shadow"
+                  className="px-3.5 py-1.5 rounded-lg bg-accent text-white text-xs font-bold hover:bg-opacity-95 transition-all flex items-center gap-1.5 shadow"
                 >
                   <CreditCard className="w-3.5 h-3.5" />
                   Сонгосон төлбөрийг хамт төлөх ({bulkSelectIds.length})
@@ -194,11 +194,11 @@ export default function Dashboard({
                 }
               />
             ) : (
-            <div className="premium-card overflow-hidden bg-[#0e0f15] border border-[#1e2030] rounded-xl">
+            <div className="premium-card overflow-hidden bg-surface border border-line rounded-xl">
               <div className="overflow-x-auto text-[12px]">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#12131a] border-b border-[#1e2030] text-[10px] font-mono text-[#8f95b2] uppercase">
+                    <tr className="bg-elevated border-b border-line text-[10px] font-mono text-muted uppercase">
                       <th className="p-4 w-10">
                         <span className="sr-only">Сонгох</span>
                       </th>
@@ -210,34 +210,34 @@ export default function Dashboard({
                       <th className="p-4 font-semibold text-right">Үйлдэл</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1e2030]">
+                  <tbody className="divide-y divide-line">
                     {b2bApplications.map((app) => (
-                      <tr key={app.id} className="hover:bg-[#12131a]/50 transition-colors">
+                      <tr key={app.id} className="hover:bg-elevated/50 transition-colors">
                         <td className="p-4">
                           {app.paymentStatus === 'unpaid' ? (
                             <button 
                               onClick={() => onBulkSelectToggle(app.id)}
-                              className="text-slate-400 hover:text-white"
+                              className="text-slate-400 hover:text-foreground"
                             >
                               {bulkSelectIds.includes(app.id) ? (
-                                <CheckSquare className="w-4 h-4 text-[#0066ff]" />
+                                <CheckSquare className="w-4 h-4 text-accent" />
                               ) : (
                                 <Square className="w-4 h-4" />
                               )}
                             </button>
                           ) : (
-                            <Check className="w-4 h-4 text-[#10b981] mx-auto" />
+                            <Check className="w-4 h-4 text-positive mx-auto" />
                           )}
                         </td>
-                        <td className="p-4 font-bold text-white">{app.applicantName}</td>
+                        <td className="p-4 font-bold text-foreground">{app.applicantName}</td>
                         <td className="p-4">
-                          <span className="font-semibold text-white">{app.country}</span>
-                          <p className="text-[10px] text-[#8f95b2]">{app.visaType}</p>
+                          <span className="font-semibold text-foreground">{app.country}</span>
+                          <p className="text-[10px] text-muted">{app.visaType}</p>
                         </td>
-                        <td className="p-4 font-mono text-[#8f95b2]">{app.userRegister}</td>
+                        <td className="p-4 font-mono text-muted">{app.userRegister}</td>
                         <td className="p-4">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                            app.paymentStatus === 'paid' ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-amber-500/10 text-amber-500'
+                            app.paymentStatus === 'paid' ? 'bg-positive/15 text-positive' : 'bg-amber-500/10 text-amber-500'
                           }`}>
                             {app.paymentStatus === 'paid' ? 'Төлөгдсөн' : 'Нэхэмжлэх гарсан'}
                           </span>
@@ -257,7 +257,7 @@ export default function Dashboard({
                           {app.paymentStatus === 'unpaid' && (
                             <button 
                               onClick={() => openQPayInvoice(app.id, app.embassyFee + app.serviceFee)}
-                              className="text-xs font-semibold text-white bg-[#0066ff] hover:bg-opacity-95 px-2.5 py-1 rounded transition-all"
+                              className="text-xs font-semibold text-white bg-accent hover:bg-opacity-95 px-2.5 py-1 rounded transition-all"
                             >
                               Төлөх
                             </button>
@@ -274,12 +274,12 @@ export default function Dashboard({
 
           {/* Company Staff list section */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#8f95b2] font-mono">Ажилчдын бүртгэл</h4>
-            <div className="premium-card overflow-hidden bg-[#0e0f15] border border-[#1e2030] rounded-xl">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Ажилчдын бүртгэл</h4>
+            <div className="premium-card overflow-hidden bg-surface border border-line rounded-xl">
               <div className="overflow-x-auto text-[12px]">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#12131a] border-b border-[#1e2030] text-[10px] font-mono text-[#8f95b2] uppercase">
+                    <tr className="bg-elevated border-b border-line text-[10px] font-mono text-muted uppercase">
                       <th className="p-4">ID</th>
                       <th className="p-4">Нэр</th>
                       <th className="p-4">РД</th>
@@ -288,16 +288,16 @@ export default function Dashboard({
                       <th className="p-4 text-right">Виз үүсгэх</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1e2030]">
+                  <tbody className="divide-y divide-line">
                     {employees.map((emp) => (
-                      <tr key={emp.id} className="hover:bg-[#12131a]/50">
-                        <td className="p-4 font-mono text-[#8f95b2]">{emp.id}</td>
-                        <td className="p-4 font-bold text-white">{emp.name}</td>
-                        <td className="p-4 font-mono text-white">{emp.registerNo}</td>
-                        <td className="p-4 text-[#8f95b2]">{emp.position}</td>
+                      <tr key={emp.id} className="hover:bg-elevated/50">
+                        <td className="p-4 font-mono text-muted">{emp.id}</td>
+                        <td className="p-4 font-bold text-foreground">{emp.name}</td>
+                        <td className="p-4 font-mono text-foreground">{emp.registerNo}</td>
+                        <td className="p-4 text-muted">{emp.position}</td>
                         <td className="p-4">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                            emp.danVerified ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-zinc-800 text-[#8f95b2]'
+                            emp.danVerified ? 'bg-positive/15 text-positive' : 'bg-zinc-800 text-muted'
                           }`}>
                             {emp.danVerified ? 'Баталгаажсан' : 'Холболтгүй'}
                           </span>
@@ -305,7 +305,7 @@ export default function Dashboard({
                         <td className="p-4 text-right">
                           <button 
                             onClick={() => onStartEmployeeVisa(emp.id)}
-                            className="text-xs font-semibold text-[#0066ff] hover:text-white border border-[#0066ff]/20 hover:bg-[#0066ff] px-2.5 py-1 rounded transition-all"
+                            className="text-xs font-semibold text-accent hover:text-white border border-accent/20 hover:bg-accent px-2.5 py-1 rounded transition-all"
                           >
                             Виз эхлүүлэх
                           </button>
@@ -322,7 +322,7 @@ export default function Dashboard({
         <div className="space-y-6">
           {/* B2C Available Visas list */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#8f95b2] font-mono">Боломжит виз мэдүүлгүүд</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Боломжит виз мэдүүлгүүд</h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
                 { name: "Өмнөд Солонгос", code: "KR", eFee: 110000, sFee: 40000, desc: "C-3-9 аялал жуулчлалын ангилал. НД шимтгэл 6+ сар төлсөн байх шаардлагатай." },
@@ -331,31 +331,31 @@ export default function Dashboard({
               ].map((visa) => (
                 <div 
                   key={visa.code}
-                  className="premium-card p-5 flex flex-col justify-between h-64 hover:border-zinc-700 transition-all bg-[#0e0f15] border border-[#1e2030] rounded-xl"
+                  className="premium-card p-5 flex flex-col justify-between h-64 hover:border-zinc-700 transition-all bg-surface border border-line rounded-xl"
                 >
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="font-mono text-[10px] font-bold text-white bg-[#1e2030] px-2 py-0.5 rounded">{visa.code}</span>
-                      <span className="text-[10px] text-[#10b981] font-bold">ХУР холбогдсон</span>
+                      <span className="font-mono text-[10px] font-bold text-foreground bg-line px-2 py-0.5 rounded">{visa.code}</span>
+                      <span className="text-[10px] text-positive font-bold">ХУР холбогдсон</span>
                     </div>
-                    <h5 className="text-sm font-bold text-white">{visa.name}</h5>
-                    <p className="text-[11px] text-[#8f95b2] leading-relaxed">{visa.desc}</p>
+                    <h5 className="text-sm font-bold text-foreground">{visa.name}</h5>
+                    <p className="text-[11px] text-muted leading-relaxed">{visa.desc}</p>
                   </div>
 
-                  <div className="border-t border-[#1e2030] pt-4 mt-2 space-y-3">
-                    <div className="flex justify-between text-[11px] font-mono text-[#8f95b2]">
+                  <div className="border-t border-line pt-4 mt-2 space-y-3">
+                    <div className="flex justify-between text-[11px] font-mono text-muted">
                       <span>ЭСЯ хураамж:</span>
-                      <span className="text-white">{visa.eFee.toLocaleString()} ₮</span>
+                      <span className="text-foreground">{visa.eFee.toLocaleString()} ₮</span>
                     </div>
-                    <div className="flex justify-between text-[11px] font-mono text-[#8f95b2]">
+                    <div className="flex justify-between text-[11px] font-mono text-muted">
                       <span>Үйлчилгээ:</span>
-                      <span className="text-white">{visa.sFee.toLocaleString()} ₮</span>
+                      <span className="text-foreground">{visa.sFee.toLocaleString()} ₮</span>
                     </div>
                     <div className="flex justify-between items-center pt-1">
-                      <span className="text-xs font-bold font-mono text-white">{(visa.eFee + visa.sFee).toLocaleString()} ₮</span>
+                      <span className="text-xs font-bold font-mono text-foreground">{(visa.eFee + visa.sFee).toLocaleString()} ₮</span>
                       <button 
                         onClick={() => onStartB2CVisa(visa.name, visa.code, visa.eFee, visa.sFee)}
-                        className="text-xs font-bold text-white bg-[#0066ff] hover:bg-opacity-95 px-3 py-1.5 rounded transition-all"
+                        className="text-xs font-bold text-white bg-accent hover:bg-opacity-95 px-3 py-1.5 rounded transition-all"
                       >
                         Мэдүүлэх
                       </button>
@@ -368,7 +368,7 @@ export default function Dashboard({
 
           {/* B2C Visa Tracking History */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#8f95b2] font-mono">Миний виз мэдүүлгийн түүх</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Миний виз мэдүүлгийн түүх</h4>
             <div className="space-y-3">
               {b2cApplications.length === 0 ? (
                 <EmptyState
@@ -378,14 +378,14 @@ export default function Dashboard({
                 />
               ) : null}
               {b2cApplications.map((app) => (
-                <div key={app.id} className="premium-card p-5 space-y-4 bg-[#0e0f15] border border-[#1e2030] rounded-xl">
+                <div key={app.id} className="premium-card p-5 space-y-4 bg-surface border border-line rounded-xl">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <div>
-                      <h5 className="text-sm font-bold text-white flex items-center gap-2">
+                      <h5 className="text-sm font-bold text-foreground flex items-center gap-2">
                         {app.country}
-                        <span className="text-[10px] font-normal text-[#8f95b2]">({app.applicantType === 'myself' ? 'Өөрийн мэдүүлэг' : `${app.applicantRelation}: ${app.applicantName}`})</span>
+                        <span className="text-[10px] font-normal text-muted">({app.applicantType === 'myself' ? 'Өөрийн мэдүүлэг' : `${app.applicantRelation}: ${app.applicantName}`})</span>
                       </h5>
-                      <p className="text-[11px] text-[#8f95b2] mt-0.5">{app.visaType} • ID: {app.id}</p>
+                      <p className="text-[11px] text-muted mt-0.5">{app.visaType} • ID: {app.id}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       {(() => {
@@ -399,7 +399,7 @@ export default function Dashboard({
                       {app.status === 'payment_pending' && (
                         <button 
                           onClick={() => openQPayInvoice(app.id, app.embassyFee + app.serviceFee)}
-                          className="px-3 py-1 rounded bg-[#0066ff] hover:bg-opacity-95 text-white text-[11px] font-bold transition-all shadow"
+                          className="px-3 py-1 rounded bg-accent hover:bg-opacity-95 text-white text-[11px] font-bold transition-all shadow"
                         >
                           Төлөх
                         </button>
@@ -407,7 +407,7 @@ export default function Dashboard({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2 pt-2 border-t border-[#1e2030]">
+                  <div className="grid grid-cols-4 gap-2 pt-2 border-t border-line">
                     {[
                       { label: "Бүртгэл", active: true },
                       { label: "Төрийн лавлагаа", active: app.status !== 'draft' },
@@ -415,8 +415,8 @@ export default function Dashboard({
                       { label: "ЭСЯ хяналт", active: app.status === 'approved', pulse: app.status === 'submitted' }
                     ].map((s, i) => (
                       <div key={i} className="space-y-1">
-                        <div className={`h-1 rounded ${s.pulse ? 'bg-[#0066ff] animate-pulse' : s.active ? 'bg-[#10b981]' : 'bg-[#1e2030]'}`}></div>
-                        <span className="text-[10px] font-bold text-white block">{s.label}</span>
+                        <div className={`h-1 rounded ${s.pulse ? 'bg-accent animate-pulse' : s.active ? 'bg-positive' : 'bg-line'}`}></div>
+                        <span className="text-[10px] font-bold text-foreground block">{s.label}</span>
                       </div>
                     ))}
                   </div>

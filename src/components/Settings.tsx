@@ -50,20 +50,20 @@ export default function Settings({
 
       <section className="premium-card p-5 space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#1a1c29] border border-[#1e2030] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-overlay border border-line flex items-center justify-center">
             {userRole === "business_admin" ? (
-              <Building className="w-4 h-4 text-[#0066ff]" />
+              <Building className="w-4 h-4 text-accent" />
             ) : userRole === "visa_issuer" ? (
-              <Globe className="w-4 h-4 text-[#0066ff]" />
+              <Globe className="w-4 h-4 text-accent" />
             ) : (
-              <User className="w-4 h-4 text-[#0066ff]" />
+              <User className="w-4 h-4 text-accent" />
             )}
           </div>
           <div>
-            <p className="text-sm font-bold text-white">
+            <p className="text-sm font-bold text-foreground">
               {userRole === "business_admin" ? companyName : userName}
             </p>
-            <p className="text-[10px] font-mono text-[#8f95b2]">
+            <p className="text-[10px] font-mono text-muted">
               {userRole === "business_admin"
                 ? `РД: ${companyRegistration}`
                 : userRole === "visa_issuer"
@@ -72,15 +72,15 @@ export default function Settings({
             </p>
           </div>
         </div>
-        <dl className="grid gap-2 text-xs border-t border-[#1e2030] pt-4">
+        <dl className="grid gap-2 text-xs border-t border-line pt-4">
           <div className="flex justify-between gap-4">
-            <dt className="text-[#8f95b2]">Утас</dt>
-            <dd className="font-mono text-white">{userPhone}</dd>
+            <dt className="text-muted">Утас</dt>
+            <dd className="font-mono text-foreground">{userPhone}</dd>
           </div>
           {userEmail && (
             <div className="flex justify-between gap-4">
-              <dt className="text-[#8f95b2]">И-мэйл</dt>
-              <dd className="text-white truncate max-w-[60%]">{userEmail}</dd>
+              <dt className="text-muted">И-мэйл</dt>
+              <dd className="text-foreground truncate max-w-[60%]">{userEmail}</dd>
             </div>
           )}
         </dl>
@@ -88,17 +88,17 @@ export default function Settings({
 
       <section className="premium-card p-5 space-y-4">
         <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-[#0066ff]" />
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider">DAN баталгаажуулалт</h3>
+          <Shield className="w-4 h-4 text-accent" />
+          <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">DAN баталгаажуулалт</h3>
         </div>
-        <p className="text-xs text-[#8f95b2] leading-relaxed">
+        <p className="text-xs text-muted leading-relaxed">
           Төрийн цахим нэвтрэлтээр ХУР лавлагаа татах эрхийг идэвхжүүлнэ.
         </p>
         <div className="flex items-center justify-between gap-3">
           <span
             className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
               isUserVerified
-                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                ? "bg-positive/10 text-positive border-positive/20"
                 : "bg-amber-500/10 text-amber-400 border-amber-500/20"
             }`}
           >
@@ -115,10 +115,10 @@ export default function Settings({
       <section className="premium-card p-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-start gap-3">
-            <BellRing className="w-4 h-4 text-[#0066ff] mt-0.5 shrink-0" />
+            <BellRing className="w-4 h-4 text-accent mt-0.5 shrink-0" />
             <div>
-              <p className="text-xs font-bold text-white">SMS мэдэгдэл</p>
-              <p className="text-[11px] text-[#8f95b2] mt-0.5">
+              <p className="text-xs font-bold text-foreground">SMS мэдэгдэл</p>
+              <p className="text-[11px] text-muted mt-0.5">
                 Визийн явц, төлбөр болон баталгаажуулалтын мэдээлэл
               </p>
             </div>
@@ -129,7 +129,7 @@ export default function Settings({
             aria-checked={smsNotifications}
             onClick={() => onSmsToggle(!smsNotifications)}
             className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
-              smsNotifications ? "bg-[#0066ff]" : "bg-[#1e2030]"
+              smsNotifications ? "bg-accent" : "bg-line"
             }`}
           >
             <span
@@ -144,7 +144,7 @@ export default function Settings({
       <button
         type="button"
         onClick={onSignOut}
-        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-rose-500/20 bg-rose-500/5 text-rose-400 hover:bg-rose-500 hover:text-white text-xs font-bold transition-all md:hidden"
+        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-negative/20 bg-negative/5 text-negative hover:bg-negative hover:text-white text-xs font-bold transition-all md:hidden"
       >
         <LogOut className="w-4 h-4" />
         Гарах

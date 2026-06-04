@@ -1,14 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-main: var(--bg-main);
-  --color-bg-card: var(--bg-card);
-  --color-brand-blue: var(--color-brand);
-  --color-brand-green: var(--color-success);
-  --color-panel-bg: var(--bg-card);
-  --color-panel-hover: var(--color-panel-hover-val);
-  --color-border-subtle: var(--color-border);
+  /* ── Surface hierarchy ── */
+  --color-surface: var(--bg-main);
+  --color-elevated: var(--bg-card);
+  --color-overlay: var(--color-panel-hover-val);
+
+  /* ── Text hierarchy ── */
+  --color-foreground: var(--color-text-main);
   --color-muted: var(--color-text-muted);
+  --color-faded: var(--color-dim);
+
+  /* ── Brand & status ── */
+  --color-accent: var(--color-cta);
+  --color-positive: var(--color-success);
+  --color-negative: var(--color-error);
+
+  /* ── Structure ── */
+  --color-line: var(--color-border);
+
+  /* ── Typography ── */
   --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }

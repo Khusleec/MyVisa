@@ -31,9 +31,9 @@ const icons = {
 };
 
 const styles = {
-  success: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
-  error: "border-rose-500/25 bg-rose-500/10 text-rose-300",
-  info: "border-[#0066ff]/25 bg-[#0066ff]/10 text-sky-200",
+  success: "border-positive/25 bg-positive/10 text-positive",
+  error: "border-negative/25 bg-negative/10 text-negative",
+  info: "border-accent/25 bg-accent/10 text-accent",
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {

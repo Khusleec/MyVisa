@@ -250,38 +250,38 @@ export function useVisaApp() {
     const config = {
       draft: {
         text: 'Ноорог',
-        bg: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
-        bar: 'bg-zinc-500',
+        bg: 'bg-faded/10 text-muted border-line',
+        bar: 'bg-faded',
       },
       dan_verified: {
         text: 'DAN баталгаажсан',
-        bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-        bar: 'bg-indigo-500',
+        bg: 'bg-accent/10 text-accent border-accent/20',
+        bar: 'bg-accent',
       },
       khur_checked: {
         text: 'ХУР лавлагаатай',
-        bg: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-        bar: 'bg-sky-500',
+        bg: 'bg-accent/10 text-accent border-accent/20',
+        bar: 'bg-accent',
       },
       payment_pending: {
         text: 'Төлбөр хүлээгдэж буй',
-        bg: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+        bg: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
         bar: 'bg-amber-500',
       },
       submitted: {
         text: 'ЭСЯ-нд илгээсэн',
-        bg: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-        bar: 'bg-blue-500',
+        bg: 'bg-accent/10 text-accent border-accent/20',
+        bar: 'bg-accent',
       },
       approved: {
         text: 'Виз олгогдсон',
-        bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-        bar: 'bg-[#10b981]',
+        bg: 'bg-positive/10 text-positive border-positive/20',
+        bar: 'bg-positive',
       },
       rejected: {
         text: 'Татгалзсан',
-        bg: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-        bar: 'bg-rose-500',
+        bg: 'bg-negative/10 text-negative border-negative/20',
+        bar: 'bg-negative',
       },
     };
     return config[status] || config.draft;

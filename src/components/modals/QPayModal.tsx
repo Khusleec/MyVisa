@@ -47,26 +47,26 @@ export default function QPayModal({ isOpen, onClose, invoiceId, amount, countdow
             aria-modal="true"
             aria-labelledby="qpay-modal-title"
             onClick={(e) => e.stopPropagation()}
-            className="bg-[#0e0f15] border border-[#1e2030] rounded-xl w-full max-w-sm p-6 overflow-hidden shadow-2xl relative"
+            className="bg-surface border border-line rounded-xl w-full max-w-sm p-6 overflow-hidden shadow-2xl relative"
           >
             <button 
               type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 text-[#8f95b2] hover:text-white p-1 rounded-lg"
+              className="absolute top-4 right-4 text-muted hover:text-foreground p-1 rounded-lg transition-colors"
               aria-label="Хаах"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="text-center pb-4 border-b border-[#1e2030] space-y-1">
-              <span className="text-[10px] font-bold text-red-500 font-mono tracking-widest uppercase">qpay • төлбөр</span>
-              <h4 id="qpay-modal-title" className="text-sm font-bold text-white">
+            <div className="text-center pb-4 border-b border-line space-y-1">
+              <span className="text-[10px] font-bold text-negative font-mono tracking-widest uppercase">qpay • төлбөр</span>
+              <h4 id="qpay-modal-title" className="text-sm font-bold text-foreground">
                 {invoiceId === 'bulk_invoice' ? 'Байгууллагын нэгдсэн нэхэмжлэх' : 'Төлбөрийн нэхэмжлэх'}
               </h4>
             </div>
 
             <div className="py-6 flex flex-col items-center justify-center space-y-4">
-              <div className="w-36 h-36 bg-white p-3 rounded-lg mx-auto flex items-center justify-center border border-zinc-700 relative">
+              <div className="w-36 h-36 bg-white p-3 rounded-lg mx-auto flex items-center justify-center border border-line relative">
                 <QrCode className="w-full h-full text-slate-900" />
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-red-600 flex items-center justify-center font-extrabold text-[11px] text-white">
                   q
@@ -74,10 +74,10 @@ export default function QPayModal({ isOpen, onClose, invoiceId, amount, countdow
               </div>
 
               <div className="text-center space-y-1">
-                <p className="text-base font-mono font-bold text-white">
+                <p className="text-base font-mono font-bold text-foreground">
                   {amount.toLocaleString()} ₮
                 </p>
-                <p className="text-[10px] text-[#8f95b2] font-mono font-semibold">Invoice: {invoiceId}</p>
+                <p className="text-[10px] text-muted font-mono font-semibold">Invoice: {invoiceId}</p>
                 <p className="text-[10.5px] text-amber-500 font-mono flex items-center justify-center gap-1.5 mt-1 font-bold">
                   <Clock className="w-3.5 h-3.5" /> {formatTime(countdown)}
                 </p>
@@ -85,7 +85,7 @@ export default function QPayModal({ isOpen, onClose, invoiceId, amount, countdow
             </div>
 
             <div className="space-y-2">
-              <span className="text-[9px] text-[#8f95b2] uppercase font-mono tracking-wider">Банкны апп-аар төлөх (холбоос):</span>
+              <span className="text-[9px] text-muted uppercase font-mono tracking-wider">Банкны апп-аар төлөх (холбоос):</span>
               <div className="grid grid-cols-5 gap-1.5 pb-4">
                 {[
                   { name: "Хаан", bg: "bg-green-800/80 text-white border-green-700" },
@@ -105,17 +105,17 @@ export default function QPayModal({ isOpen, onClose, invoiceId, amount, countdow
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[#1e2030] flex gap-3">
+            <div className="pt-4 border-t border-line flex gap-3">
               <button 
                 onClick={onClose}
-                className="flex-1 py-2 rounded bg-[#12131a] hover:bg-opacity-80 text-[#8f95b2] text-xs font-bold transition-all border border-[#1e2030]"
+                className="flex-1 py-2 rounded bg-elevated hover:bg-overlay text-muted hover:text-foreground text-xs font-bold transition-all border border-line"
               >
                 Буцах
               </button>
               <button 
                 onClick={simulatePaymentSuccess}
                 disabled={qpayPolling}
-                className="flex-1 py-2 rounded bg-[#10b981] hover:bg-opacity-95 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow disabled:opacity-50"
+                className="flex-1 py-2 rounded bg-positive hover:opacity-90 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow disabled:opacity-50"
               >
                 {qpayPolling ? (
                   <>

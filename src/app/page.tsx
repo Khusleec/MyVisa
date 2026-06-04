@@ -98,7 +98,7 @@ export default function Home() {
   const showRoleSwitcher = profile?.role === "business_admin";
 
   return (
-    <div className="min-h-screen bg-[#090a0f] text-[#f4f5f6] flex flex-col md:flex-row antialiased font-sans mobile-nav-safe">
+    <div className="min-h-screen bg-surface text-foreground flex flex-col md:flex-row antialiased font-sans mobile-nav-safe">
       
       <Sidebar 
         userRole={userRole}
@@ -116,11 +116,11 @@ export default function Home() {
         onThemeToggle={toggleTheme}
       />
 
-      <main className="flex-1 flex flex-col min-h-0 bg-[#090a0f] overflow-y-auto">
-        <header className="md:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b border-[#1e2030] bg-[#090a0f]/90 backdrop-blur-md">
+      <main className="flex-1 flex flex-col min-h-0 bg-surface overflow-y-auto">
+        <header className="md:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b border-line bg-surface/90 backdrop-blur-md">
           <div>
-            <p className="text-[10px] font-mono text-[#8f95b2] uppercase tracking-wider">MyVisa.mn</p>
-            <h2 className="text-sm font-bold text-white">{TAB_TITLES[activeTab]}</h2>
+            <p className="text-[10px] font-mono text-muted uppercase tracking-wider">MyVisa.mn</p>
+            <h2 className="text-sm font-bold text-foreground">{TAB_TITLES[activeTab]}</h2>
           </div>
           {!user.isVerified && userRole === "individual" && activeTab !== "settings" && (
             <button

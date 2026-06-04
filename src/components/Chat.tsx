@@ -280,24 +280,24 @@ export default function Chat({ currentProfile }: ChatProps) {
         description="Визний асуудал болон материалын талаар ЭСЯ-ны визний ажилтантай шууд холбогдож чатлах хэсэг."
       />
 
-      <div className="flex-1 flex gap-4 min-h-0 bg-[#0e0f15] border border-[#1e2030] rounded-xl overflow-hidden">
+      <div className="flex-1 flex gap-4 min-h-0 bg-surface border border-line rounded-xl overflow-hidden">
         
         {/* SIDEBAR: Contacts List (Shown for Visa Issuer, or mobile state) */}
         {currentProfile.role === 'visa_issuer' && (
-          <div className={`w-full md:w-80 border-r border-[#1e2030] flex flex-col shrink-0 ${
+          <div className={`w-full md:w-80 border-r border-line flex flex-col shrink-0 ${
             activeMobileView === 'conversation' ? 'hidden md:flex' : 'flex'
           }`}>
-            <div className="p-4 border-b border-[#1e2030] bg-[#12131a]/55 space-y-3">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Харилцагчид</h3>
+            <div className="p-4 border-b border-line bg-elevated/55 space-y-3">
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider font-mono">Харилцагчид</h3>
               
-              <div className="flex p-0.5 bg-[#090a0f] rounded-lg border border-[#1e2030]" role="tablist">
+              <div className="flex p-0.5 bg-surface rounded-lg border border-line" role="tablist">
                 <button
                   type="button"
                   onClick={() => setContactFilter('all')}
                   className={`flex-1 py-1.5 text-[10px] font-bold rounded transition-all ${
                     contactFilter === 'all'
-                      ? "bg-[#181922] text-[#0066ff] border border-[#1e2030]"
-                      : "text-[#8f95b2] hover:text-white"
+                      ? "bg-elevated text-accent border border-line"
+                      : "text-muted hover:text-foreground"
                   }`}
                 >
                   Бүгд
@@ -307,8 +307,8 @@ export default function Chat({ currentProfile }: ChatProps) {
                   onClick={() => setContactFilter('individual')}
                   className={`flex-1 py-1.5 text-[10px] font-bold rounded transition-all ${
                     contactFilter === 'individual'
-                      ? "bg-[#181922] text-[#0066ff] border border-[#1e2030]"
-                      : "text-[#8f95b2] hover:text-white"
+                      ? "bg-elevated text-accent border border-line"
+                      : "text-muted hover:text-foreground"
                   }`}
                 >
                   Иргэд
@@ -318,8 +318,8 @@ export default function Chat({ currentProfile }: ChatProps) {
                   onClick={() => setContactFilter('business_admin')}
                   className={`flex-1 py-1.5 text-[10px] font-bold rounded transition-all ${
                     contactFilter === 'business_admin'
-                      ? "bg-[#181922] text-[#0066ff] border border-[#1e2030]"
-                      : "text-[#8f95b2] hover:text-white"
+                      ? "bg-elevated text-accent border border-line"
+                      : "text-muted hover:text-foreground"
                   }`}
                 >
                   Байгууллага
@@ -327,13 +327,13 @@ export default function Chat({ currentProfile }: ChatProps) {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto divide-y divide-[#1e2030]/60 p-2 space-y-1">
+            <div className="flex-1 overflow-y-auto divide-y divide-line/60 p-2 space-y-1">
               {loadingContacts ? (
                 <div className="flex justify-center py-8">
-                  <RefreshCw className="w-5 h-5 text-[#0066ff] animate-spin" />
+                  <RefreshCw className="w-5 h-5 text-accent animate-spin" />
                 </div>
               ) : filteredContacts.length === 0 ? (
-                <div className="text-center py-8 text-xs text-[#8f95b2]">Харилцагч олдсонгүй.</div>
+                <div className="text-center py-8 text-xs text-muted">Харилцагч олдсонгүй.</div>
               ) : (
                 filteredContacts.map((contact) => (
                   <button
@@ -341,18 +341,18 @@ export default function Chat({ currentProfile }: ChatProps) {
                     onClick={() => selectContactMobile(contact)}
                     className={`w-full text-left p-3 rounded-lg flex items-center gap-3 transition-all ${
                       selectedContact?.id === contact.id
-                        ? "bg-[#181922] text-[#0066ff] border border-[#1e2030]"
-                        : "text-[#8f95b2] hover:text-white hover:bg-[#12131a]/40"
+                        ? "bg-elevated text-accent border border-line"
+                        : "text-muted hover:text-foreground hover:bg-elevated/40"
                     }`}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-[#1a1c29] border border-[#1e2030] flex items-center justify-center text-slate-300 shrink-0">
-                      {contact.role === 'business_admin' ? <Building className="w-3.5 h-3.5 text-[#0066ff]" /> : <User className="w-3.5 h-3.5" />}
+                    <div className="w-8 h-8 rounded-lg bg-overlay border border-line flex items-center justify-center text-slate-300 shrink-0">
+                      {contact.role === 'business_admin' ? <Building className="w-3.5 h-3.5 text-accent" /> : <User className="w-3.5 h-3.5" />}
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-xs font-bold text-white truncate">
+                      <p className="text-xs font-bold text-foreground truncate">
                         {contact.role === 'business_admin' ? (contact.company_name || 'Бизнес харилцагч') : contact.name}
                       </p>
-                      <p className="text-[9.5px] text-[#8f95b2] font-mono truncate">
+                      <p className="text-[9.5px] text-muted font-mono truncate">
                         {contact.role === 'business_admin' ? `Админ: ${contact.name}` : 'Хувь хүн'}
                       </p>
                     </div>
@@ -370,30 +370,30 @@ export default function Chat({ currentProfile }: ChatProps) {
           {selectedContact ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-[#1e2030] bg-[#12131a]/55 flex items-center justify-between">
+              <div className="p-4 border-b border-line bg-elevated/55 flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
                   {currentProfile.role === 'visa_issuer' && (
                     <button
                       onClick={() => setActiveMobileView('contacts')}
-                      className="md:hidden p-1.5 rounded-lg hover:bg-[#1a1c29] text-[#8f95b2]"
+                      className="md:hidden p-1.5 rounded-lg hover:bg-overlay text-muted"
                     >
                       <ArrowLeft className="w-4 h-4" />
                     </button>
                   )}
-                  <div className="w-8 h-8 rounded-lg bg-[#1a1c29] border border-[#1e2030] flex items-center justify-center text-slate-300 shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-overlay border border-line flex items-center justify-center text-slate-300 shrink-0">
                     {selectedContact.role === 'visa_issuer' ? (
-                      <Globe className="w-3.5 h-3.5 text-[#0066ff]" />
+                      <Globe className="w-3.5 h-3.5 text-accent" />
                     ) : selectedContact.role === 'business_admin' ? (
-                      <Building className="w-3.5 h-3.5 text-[#0066ff]" />
+                      <Building className="w-3.5 h-3.5 text-accent" />
                     ) : (
                       <User className="w-3.5 h-3.5" />
                     )}
                   </div>
                   <div className="overflow-hidden">
-                    <h4 className="text-xs font-bold text-white truncate">
+                    <h4 className="text-xs font-bold text-foreground truncate">
                       {selectedContact.role === 'business_admin' ? (selectedContact.company_name || 'Бизнес харилцагч') : selectedContact.name}
                     </h4>
-                    <p className="text-[9.5px] text-[#8f95b2] font-mono uppercase tracking-wider">
+                    <p className="text-[9.5px] text-muted font-mono uppercase tracking-wider">
                       {selectedContact.role === 'visa_issuer' 
                         ? 'Визний Ажилтан' 
                         : selectedContact.role === 'business_admin' 
@@ -405,14 +405,14 @@ export default function Chat({ currentProfile }: ChatProps) {
               </div>
 
               {/* Messages Body */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#090a0f]/40">
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-surface/40">
                 {loadingMessages && messages.length === 0 ? (
                   <div className="flex justify-center py-8">
-                    <RefreshCw className="w-5 h-5 text-[#0066ff] animate-spin" />
+                    <RefreshCw className="w-5 h-5 text-accent animate-spin" />
                   </div>
                 ) : messages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center p-6 text-[#8f95b2] space-y-2">
-                    <MessageSquare className="w-8 h-8 text-[#1e2030]" />
+                  <div className="flex flex-col items-center justify-center h-full text-center p-6 text-muted space-y-2">
+                    <MessageSquare className="w-8 h-8 text-line" />
                     <p className="text-xs">Шинэ харилцаа үүслээ. Та зурвас бичиж эхлүүлнэ үү.</p>
                   </div>
                 ) : (
@@ -426,12 +426,12 @@ export default function Chat({ currentProfile }: ChatProps) {
                         <div className="max-w-[75%] space-y-1">
                           <div className={`px-4 py-2.5 rounded-2xl text-xs leading-relaxed ${
                             isMe 
-                              ? 'bg-[#0066ff] text-white rounded-tr-none' 
-                              : 'bg-[#181922] text-[#f4f5f6] border border-[#1e2030] rounded-tl-none'
+                              ? 'bg-accent text-white rounded-tr-none' 
+                              : 'bg-elevated text-foreground border border-line rounded-tl-none'
                           }`}>
                             <p>{msg.message}</p>
                           </div>
-                          <span className={`text-[8.5px] text-[#8f95b2] block font-mono ${isMe ? 'text-right' : 'text-left'}`}>
+                          <span className={`text-[8.5px] text-muted block font-mono ${isMe ? 'text-right' : 'text-left'}`}>
                             {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
@@ -443,28 +443,28 @@ export default function Chat({ currentProfile }: ChatProps) {
               </div>
 
               {/* Input Form */}
-              <form onSubmit={handleSendMessage} className="p-3 border-t border-[#1e2030] bg-[#12131a]/40 flex gap-2">
+              <form onSubmit={handleSendMessage} className="p-3 border-t border-line bg-elevated/40 flex gap-2">
                 <input
                   type="text"
                   placeholder="Зурвас бичих..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  className="flex-1 bg-[#090a0f] border border-[#1e2030] hover:border-zinc-700 focus:border-[#0066ff] rounded-xl px-4 py-2 text-xs text-white focus:outline-none transition-all"
+                  className="flex-1 bg-surface border border-line hover:border-muted focus:border-accent rounded-xl px-4 py-2 text-xs text-white focus:outline-none transition-all"
                 />
                 <button
                   type="submit"
                   disabled={!newMessage.trim() || sending}
-                  className="w-9 h-9 rounded-xl bg-[#0066ff] hover:bg-opacity-95 text-white flex items-center justify-center shrink-0 transition-all disabled:opacity-40"
+                  className="w-9 h-9 rounded-xl bg-accent hover:bg-opacity-95 text-white flex items-center justify-center shrink-0 transition-all disabled:opacity-40"
                 >
                   <Send className="w-4 h-4" />
                 </button>
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-[#8f95b2] space-y-3">
-              <MessageSquare className="w-12 h-12 text-[#1e2030]" />
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-muted space-y-3">
+              <MessageSquare className="w-12 h-12 text-line" />
               <div>
-                <p className="text-sm font-bold text-white">Зурвас сонгоогүй байна</p>
+                <p className="text-sm font-bold text-foreground">Зурвас сонгоогүй байна</p>
                 <p className="text-xs mt-1">Чатлах харилцагчаа зүүн цэснээс сонгоно уу.</p>
               </div>
             </div>

@@ -78,7 +78,7 @@ export default function ApplicationsList({
           {filteredApps.map((app) => (
             <article
               key={app.id}
-              className="premium-card p-5 space-y-4 relative overflow-hidden bg-[#0e0f15] border border-[#1e2030] rounded-xl"
+              className="premium-card p-5 space-y-4 relative overflow-hidden bg-surface border border-line rounded-xl"
             >
               <div
                 className={`absolute top-0 bottom-0 left-0 w-1 ${getStatusConfig(app.status).bar}`}
@@ -88,22 +88,22 @@ export default function ApplicationsList({
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pl-2">
                 <div className="flex items-center gap-4 min-w-0">
                   <div
-                    className="w-10 h-10 rounded-lg bg-[#181922] flex items-center justify-center font-bold text-xs text-white border border-[#1e2030] shrink-0"
+                    className="w-10 h-10 rounded-lg bg-elevated flex items-center justify-center font-bold text-xs text-foreground border border-line shrink-0"
                     aria-hidden
                   >
                     {app.countryCode}
                   </div>
                   <div className="min-w-0">
-                    <h4 className="text-sm font-bold text-white flex flex-wrap items-center gap-2">
+                    <h4 className="text-sm font-bold text-foreground flex flex-wrap items-center gap-2">
                       {app.country}
-                      <span className="text-[9px] font-mono text-[#8f95b2] bg-[#1e2030] px-1.5 py-0.5 rounded border border-[#1e2030] truncate max-w-[140px]">
+                      <span className="text-[9px] font-mono text-muted bg-line px-1.5 py-0.5 rounded border border-line truncate max-w-[140px]">
                         {app.id.slice(0, 8)}…
                       </span>
                     </h4>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[#8f95b2] mt-0.5">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted mt-0.5">
                       <span className="truncate">{app.visaType}</span>
                       <span className="w-1 h-1 rounded-full bg-zinc-700 shrink-0" aria-hidden />
-                      <span className="font-semibold text-slate-300">
+                      <span className="font-semibold text-foreground">
                         {app.applicantType === "myself"
                           ? "Өөрөө"
                           : `${app.applicantRelation || "Ажилтан"}: ${app.applicantName}`}
@@ -113,7 +113,7 @@ export default function ApplicationsList({
                 </div>
 
                 <div className="flex sm:flex-col items-end gap-2 shrink-0 w-full sm:w-auto">
-                  <span className="text-xs font-mono text-slate-300">
+                  <span className="text-xs font-mono text-foreground">
                     {(app.embassyFee + app.serviceFee).toLocaleString()} ₮
                   </span>
                   <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ export default function ApplicationsList({
               </div>
 
               <div
-                className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-[#1e2030] pl-2"
+                className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-line pl-2"
                 role="list"
                 aria-label="Явцын алхмууд"
               >
@@ -161,15 +161,15 @@ export default function ApplicationsList({
                     <div
                       className={`h-1 rounded transition-all ${
                         step.pulse
-                          ? "bg-[#0066ff] animate-pulse"
+                          ? "bg-accent animate-pulse"
                           : step.active
-                            ? "bg-[#10b981]"
-                            : "bg-[#1e2030]"
+                            ? "bg-positive"
+                            : "bg-line"
                       }`}
                     />
                     <p
                       className={`text-[10px] font-bold ${
-                        step.active || step.pulse ? "text-slate-200" : "text-[#8f95b2]"
+                        step.active || step.pulse ? "text-foreground" : "text-muted"
                       }`}
                     >
                       {step.title}
