@@ -4,7 +4,7 @@
   --color-bg-main: var(--bg-main);
   --color-bg-card: var(--bg-card);
   --color-brand-blue: var(--color-brand);
-  --color-brand-green: #10b981;
+  --color-brand-green: var(--color-success);
   --color-panel-bg: var(--bg-card);
   --color-panel-hover: var(--color-panel-hover-val);
   --color-border-subtle: var(--color-border);
@@ -14,15 +14,18 @@
 }
 
 :root {
-  /* Default: Dark Mode */
-  --bg-main: #0f172a;
-  --bg-card: #1e293b;
-  --color-brand: #3b82f6;
-  --color-cta: #60a5fa;
-  --color-text-main: #f1f5f9;
-  --color-text-muted: #94a3b8;
-  --color-border: #334155;
-  --color-panel-hover-val: #334155;
+  /* Dark Mode — Antigravity Palette */
+  --bg-main: #0F141C;
+  --bg-card: #192231;
+  --color-brand: #38BDF8;
+  --color-cta: #38BDF8;
+  --color-text-main: #E2E8F0;
+  --color-text-muted: #94A3B8;
+  --color-dim: #4B5563;
+  --color-border: #1e293b;
+  --color-panel-hover-val: #243044;
+  --color-success: #34D399;
+  --color-error: #F87171;
 
   --background: var(--bg-main);
   --foreground: var(--color-text-main);
@@ -30,15 +33,18 @@
 }
 
 .light-theme {
-  /* Light Mode Design System */
-  --bg-main: #f8fafc;
+  /* Light Mode — Antigravity Palette */
+  --bg-main: #F8FAFC;
   --bg-card: #ffffff;
-  --color-brand: #1e3a8a;
-  --color-cta: #2563eb;
-  --color-text-main: #0f172a;
+  --color-brand: #0284C7;
+  --color-cta: #0284C7;
+  --color-text-main: #0F172A;
   --color-text-muted: #475569;
+  --color-dim: #94A3B8;
   --color-border: #e2e8f0;
   --color-panel-hover-val: #f1f5f9;
+  --color-success: #16A34A;
+  --color-error: #DC2626;
 }
 
 body {
@@ -236,39 +242,43 @@ body {
 }
 
 /* ---------------------------------------------------------
-   THEME OVERRIDES FOR DYNAMIC CLASS MAPPING (LIGHT THEME)
+   PALETTE OVERRIDES — REMAP HARDCODED HEX TO DESIGN TOKENS
+   Uses CSS custom properties so both Dark & Light modes work
+   through a single set of selectors.
    --------------------------------------------------------- */
 
-.light-theme body {
-  background-color: var(--bg-main) !important;
-  color: var(--color-text-main) !important;
-}
-
-/* Dynamic background overrides */
-.light-theme [class*="bg-[#090a0f]"],
-.light-theme [class*="bg-[#0e0f15]"] {
+/* ── Background: base surfaces ── */
+[class*="bg-[#090a0f]"],
+[class*="bg-[#0e0f15]"] {
   background-color: var(--bg-main) !important;
 }
 
-.light-theme [class*="bg-[#12131a]"],
-.light-theme [class*="bg-[#181922]"],
-.light-theme .nav-item-active {
+/* ── Background: card / elevated surfaces ── */
+[class*="bg-[#12131a]"],
+[class*="bg-[#181922]"],
+.nav-item-active {
   background-color: var(--bg-card) !important;
 }
 
-.light-theme [class*="bg-[#1a1c29]"] {
+/* ── Background: hover / interactive panels ── */
+[class*="bg-[#1a1c29]"],
+[class*="bg-[#1f2133]"] {
   background-color: var(--color-panel-hover-val) !important;
 }
 
-/* Dynamic border overrides */
-.light-theme [class*="border-[#1e2030]"],
-.light-theme [class*="divide-[#1e2030]"] > * {
+/* ── Borders ── */
+[class*="border-[#1e2030]"],
+[class*="divide-[#1e2030]"] > * {
   border-color: var(--color-border) !important;
 }
 
-/* Dynamic text overrides */
+/* ── Primary text (off-white / dark-slate via variable) ── */
+[class*="text-[#f4f5f6]"] {
+  color: var(--color-text-main) !important;
+}
+
+/* ── Light-mode only: remap .text-white to dark text ── */
 .light-theme .text-white,
-.light-theme [class*="text-[#f4f5f6]"],
 .light-theme h1,
 .light-theme h2,
 .light-theme h3,
@@ -277,35 +287,53 @@ body {
   color: var(--color-text-main) !important;
 }
 
-/* Prevent text-white overrides on primary CTA buttons */
-.light-theme .btn-primary,
-.light-theme .btn-primary *,
-.light-theme [class*="bg-[#0066ff]"],
-.light-theme [class*="bg-[#0066ff]"] *,
-.light-theme [class*="bg-[#2563eb]"],
-.light-theme [class*="bg-[#2563eb]"] * {
-  color: white !important;
-}
-
-.light-theme [class*="text-[#8f95b2]"],
-.light-theme .text-slate-400 {
+/* ── Muted / secondary text ── */
+[class*="text-[#8f95b2]"],
+.text-slate-400 {
   color: var(--color-text-muted) !important;
 }
 
-/* Brand overrides */
-.light-theme [class*="text-[#0066ff]"] {
+/* ── Brand accent: text ── */
+[class*="text-[#0066ff]"] {
   color: var(--color-cta) !important;
 }
-.light-theme [class*="bg-[#0066ff]"] {
+
+/* ── Brand accent: backgrounds ── */
+[class*="bg-[#0066ff]"] {
   background-color: var(--color-cta) !important;
 }
-.light-theme [class*="border-[#0066ff]"] {
+
+/* ── Brand accent: borders ── */
+[class*="border-[#0066ff]"] {
   border-color: var(--color-cta) !important;
 }
 
-/* Hover overrides */
-.light-theme [class*="hover:bg-[#12131a]"]:hover,
-.light-theme [class*="hover:bg-[#181922]"]:hover {
+/* ── Success green remap ── */
+[class*="bg-[#10b981]"] {
+  background-color: var(--color-success) !important;
+}
+[class*="text-[#10b981]"] {
+  color: var(--color-success) !important;
+}
+
+/* ── CTA buttons: always pure white text on accent bg ── */
+.btn-primary,
+.btn-primary *,
+[class*="bg-[#0066ff]"] *,
+[class*="bg-[#2563eb]"],
+[class*="bg-[#2563eb]"] * {
+  color: white !important;
+}
+
+/* ── Hover state backgrounds ── */
+[class*="hover:bg-[#12131a]"]:hover,
+[class*="hover:bg-[#181922]"]:hover,
+[class*="hover:bg-[#1f2133]"]:hover {
   background-color: var(--color-panel-hover-val) !important;
+}
+
+/* ── Light-mode: hover text brightness ── */
+.light-theme [class*="hover:text-white"]:hover {
+  color: var(--color-text-main) !important;
 }
 
