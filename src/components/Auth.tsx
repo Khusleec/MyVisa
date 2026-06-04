@@ -76,10 +76,12 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
         throw new Error("Регистрийн дугаар 10 оронтой байх ёстой.");
       }
 
+      const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}` : undefined;
       const { error } = await supabase.auth.signUp({
         email: indEmail,
         password: indPassword,
         options: {
+          emailRedirectTo: redirectUrl,
           data: {
             name: indName,
             register_no: indRegisterNo.toUpperCase(),
@@ -136,10 +138,12 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
       createdCompanyId = companyData.id;
 
       // 2. Sign Up Business Admin
+      const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}` : undefined;
       const { error: signUpError } = await supabase.auth.signUp({
         email: adminEmail,
         password: adminPassword,
         options: {
+          emailRedirectTo: redirectUrl,
           data: {
             name: adminName,
             phone: adminPhone,
