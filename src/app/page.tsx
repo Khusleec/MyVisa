@@ -43,12 +43,12 @@ export default function Home() {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark';
-    if (savedTheme) {
-      const timer = setTimeout(() => {
-        setTheme(savedTheme);
-      }, 0);
-      document.documentElement.className = savedTheme === 'light' ? 'light-theme' : '';
-      return () => clearTimeout(timer);
+    if (savedTheme === 'light') {
+      setTheme('light');
+      document.documentElement.classList.add('light-theme');
+    } else {
+      setTheme('dark');
+      document.documentElement.classList.remove('light-theme');
     }
   }, []);
 
@@ -56,7 +56,11 @@ export default function Home() {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
-    document.documentElement.className = newTheme === 'light' ? 'light-theme' : '';
+    if (newTheme === 'light') {
+      document.documentElement.classList.add('light-theme');
+    } else {
+      document.documentElement.classList.remove('light-theme');
+    }
   };
   
   // Consumer profile

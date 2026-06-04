@@ -245,44 +245,30 @@ body {
 }
 
 /* Dynamic background overrides */
-.light-theme .bg-\[\#090a0f\],
-.light-theme .bg-\[\#0e0f15\],
-.light-theme .bg-\[\#090a0f\].mobile-nav-safe,
-.light-theme .bg-\[\#090a0f\]\/90,
-.light-theme .bg-\[\#0e0f15\]\/95,
-.light-theme main.bg-\[\#090a0f\],
-.light-theme .bg-\[\#090a0f\]\/40 {
+.light-theme [class*="bg-[#090a0f]"],
+.light-theme [class*="bg-[#0e0f15]"] {
   background-color: var(--bg-main) !important;
 }
 
-.light-theme .bg-\[\#12131a\],
-.light-theme .bg-\[\#181922\],
-.light-theme .bg-\[\#12131a\]\/55,
-.light-theme .bg-\[\#12131a\]\/40,
-.light-theme .bg-\[\#12131a\]\/50,
-.light-theme .bg-\[\#181922\]\/40,
+.light-theme [class*="bg-[#12131a]"],
+.light-theme [class*="bg-[#181922]"],
 .light-theme .nav-item-active {
   background-color: var(--bg-card) !important;
 }
 
-.light-theme .bg-\[\#1a1c29\],
-.light-theme .bg-\[\#1a1c29\]\/50,
-.light-theme .bg-\[\#1a1c29\]\/60 {
+.light-theme [class*="bg-[#1a1c29]"] {
   background-color: var(--color-panel-hover-val) !important;
 }
 
 /* Dynamic border overrides */
-.light-theme .border-\[\#1e2030\],
-.light-theme .border-\[\#1e2030\]\/60,
-.light-theme .border-\[\#1e2030\]\/20,
-.light-theme .divide-\[\#1e2030\]\/60 > *,
-.light-theme .border-t.border-\[\#1e2030\] {
+.light-theme [class*="border-[#1e2030]"],
+.light-theme [class*="divide-[#1e2030]"] > * {
   border-color: var(--color-border) !important;
 }
 
 /* Dynamic text overrides */
 .light-theme .text-white,
-.light-theme .text-\[\#f4f5f6\],
+.light-theme [class*="text-[#f4f5f6]"],
 .light-theme h1,
 .light-theme h2,
 .light-theme h3,
@@ -294,34 +280,32 @@ body {
 /* Prevent text-white overrides on primary CTA buttons */
 .light-theme .btn-primary,
 .light-theme .btn-primary *,
-.light-theme button.bg-\[\#0066ff\],
-.light-theme button.bg-\[\#0066ff\] *,
-.light-theme .bg-\[\#0066ff\],
-.light-theme button.bg-\[\#0066ff\] span,
-.light-theme button.bg-\[\#2563eb\] span,
-.light-theme button.bg-\[\#2563eb\] {
+.light-theme [class*="bg-[#0066ff]"],
+.light-theme [class*="bg-[#0066ff]"] *,
+.light-theme [class*="bg-[#2563eb]"],
+.light-theme [class*="bg-[#2563eb]"] * {
   color: white !important;
 }
 
-.light-theme .text-\[\#8f95b2\],
+.light-theme [class*="text-[#8f95b2]"],
 .light-theme .text-slate-400 {
   color: var(--color-text-muted) !important;
 }
 
 /* Brand overrides */
-.light-theme .text-\[\#0066ff\] {
+.light-theme [class*="text-[#0066ff]"] {
   color: var(--color-cta) !important;
 }
-.light-theme .bg-\[\#0066ff\] {
+.light-theme [class*="bg-[#0066ff]"] {
   background-color: var(--color-cta) !important;
 }
-.light-theme .border-\[\#0066ff\] {
+.light-theme [class*="border-[#0066ff]"] {
   border-color: var(--color-cta) !important;
 }
 
 /* Hover overrides */
-.light-theme .hover\:bg-\[\#12131a\]\/40:hover,
-.light-theme .hover\:bg-\[\#12131a\]\/50:hover,
-.light-theme .hover\:bg-\[\#181922\]:hover {
+.light-theme [class*="hover:bg-[#12131a]"]:hover,
+.light-theme [class*="hover:bg-[#181922]"]:hover {
   background-color: var(--color-panel-hover-val) !important;
 }
+
