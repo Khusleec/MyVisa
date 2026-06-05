@@ -44,19 +44,20 @@
 }
 
 .light-theme {
-  /* Light Mode — Antigravity Palette */
-  --bg-main: #F8FAFC;
+  /* Light Mode — Pure White Page with Blue Accent */
+  --bg-main: #ffffff;
   --bg-card: #ffffff;
-  --color-brand: #0284C7;
-  --color-cta: #0284C7;
+  --color-brand: #2563EB;
+  --color-cta: #2563EB;
   --color-text-main: #0F172A;
   --color-text-muted: #475569;
   --color-dim: #94A3B8;
   --color-border: #e2e8f0;
   --color-panel-hover-val: #f1f5f9;
-  --color-success: #16A34A;
-  --color-error: #DC2626;
+  --color-success: #10B981;
+  --color-error: #EF4444;
 }
+
 
 body {
   background-color: var(--background);
