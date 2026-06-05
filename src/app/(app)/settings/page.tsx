@@ -19,19 +19,21 @@ export default function SettingsRoute() {
   if (!session) return null;
 
   return (
-    <Settings
-      userRole={userRole}
-      userName={user.name}
-      userRegister={user.registerNo}
-      userPhone={user.phone}
-      userEmail={session.user.email || ""}
-      isUserVerified={user.isVerified}
-      companyName={company.name}
-      companyRegistration={company.registrationNo}
-      smsNotifications={smsNotifications}
-      onSmsToggle={setSmsNotifications}
-      onOpenDanModal={() => setIsDanModalOpen(true)}
-      onSignOut={handleSignOut}
-    />
+    <div className="w-full max-w-3xl mx-auto">
+      <Settings
+        userRole={userRole}
+        userName={user.name}
+        userRegister={user.registerNo}
+        userPhone={user.phone}
+        userEmail={session.user.email || ""}
+        isUserVerified={user.isVerified}
+        companyName={company.name}
+        companyRegistration={company.registrationNo}
+        smsNotifications={smsNotifications}
+        onSmsToggle={setSmsNotifications}
+        onOpenDanModal={() => setIsDanModalOpen(true)}
+        onSignOut={handleSignOut}
+      />
+    </div>
   );
 }

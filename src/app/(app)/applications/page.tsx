@@ -21,12 +21,14 @@ export default function ApplicationsRoute() {
   };
 
   return (
-    <ApplicationsList
-      userRole={userRole as 'individual' | 'business_admin'}
-      applications={applications}
-      openQPayInvoice={openQPayInvoice}
-      getStatusConfig={getStatusConfig}
-      onGoToApply={handleGoToApply}
-    />
+    <div className="w-full max-w-4xl mx-auto">
+      <ApplicationsList
+        userRole={userRole as 'individual' | 'business_admin'}
+        applications={applications}
+        openQPayInvoice={openQPayInvoice}
+        getStatusConfig={getStatusConfig}
+        onGoToApply={handleGoToApply}
+      />
+    </div>
   );
 }

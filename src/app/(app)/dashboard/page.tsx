@@ -40,25 +40,27 @@ export default function DashboardRoute() {
   };
 
   return (
-    <Dashboard
-      userRole={userRole as 'individual' | 'business_admin'}
-      userName={user.name}
-      companyName={company.name}
-      companyRegistration={company.registrationNo}
-      companyIndustry={company.industry}
-      userPhone={user.phone}
-      employees={employees}
-      applications={applications}
-      bulkSelectIds={bulkSelectIds}
-      onBulkSelectToggle={handleBulkCheckboxToggle}
-      openBulkPaymentInvoice={openBulkPaymentInvoice}
-      openQPayInvoice={openQPayInvoice}
-      onStartEmployeeVisa={handleStartEmployee}
-      onStartB2CVisa={handleStartB2C}
-      getStatusConfig={getStatusConfig}
-      isUserVerified={user.isVerified}
-      onOpenDanModal={() => setIsDanModalOpen(true)}
-      onGoToApply={handleGoToApply}
-    />
+    <div className="w-full max-w-5xl mx-auto">
+      <Dashboard
+        userRole={userRole as 'individual' | 'business_admin'}
+        userName={user.name}
+        companyName={company.name}
+        companyRegistration={company.registrationNo}
+        companyIndustry={company.industry}
+        userPhone={user.phone}
+        employees={employees}
+        applications={applications}
+        bulkSelectIds={bulkSelectIds}
+        onBulkSelectToggle={handleBulkCheckboxToggle}
+        openBulkPaymentInvoice={openBulkPaymentInvoice}
+        openQPayInvoice={openQPayInvoice}
+        onStartEmployeeVisa={handleStartEmployee}
+        onStartB2CVisa={handleStartB2C}
+        getStatusConfig={getStatusConfig}
+        isUserVerified={user.isVerified}
+        onOpenDanModal={() => setIsDanModalOpen(true)}
+        onGoToApply={handleGoToApply}
+      />
+    </div>
   );
 }

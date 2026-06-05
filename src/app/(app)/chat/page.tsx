@@ -9,5 +9,9 @@ export default function ChatRoute() {
 
   if (!profile) return null;
 
-  return <Chat currentProfile={profile} />;
+  return (
+    <div className="w-full max-w-5xl mx-auto">
+      <Chat currentProfile={profile} />
+    </div>
+  );
 }
