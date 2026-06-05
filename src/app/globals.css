@@ -25,18 +25,18 @@
 }
 
 :root {
-  /* Dark Mode — Antigravity Palette */
-  --bg-main: #0F141C;
-  --bg-card: #192231;
-  --color-brand: #38BDF8;
-  --color-cta: #38BDF8;
-  --color-text-main: #E2E8F0;
-  --color-text-muted: #94A3B8;
-  --color-dim: #4B5563;
-  --color-border: #1e293b;
-  --color-panel-hover-val: #243044;
-  --color-success: #34D399;
-  --color-error: #F87171;
+  /* Dark Mode — Facebook Palette */
+  --bg-main: #18191A;
+  --bg-card: #242526;
+  --color-brand: #2E89FF;
+  --color-cta: #2E89FF;
+  --color-text-main: #E4E6EB;
+  --color-text-muted: #B0B3B8;
+  --color-dim: #4E4F50;
+  --color-border: #3E4042;
+  --color-panel-hover-val: #3A3B3C;
+  --color-success: #31A24C;
+  --color-error: #FA383E;
 
   --background: var(--bg-main);
   --foreground: var(--color-text-main);
