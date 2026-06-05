@@ -1,6 +1,6 @@
 import React from "react";
+import Image from "next/image";
 import {
-  Globe,
   Database,
   Plus,
   Users,
@@ -101,8 +101,8 @@ export default function Sidebar({
         <div>
           <div className="p-5 md:p-6 border-b border-line space-y-4">
             <div className="flex items-center gap-3">
-              <div className="bg-accent p-1.5 rounded-lg shadow-[0_0_20px_rgba(0,102,255,0.25)]">
-                <Globe className="w-5 h-5 text-white" aria-hidden />
+              <div className="w-9 h-9 rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,102,255,0.15)] shrink-0 bg-white flex items-center justify-center">
+                <Image src="/logo.png" alt="MyVisa.mn Logo" width={28} height={28} className="object-contain" priority />
               </div>
               <div>
                 <h1 className="text-base font-bold text-foreground tracking-tight">

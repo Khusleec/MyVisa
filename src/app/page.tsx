@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import Sidebar from "../components/Sidebar";
 import Dashboard from "../components/Dashboard";
 import ApplicationForm from "../components/ApplicationForm";
@@ -118,9 +119,14 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col min-h-0 bg-surface overflow-y-auto">
         <header className="md:hidden sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b border-line bg-surface/90 backdrop-blur-md">
-          <div>
-            <p className="text-[10px] font-mono text-muted uppercase tracking-wider">MyVisa.mn</p>
-            <h2 className="text-sm font-bold text-foreground">{TAB_TITLES[activeTab]}</h2>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-md bg-white flex items-center justify-center shadow-sm border border-line/50 shrink-0">
+              <Image src="/logo.png" alt="MyVisa.mn" width={20} height={20} className="object-contain" />
+            </div>
+            <div>
+              <p className="text-[10px] font-mono text-muted uppercase tracking-wider">MyVisa.mn</p>
+              <h2 className="text-sm font-bold text-foreground">{TAB_TITLES[activeTab]}</h2>
+            </div>
           </div>
           {!user.isVerified && userRole === "individual" && activeTab !== "settings" && (
             <button

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Mail, Lock, User, Building, Phone, ArrowRight, Globe, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import { Mail, Lock, User, Building, Phone, ArrowRight, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 
@@ -202,8 +203,8 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
         
         {/* Branding header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex bg-accent/10 p-2.5 rounded-2xl border border-accent/20 mb-1">
-            <Globe className="w-8 h-8 text-accent" />
+          <div className="inline-flex bg-white p-2 rounded-2xl border border-accent/20 shadow-[0_0_30px_rgba(0,102,255,0.12)] mb-1">
+            <Image src="/logo.png" alt="MyVisa.mn Logo" width={48} height={48} className="object-contain" priority />
           </div>
           <h1 className="text-2xl font-black text-foreground tracking-tight">
             MyVisa<span className="text-accent">.mn</span>
