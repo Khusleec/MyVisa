@@ -18,7 +18,7 @@ export function useVisaApp() {
   const [activeTab, setActiveTab] = useState<AppTab>('dashboard');
   const [formError, setFormError] = useState<string | null>(null);
   const [isDanModalOpen, setIsDanModalOpen] = useState<boolean>(false);
-  const [smsNotifications, setSmsNotifications] = useState<boolean>(true);
+
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -46,7 +46,8 @@ export function useVisaApp() {
     name: "Бат-Эрдэнэ Болд",
     registerNo: "УУ94021512",
     phone: "+976 9911-2233",
-    isVerified: false
+    isVerified: false,
+    profilePhoto: null as string | null,
   });
 
   // Business Profile
@@ -102,9 +103,7 @@ export function useVisaApp() {
   const [qpayAmount, setQpayAmount] = useState<number>(0);
   const [qpayCountdown, setQpayCountdown] = useState<number>(300);
 
-  // SMS Simulation states
-  const [sendingSmsId, setSendingSmsId] = useState<string | null>(null);
-  const [smsSentEmployees, setSmsSentEmployees] = useState<string[]>([]);
+
 
   const loadUserData = async (userId: string) => {
     setLoadingSession(true);
@@ -600,17 +599,7 @@ export function useVisaApp() {
     }
   };
 
-  const handleSendEmployeeSms = (empId: string) => {
-    setSendingSmsId(empId);
-    setTimeout(() => {
-      setSendingSmsId(null);
-      setSmsSentEmployees(prev => [...prev, empId]);
-      
-      setTimeout(() => {
-        setEmployees(prev => prev.map(e => e.id === empId ? { ...e, danVerified: true } : e));
-      }, 3000);
-    }, 1200);
-  };
+
 
   return {
     session,
@@ -623,8 +612,7 @@ export function useVisaApp() {
     setFormError,
     isDanModalOpen,
     setIsDanModalOpen,
-    smsNotifications,
-    setSmsNotifications,
+
     theme,
     toggleTheme,
     user,
@@ -641,8 +629,8 @@ export function useVisaApp() {
     setActivePaymentId,
     qpayAmount,
     qpayCountdown,
-    sendingSmsId,
-    smsSentEmployees,
+
+    updateUser: setUser,
     handleSignOut,
     getStatusConfig,
     handleCountryChange,
@@ -661,6 +649,6 @@ export function useVisaApp() {
     handleRoleToggle,
     handleStartEmployeeVisa,
     handleStartB2CVisa,
-    handleSendEmployeeSms,
+
   };
 }

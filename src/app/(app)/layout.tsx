@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useVisaAppContext } from "../../components/providers/VisaAppContext";
 import LoadingScreen from "../../components/ui/LoadingScreen";
 import Navbar from "../../components/Navbar";
@@ -24,40 +24,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     qpayAmount,
     qpayCountdown,
     simulatePaymentSuccess,
-    activeTab,
-    setActiveTab
   } = useVisaAppContext();
   const router = useRouter();
-  const pathname = usePathname();
-
-  // Sync activeTab context change to Next.js route
-  useEffect(() => {
-    const tabToPath: Record<string, string> = {
-      dashboard: "/dashboard",
-      apply: "/apply",
-      applications: "/applications",
-      chat: "/chat",
-      settings: "/settings",
-    };
-    if (tabToPath[activeTab] && tabToPath[activeTab] !== pathname) {
-      router.push(tabToPath[activeTab]);
-    }
-  }, [activeTab, pathname, router]);
-
-  // Sync route change to activeTab context
-  useEffect(() => {
-    const pathToTab: Record<string, string> = {
-      "/dashboard": "dashboard",
-      "/apply": "apply",
-      "/applications": "applications",
-      "/chat": "chat",
-      "/settings": "settings",
-    };
-    const tab = pathToTab[pathname];
-    if (tab && tab !== activeTab) {
-      setActiveTab(tab as any);
-    }
-  }, [pathname, activeTab, setActiveTab]);
 
   useEffect(() => {
     if (!loadingSession && !session) {

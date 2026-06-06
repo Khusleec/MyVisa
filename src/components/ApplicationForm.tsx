@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, ChevronRight, Info, HelpCircle, Lock, Upload, BellRing, RefreshCw, AlertCircle } from "lucide-react";
+import { Check, ChevronRight, Info, HelpCircle, Lock, Upload, RefreshCw, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Employee } from "../types/visa";
 import PageHeader from "./ui/PageHeader";
@@ -42,13 +42,8 @@ interface ApplicationFormProps {
   onSaveAsDraft: () => void;
   
   khurLoading: boolean;
-  smsNotifications: boolean;
-  setSmsNotifications: (val: boolean) => void;
   isUserVerified: boolean;
   onOpenDanModal: () => void;
-  sendingSmsId: string | null;
-  smsSentEmployees: string[];
-  onSendEmployeeSms: (empId: string) => void;
   formError?: string | null;
   onClearFormError?: () => void;
 }
@@ -67,13 +62,8 @@ export default function ApplicationForm({
   onGenerateInvoice,
   onSaveAsDraft,
   khurLoading,
-  smsNotifications,
-  setSmsNotifications,
   isUserVerified,
   onOpenDanModal,
-  sendingSmsId,
-  smsSentEmployees,
-  onSendEmployeeSms,
   formError,
   onClearFormError,
 }: ApplicationFormProps) {
@@ -313,42 +303,6 @@ export default function ApplicationForm({
             <div className="space-y-4 pt-4 border-t border-line">
               <span className="text-xs font-bold text-foreground block">Төрийн мэдээлэл баталгаажуулалт (KHUR)</span>
               
-              {userRole === 'business_admin' && newApp.selectedEmployeeId && (
-                (() => {
-                  const selectedEmp = employees.find(e => e.id === newApp.selectedEmployeeId);
-                  const isEmpVerified = selectedEmp?.danVerified;
-                  
-                  if (!isEmpVerified) {
-                    return (
-                      <div className="p-4 bg-rose-500/5 border border-rose-500/20 rounded-xl space-y-3">
-                        <p className="text-xs text-rose-400 font-bold">
-                          Ажилтан DAN системээр нэвтэрч баталгаажуулаагүй байна.
-                        </p>
-                        <p className="text-[10.5px] text-muted leading-relaxed">
-                          Мэдээллийг татахын тулд ажилтан руу баталгаажуулах хүсэлт илгээнэ үү. Ажилтан гар утсан дээрээ зөвшөөрсний дараа ХУР лавлагаа идэвхжинэ.
-                        </p>
-                        {sendingSmsId === selectedEmp?.id ? (
-                          <div className="flex items-center gap-2 text-[11px] text-accent font-semibold py-1">
-                            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> SMS хүсэлт илгээж байна...
-                          </div>
-                        ) : smsSentEmployees.includes(selectedEmp?.id || "") ? (
-                          <div className="space-y-2">
-                            <p className="text-[11px] text-positive font-bold">✓ SMS хүсэлт илгээгдсэн. Ажилтны хариуг хүлээж байна...</p>
-                            <p className="text-[10px] text-muted font-mono italic">Ажилтан баталгаажуулж байгааг загварчлахын тулд 3 секундын дараа автоматаар шинэчлэгдэнэ.</p>
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => onSendEmployeeSms(selectedEmp!.id)}
-                            className="px-4 py-2 rounded-lg bg-accent hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
-                          >
-                            Баталгаажуулах SMS илгээх
-                          </button>
-                        )}
-                      </div>
-                    );
-                  }
-                  
                   return (
                     <>
                       {khurLoading ? (
@@ -582,20 +536,7 @@ export default function ApplicationForm({
                 <Info className="w-4 h-4 text-accent shrink-0" />
                 <p>Одоо төлөх эсвэл түр хадгалаад бусад ажилтны мэдүүлэгтэй нэгдсэн QPay нэхэмжлэхээр төлөх боломжтой.</p>
               </div>
-            ) : (
-              <div className="p-3 bg-surface rounded-lg border border-line flex items-center justify-between">
-                <span className="text-[11px] text-muted flex items-center gap-1.5">
-                  <BellRing className="w-4 h-4 text-accent" />
-                  Явцын мэдээллийг SMS-ээр үнэгүй авах уу?
-                </span>
-                <input 
-                  type="checkbox" 
-                  checked={smsNotifications}
-                  onChange={(e) => setSmsNotifications(e.target.checked)}
-                  className="w-4 h-4 accent-accent"
-                />
-              </div>
-            )}
+
 
             <div className="flex justify-between pt-4 border-t border-line gap-3">
               <button 

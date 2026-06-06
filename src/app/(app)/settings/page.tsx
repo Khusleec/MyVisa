@@ -10,8 +10,7 @@ export default function SettingsRoute() {
     user,
     company,
     session,
-    smsNotifications,
-    setSmsNotifications,
+    updateUser,
     setIsDanModalOpen,
     handleSignOut
   } = useVisaAppContext();
@@ -22,15 +21,11 @@ export default function SettingsRoute() {
     <div className="w-full max-w-3xl mx-auto">
       <Settings
         userRole={userRole}
-        userName={user.name}
-        userRegister={user.registerNo}
-        userPhone={user.phone}
+        user={user}
         userEmail={session.user.email || ""}
-        isUserVerified={user.isVerified}
         companyName={company.name}
         companyRegistration={company.registrationNo}
-        smsNotifications={smsNotifications}
-        onSmsToggle={setSmsNotifications}
+        onUpdateUser={updateUser}
         onOpenDanModal={() => setIsDanModalOpen(true)}
         onSignOut={handleSignOut}
       />

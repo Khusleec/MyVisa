@@ -19,13 +19,8 @@ export default function ApplyRoute() {
     handleGenerateInvoice,
     handleSaveAsDraft,
     khurLoading,
-    smsNotifications,
-    setSmsNotifications,
     user,
     setIsDanModalOpen,
-    sendingSmsId,
-    smsSentEmployees,
-    handleSendEmployeeSms,
     formError,
     setFormError
   } = useVisaAppContext();
@@ -46,13 +41,8 @@ export default function ApplyRoute() {
         onGenerateInvoice={handleGenerateInvoice}
         onSaveAsDraft={handleSaveAsDraft}
         khurLoading={khurLoading}
-        smsNotifications={smsNotifications}
-        setSmsNotifications={setSmsNotifications}
         isUserVerified={user.isVerified}
         onOpenDanModal={() => setIsDanModalOpen(true)}
-        sendingSmsId={sendingSmsId}
-        smsSentEmployees={smsSentEmployees}
-        onSendEmployeeSms={handleSendEmployeeSms}
         formError={formError}
         onClearFormError={() => setFormError(null)}
       />

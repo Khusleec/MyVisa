@@ -152,8 +152,8 @@ export default function Dashboard({
               </p>
             </div>
             <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
-              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Явцын мэдээлэл</p>
-              <p className="text-sm font-bold text-foreground">SMS суваг идэвхтэй</p>
+              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Холбоо барих</p>
+              <p className="text-sm font-bold text-foreground">Зурвас суваг идэвхтэй</p>
               <p className="text-[10px] text-accent font-mono">{userPhone}</p>
             </div>
           </>
