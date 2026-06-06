@@ -8,6 +8,8 @@ import {
   CreditCard, AlertCircle, Upload, Trash2
 } from "lucide-react";
 import PageHeader from "./ui/PageHeader";
+import ApplicationsList from "./ApplicationsList";
+import { VisaApplication } from "../types/visa";
 
 interface UserProfile {
   name: string;
@@ -26,6 +28,10 @@ interface SettingsProps {
   onUpdateUser: (updates: Partial<UserProfile>) => void;
   onOpenDanModal: () => void;
   onSignOut: () => void;
+  applications: VisaApplication[];
+  openQPayInvoice: (appId: string, amount: number) => void;
+  getStatusConfig: (status: VisaApplication["status"]) => { text: string; bg: string; bar: string };
+  onGoToApply?: () => void;
 }
 
 export default function Settings({
@@ -37,6 +43,10 @@ export default function Settings({
   onUpdateUser,
   onOpenDanModal,
   onSignOut,
+  applications,
+  openQPayInvoice,
+  getStatusConfig,
+  onGoToApply,
 }: SettingsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user.name);
@@ -435,6 +445,19 @@ export default function Settings({
               </button>
             )}
           </div>
+        </section>
+      )}
+
+      {/* ── Applications / Requests list ── */}
+      {userRole !== 'visa_issuer' && (
+        <section className="pt-4 border-t border-line mt-4">
+          <ApplicationsList
+            userRole={userRole as 'individual' | 'business_admin'}
+            applications={applications}
+            openQPayInvoice={openQPayInvoice}
+            getStatusConfig={getStatusConfig}
+            onGoToApply={onGoToApply}
+          />
         </section>
       )}
 

@@ -69,12 +69,6 @@ export default function Sidebar({
       mobileLabel: "Мэдүүлэх",
     },
     {
-      id: "applications",
-      icon: userRole === "business_admin" ? Users : FileText,
-      label: userRole === "business_admin" ? "Ажилчдын визүүд" : "Миний визүүд",
-      mobileLabel: "Визүүд",
-    },
-    {
       id: "chat",
       icon: MessageSquare,
       label: "Зурвас холбоо",
@@ -157,21 +151,12 @@ export default function Sidebar({
                 type="button"
                 onClick={() => onTabChange(id)}
                 aria-current={activeTab === id ? "page" : undefined}
-                className={
-                  id === "applications"
-                    ? `${navBtnClass(activeTab === id)} justify-between`
-                    : navBtnClass(activeTab === id)
-                }
+                className={navBtnClass(activeTab === id)}
               >
                 <span className="flex items-center gap-3">
                   <Icon className="w-4 h-4" aria-hidden />
                   {label}
                 </span>
-                {id === "applications" && (
-                  <span className="bg-line text-foreground text-[9.5px] px-2 py-0.5 rounded-full font-mono min-w-[1.25rem] text-center">
-                    {applicationsCount}
-                  </span>
-                )}
               </button>
             ))}
           </nav>

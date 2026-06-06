@@ -49,7 +49,7 @@ export default function Navbar() {
 
   const showRoleSwitcher = profile?.role === "business_admin";
 
-  const allNavItems = [
+  const allNavItems: { href: string; icon: React.ElementType; label: string; mobileLabel: string; badge?: number }[] = [
     {
       href: "/dashboard",
       icon: Database,
@@ -61,13 +61,6 @@ export default function Navbar() {
       icon: Plus,
       label: userRole === "business_admin" ? "Ажилтанд виз мэдүүлэх" : "Виз мэдүүлэх",
       mobileLabel: "Мэдүүлэх",
-    },
-    {
-      href: "/applications",
-      icon: userRole === "business_admin" ? Users : FileText,
-      label: userRole === "business_admin" ? "Ажилчдын визүүд" : "Миний визүүд",
-      mobileLabel: "Визүүд",
-      badge: applicationsCount
     },
     {
       href: "/chat",

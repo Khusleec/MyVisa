@@ -1,10 +1,12 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { useVisaAppContext } from "../../../components/providers/VisaAppContext";
 import Settings from "../../../components/Settings";
 
 export default function SettingsRoute() {
+  const router = useRouter();
   const {
     userRole,
     user,
@@ -12,10 +14,19 @@ export default function SettingsRoute() {
     session,
     updateUser,
     setIsDanModalOpen,
-    handleSignOut
+    handleSignOut,
+    applications,
+    openQPayInvoice,
+    getStatusConfig,
+    setFormError
   } = useVisaAppContext();
 
   if (!session) return null;
+
+  const handleGoToApply = () => {
+    setFormError(null);
+    router.push("/apply");
+  };
 
   return (
     <div className="w-full max-w-3xl mx-auto">
@@ -28,6 +39,10 @@ export default function SettingsRoute() {
         onUpdateUser={updateUser}
         onOpenDanModal={() => setIsDanModalOpen(true)}
         onSignOut={handleSignOut}
+        applications={applications}
+        openQPayInvoice={openQPayInvoice}
+        getStatusConfig={getStatusConfig}
+        onGoToApply={handleGoToApply}
       />
     </div>
   );
