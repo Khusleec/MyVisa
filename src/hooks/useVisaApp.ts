@@ -50,8 +50,29 @@ export function useVisaApp() {
     profilePhoto: null as string | null,
   });
 
-  const updateUser = (updates: Partial<{ name: string; registerNo: string; phone: string; isVerified: boolean; profilePhoto: string | null }>) => {
+  const updateUser = async (updates: Partial<{ name: string; registerNo: string; phone: string; isVerified: boolean; profilePhoto: string | null }>) => {
     setUser(prev => ({ ...prev, ...updates }));
+
+    if (!session?.user?.id) return;
+    try {
+      const dbUpdates: Record<string, any> = {};
+      if (updates.name !== undefined) dbUpdates.name = updates.name;
+      if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+      if (updates.profilePhoto !== undefined) dbUpdates.profile_photo = updates.profilePhoto;
+
+      const { error } = await supabase
+        .from("profiles")
+        .update(dbUpdates)
+        .eq("id", session.user.id);
+
+      if (error) {
+        toast(`Мэдээлэл хадгалахад алдаа: ${error.message}`, "error");
+      } else {
+        toast("Мэдээлэл амжилттай хадгалагдлаа", "success");
+      }
+    } catch (e: any) {
+      console.error("updateUser error:", e);
+    }
   };
 
   // Business Profile
