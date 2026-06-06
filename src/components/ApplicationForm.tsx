@@ -302,36 +302,34 @@ export default function ApplicationForm({
             {/* KHUR Verification trigger */}
             <div className="space-y-4 pt-4 border-t border-line">
               <span className="text-xs font-bold text-foreground block">Төрийн мэдээлэл баталгаажуулалт (KHUR)</span>
-              
-                  return (
-                    <>
-                      {khurLoading ? (
-                        <div className="p-6 bg-surface rounded-xl border border-line flex flex-col items-center justify-center gap-3 text-center">
-                          <RefreshCw className="w-6 h-6 text-accent animate-spin" />
-                          <p className="text-[10px] font-mono text-muted">API Query: 150.129.143.18 / E-Mongolia secure link</p>
-                        </div>
-                      ) : newApp.khurChecked ? (
-                        <div className="p-4 bg-positive/5 border border-positive/25 rounded-xl space-y-3">
-                          <p className="text-xs text-foreground font-bold flex items-center gap-1.5">
-                            <Check className="w-4 h-4 text-positive" /> Нийгмийн Даатгалын шимтгэл төлөлт баталгаажлаа.
-                          </p>
-                          <div className="grid grid-cols-2 gap-4 text-[10.5px] font-mono text-muted pt-2">
-                            <div>Ажил олгогч: <span className="text-foreground font-bold">{newApp.khurEmployer}</span></div>
-                            <div>Сүүлийн цалин: <span className="text-foreground font-bold">{newApp.khurSalary.toLocaleString()} ₮</span></div>
-                          </div>
-                        </div>
-                      ) : (
-                        <button 
-                          type="button"
-                          onClick={onPullKhurData}
-                          className="w-full py-2.5 rounded-lg bg-accent hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
-                        >
-                          ХУР системээс ажил олгогч, даатгалын лавлагааг татах
-                        </button>
-                      )}
-                    </>
-                  );
-                })()
+
+              {userRole === 'business_admin' && (
+                <>
+                  {khurLoading ? (
+                    <div className="p-6 bg-surface rounded-xl border border-line flex flex-col items-center justify-center gap-3 text-center">
+                      <RefreshCw className="w-6 h-6 text-accent animate-spin" />
+                      <p className="text-[10px] font-mono text-muted">API Query: 150.129.143.18 / E-Mongolia secure link</p>
+                    </div>
+                  ) : newApp.khurChecked ? (
+                    <div className="p-4 bg-positive/5 border border-positive/25 rounded-xl space-y-3">
+                      <p className="text-xs text-foreground font-bold flex items-center gap-1.5">
+                        <Check className="w-4 h-4 text-positive" /> Нийгмийн Даатгалын шимтгэл төлөлт баталгаажлаа.
+                      </p>
+                      <div className="grid grid-cols-2 gap-4 text-[10.5px] font-mono text-muted pt-2">
+                        <div>Ажил олгогч: <span className="text-foreground font-bold">{newApp.khurEmployer}</span></div>
+                        <div>Сүүлийн цалин: <span className="text-foreground font-bold">{newApp.khurSalary.toLocaleString()} ₮</span></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={onPullKhurData}
+                      className="w-full py-2.5 rounded-lg bg-accent hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
+                    >
+                      ХУР системээс ажил олгогч, даатгалын лавлагааг татах
+                    </button>
+                  )}
+                </>
               )}
 
               {userRole === 'individual' && newApp.applicantType === 'myself' && (
