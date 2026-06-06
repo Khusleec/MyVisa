@@ -42,7 +42,7 @@ export default function ApplicationsList({
       <PageHeader
         title={
           userRole === "business_admin"
-            ? "Ажилчдын хүсэлтүүд"
+            ? "Ажилчдын визүүд"
             : "Миний хүсэлтүүд"
         }
         description={
