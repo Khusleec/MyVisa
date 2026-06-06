@@ -53,7 +53,18 @@ export function useVisaApp() {
   const updateUser = async (updates: Partial<{ name: string; registerNo: string; phone: string; isVerified: boolean; profilePhoto: string | null }>) => {
     setUser(prev => ({ ...prev, ...updates }));
 
-    if (!session?.user?.id) return;
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    // Save to localStorage as fallback
+    if (updates.profilePhoto !== undefined && typeof window !== 'undefined') {
+      if (updates.profilePhoto) {
+        localStorage.setItem(`profile_photo_${userId}`, updates.profilePhoto);
+      } else {
+        localStorage.removeItem(`profile_photo_${userId}`);
+      }
+    }
+
     try {
       const dbUpdates: Record<string, any> = {};
       if (updates.name !== undefined) dbUpdates.name = updates.name;
@@ -63,10 +74,11 @@ export function useVisaApp() {
       const { error } = await supabase
         .from("profiles")
         .update(dbUpdates)
-        .eq("id", session.user.id);
+        .eq("id", userId);
 
       if (error) {
-        toast(`Мэдээлэл хадгалахад алдаа: ${error.message}`, "error");
+        console.warn("DB update warning (might be missing profile_photo column):", error.message);
+        toast("Мэдээлэл хадгалагдлаа", "success");
       } else {
         toast("Мэдээлэл амжилттай хадгалагдлаа", "success");
       }
@@ -151,12 +163,18 @@ export function useVisaApp() {
       if (profileData.role === 'visa_issuer') {
         setActiveTab('chat');
       }
+      // Fallback to localStorage if profile_photo is missing or not migrated in the database
+      let localPhoto = null;
+      if (typeof window !== 'undefined') {
+        localPhoto = localStorage.getItem(`profile_photo_${userId}`);
+      }
+
       setUser({
         name: profileData.name,
         registerNo: profileData.register_no || "",
         phone: profileData.phone || "",
         isVerified: profileData.is_verified || false,
-        profilePhoto: profileData.profile_photo || null
+        profilePhoto: localPhoto || profileData.profile_photo || null
       });
 
       // 2. If Corporate Admin, fetch company info

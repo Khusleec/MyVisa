@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     role user_role DEFAULT 'individual'::user_role NOT NULL,
     company_id UUID REFERENCES public.companies(id) ON DELETE SET NULL,
     is_verified BOOLEAN DEFAULT false NOT NULL, -- DAN verification flag
+    profile_photo TEXT, -- Base64 profile photo url
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
