@@ -286,17 +286,17 @@ export default function Settings({
                   />
 
                   {editPhoto ? (
-                    <div className="relative w-full rounded-xl overflow-hidden border border-line aspect-video flex items-center justify-center bg-overlay">
+                    <div className="relative w-32 h-32 mx-auto rounded-2xl overflow-hidden border border-line bg-overlay flex items-center justify-center">
                       <img
                         src={editPhoto}
                         alt="ID зураг"
-                        className="max-h-48 object-contain"
+                        className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-2 right-2 flex gap-1.5">
+                      <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="p-1.5 rounded-lg bg-surface/80 backdrop-blur border border-line hover:bg-elevated transition-all"
+                          className="p-1.5 rounded-lg bg-surface/85 border border-line hover:bg-elevated transition-all"
                           aria-label="Зураг солих"
                         >
                           <Upload className="w-3.5 h-3.5 text-accent" />
@@ -304,7 +304,7 @@ export default function Settings({
                         <button
                           type="button"
                           onClick={handleRemovePhoto}
-                          className="p-1.5 rounded-lg bg-surface/80 backdrop-blur border border-negative/30 hover:bg-negative/10 transition-all"
+                          className="p-1.5 rounded-lg bg-surface/85 border border-negative/30 hover:bg-negative/10 transition-all"
                           aria-label="Зураг устгах"
                         >
                           <Trash2 className="w-3.5 h-3.5 text-negative" />
