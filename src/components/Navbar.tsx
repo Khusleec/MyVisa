@@ -86,8 +86,9 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-line bg-surface/80 backdrop-blur-md transition-colors duration-200">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <div className="sticky top-4 z-40 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto">
+      <header className="border border-line rounded-2xl bg-surface/80 backdrop-blur-md transition-all duration-200 shadow-md">
+        <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         
         {/* Left: Branding */}
         <div className="flex items-center gap-6">
@@ -361,6 +362,7 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </header>
+      </header>
+    </div>
   );
 }
