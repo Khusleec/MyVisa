@@ -529,12 +529,12 @@ export default function ApplicationForm({
               </div>
             </div>
 
-            {userRole === 'business_admin' ? (
+            {userRole === 'business_admin' && (
               <div className="p-3 bg-surface rounded-lg border border-line text-[11px] leading-relaxed text-muted flex gap-2">
                 <Info className="w-4 h-4 text-accent shrink-0" />
                 <p>Одоо төлөх эсвэл түр хадгалаад бусад ажилтны мэдүүлэгтэй нэгдсэн QPay нэхэмжлэхээр төлөх боломжтой.</p>
               </div>
-
+            )}
 
             <div className="flex justify-between pt-4 border-t border-line gap-3">
               <button 
