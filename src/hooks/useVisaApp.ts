@@ -134,7 +134,8 @@ export function useVisaApp() {
         name: profileData.name,
         registerNo: profileData.register_no || "",
         phone: profileData.phone || "",
-        isVerified: profileData.is_verified || false
+        isVerified: profileData.is_verified || false,
+        profilePhoto: profileData.profile_photo || null
       });
 
       // 2. If Corporate Admin, fetch company info
