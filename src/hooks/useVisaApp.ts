@@ -50,6 +50,10 @@ export function useVisaApp() {
     profilePhoto: null as string | null,
   });
 
+  const updateUser = (updates: Partial<{ name: string; registerNo: string; phone: string; isVerified: boolean; profilePhoto: string | null }>) => {
+    setUser(prev => ({ ...prev, ...updates }));
+  };
+
   // Business Profile
   const [company, setCompany] = useState({
     name: "Юнител Групп ХХК",
@@ -630,7 +634,7 @@ export function useVisaApp() {
     qpayAmount,
     qpayCountdown,
 
-    updateUser: setUser,
+    updateUser,
     handleSignOut,
     getStatusConfig,
     handleCountryChange,
