@@ -618,9 +618,10 @@ export function useVisaApp() {
       : type === 'statement' 
         ? `BANK_STATEMENT_${newApp.registerNo || "GUEST"}_SIGNED.enc` 
         : `PHOTO_3X4_${newApp.registerNo || "GUEST"}.enc`;
+    const stateKey = type === 'statement' ? 'bankStatementFile' : `${type}File`;
     setNewApp(prev => ({
       ...prev,
-      [`${type}File`]: fileName
+      [stateKey]: fileName
     }));
   };
 
