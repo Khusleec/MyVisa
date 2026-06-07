@@ -129,6 +129,13 @@ export function useVisaApp() {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState<boolean>(true);
   const [profile, setProfile] = useState<{ id: string; role: 'individual' | 'business_admin' | 'business_employee' | 'visa_issuer'; company_id: string | null; name: string } | null>(null);
+  const [activeChatContact, setActiveChatContact] = useState<{
+    id: string;
+    name: string;
+    role: string;
+    company_id: string | null;
+    company_name?: string;
+  } | null>(null);
 
   const [userRole, setUserRole] = useState<'individual' | 'business_admin' | 'visa_issuer'>('individual');
   const [activeTab, setActiveTab] = useState<AppTab>('dashboard');
@@ -868,7 +875,35 @@ export function useVisaApp() {
     }
   };
 
-
+  const startChatWithCompany = async (companyId: string, companyName: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, company_id, role')
+        .eq('company_id', companyId)
+        .eq('role', 'business_admin')
+        .limit(1)
+        .single();
+        
+      if (error || !data) {
+        toast("Байгууллагын админ олдсонгүй эсвэл чат эхлүүлэх боломжгүй байна.", "error");
+        return false;
+      }
+      
+      setActiveChatContact({
+        id: data.id,
+        name: data.name,
+        role: data.role,
+        company_id: data.company_id,
+        company_name: companyName
+      });
+      return true;
+    } catch (e) {
+      console.error("startChatWithCompany error:", e);
+      toast("Алдаа гарлаа. Дахин оролдоно уу.", "error");
+      return false;
+    }
+  };
 
   return {
     session,
@@ -920,6 +955,8 @@ export function useVisaApp() {
     handleRoleToggle,
     handleStartEmployeeVisa,
     handleStartB2CVisa,
-
+    activeChatContact,
+    setActiveChatContact,
+    startChatWithCompany,
   };
 }

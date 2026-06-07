@@ -2,7 +2,8 @@ import React from "react";
 import { 
   Info, CreditCard, Check, CheckSquare, Square, FileText, Plus, 
   Building2, Phone, MapPin, CheckCircle, Globe,
-  Zap, Wifi, Coins, Compass, Apple, Shield, LucideIcon
+  Zap, Wifi, Coins, Compass, Apple, Shield, LucideIcon,
+  ArrowLeft, MessageSquare, ChevronRight
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { VisaApplication, Employee } from "../types/visa";
@@ -51,6 +52,7 @@ interface DashboardProps {
   onOpenDanModal: () => void;
   onGoToApply?: () => void;
   companiesList?: { id: string; name: string; registration_no: string; allowed_countries: string[]; phone?: string; address?: string; advantages?: string[] }[];
+  onStartChatWithCompany?: (companyId: string, companyName: string) => Promise<boolean>;
 }
 
 export default function Dashboard({
@@ -73,10 +75,15 @@ export default function Dashboard({
   onOpenDanModal,
   onGoToApply,
   companiesList = [],
+  onStartChatWithCompany,
 }: DashboardProps) {
+  
+  const [selectedCompanyDetailId, setSelectedCompanyDetailId] = React.useState<string | null>(null);
   
   const b2bApplications = applications.filter(a => a.applicantType === 'employee');
   const b2cApplications = applications.filter(a => a.applicantType !== 'employee');
+
+  const selectedCompany = companiesList.find(c => c.id === selectedCompanyDetailId);
 
   return (
     <motion.div 
@@ -346,6 +353,153 @@ export default function Dashboard({
             </div>
           </div>
         </div>
+      ) : selectedCompany ? (
+        <motion.div 
+          key="company-detail"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.15 }}
+          className="space-y-6"
+        >
+          {/* Back Button */}
+          <button
+            onClick={() => setSelectedCompanyDetailId(null)}
+            className="flex items-center gap-2 text-xs font-bold text-muted hover:text-foreground transition-colors py-2 group cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            <span>Байгууллагуудын жагсаалт руу буцах</span>
+          </button>
+
+          {/* Detail Card */}
+          <div className="premium-card p-6 md:p-8 bg-surface border border-line rounded-2xl relative overflow-hidden space-y-6">
+            {/* Logo Watermark inside detail */}
+            <div className="absolute right-6 top-6 text-accent/5 pointer-events-none transform rotate-12 shrink-0">
+              {(() => {
+                const SelectedLogo = getLogoIcon(selectedCompany.id);
+                return <SelectedLogo className="w-48 h-48 md:w-64 md:h-64" />;
+              })()}
+            </div>
+
+            <div className="relative z-10 space-y-6">
+              {/* Header info */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-line pb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
+                    <Building2 className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-extrabold text-foreground">{selectedCompany.name}</h3>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                      <span className="text-[10px] font-mono text-muted uppercase tracking-wider bg-elevated px-2.5 py-0.5 rounded border border-line">РД: {selectedCompany.registration_no}</span>
+                      <span className="text-[10px] font-bold text-positive bg-positive/10 border border-positive/20 px-2 py-0.5 rounded">Идэвхтэй түнш</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Chat action */}
+                <button
+                  type="button"
+                  onClick={() => onStartChatWithCompany?.(selectedCompany.id, selectedCompany.name)}
+                  className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold shadow-md shadow-accent/10 hover:shadow-accent/20 cursor-pointer"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Зурвас холбоо эхлүүлэх</span>
+                </button>
+              </div>
+
+              {/* Description & Advantages */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                <div className="md:col-span-2 space-y-4">
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono mb-2.5">Байгууллагын давуу талууд</h4>
+                    {selectedCompany.advantages && selectedCompany.advantages.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {selectedCompany.advantages.map((adv, idx) => (
+                          <div key={idx} className="flex items-start gap-2.5 p-3 rounded-xl bg-elevated/40 border border-line">
+                            <CheckCircle className="w-4.5 h-4.5 text-positive shrink-0 mt-0.5" />
+                            <span className="text-xs font-medium text-foreground">{adv}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted">Давуу тал бүртгэгдээгүй байна.</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Contact info */}
+                <div className="space-y-4 bg-elevated/20 p-5 rounded-xl border border-line/60">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Холбоо барих мэдээлэл</h4>
+                  <div className="space-y-3.5 text-xs">
+                    {selectedCompany.phone && (
+                      <div className="space-y-1">
+                        <span className="text-muted block text-[10px] uppercase font-mono tracking-wider">Утасны дугаар</span>
+                        <div className="flex items-center gap-2 text-foreground font-bold text-sm">
+                          <Phone className="w-4 h-4 text-accent shrink-0" />
+                          <span>{selectedCompany.phone}</span>
+                        </div>
+                      </div>
+                    )}
+                    {selectedCompany.address && (
+                      <div className="space-y-1">
+                        <span className="text-muted block text-[10px] uppercase font-mono tracking-wider">Хаяг байршил</span>
+                        <div className="flex items-start gap-2 text-foreground leading-relaxed">
+                          <MapPin className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+                          <span>{selectedCompany.address}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Allowed countries and application */}
+              <div className="pt-4 border-t border-line space-y-4">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Виз мэдүүлэх боломжтой улсууд</h4>
+                  <p className="text-[11px] text-muted mt-1">Тус байгууллагаар дамжуулан виз мэдүүлгээ эхлүүлэх улсаа сонгоно уу.</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {selectedCompany.allowed_countries.map((code) => {
+                    const countriesMap: Record<string, { name: string; label: string; flag: string; eFee: number; sFee: number; desc: string }> = {
+                      KR: { name: "Бүгд Найрамдах Солонгос Улс", label: "БНСУ", flag: "🇰🇷", eFee: 110000, sFee: 40000, desc: "C-3-9 аялал жуулчлалын виз. НД шимтгэл 6+ сар төлсөн байх шаардлагатай." },
+                      JP: { name: "Япон Улс", label: "Япон", flag: "🇯🇵", eFee: 50000, sFee: 30000, desc: "Богино хугацааны жуулчин. Дансны хуулга шаардлагатай." },
+                      DE: { name: "Герман (Шенген)", label: "Герман", flag: "🇩🇪", eFee: 290000, sFee: 50000, desc: "Шенгений жуулчны виз. Биометрик хурууны хээгээ биеэр өгнө." },
+                      AU: { name: "Австрали Улс", label: "Австрали", flag: "🇦🇺", eFee: 350000, sFee: 60000, desc: "Австрали улсын жуулчны виз. Санхүүгийн баталгаа шаардлагатай." }
+                    };
+                    const country = countriesMap[code];
+                    if (!country) return null;
+                    return (
+                      <div key={code} className="p-4 rounded-xl bg-elevated/35 border border-line hover:border-zinc-700 transition-all flex flex-col justify-between space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">{country.flag}</span>
+                            <span className="text-sm font-extrabold text-foreground">{country.name}</span>
+                          </div>
+                          <p className="text-[11px] text-muted leading-relaxed">{country.desc}</p>
+                          <div className="flex items-center gap-4 text-[10px] font-mono text-muted pt-1">
+                            <span>Хураамж: <strong className="text-foreground">{(country.eFee + country.sFee).toLocaleString()}₮</strong></span>
+                            <span>Хугацаа: <strong className="text-foreground">5-7 хоног</strong></span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => onStartB2CVisa(country.name, code, country.eFee, country.sFee, selectedCompany.id)}
+                          className="w-full btn-primary text-xs py-2 flex items-center justify-center gap-1 cursor-pointer"
+                        >
+                          <span>Виз мэдүүлэг эхлүүлэх</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       ) : (
         <div className="space-y-6">
           {/* B2C Available Companies and Visas list */}
@@ -369,7 +523,8 @@ export default function Dashboard({
                 return (
                   <div 
                     key={comp.id}
-                    className="premium-card p-5 flex flex-col justify-between bg-surface border border-line rounded-xl hover:border-zinc-700 transition-all space-y-4 relative overflow-hidden group"
+                    onClick={() => setSelectedCompanyDetailId(comp.id)}
+                    className="premium-card p-5 flex flex-col justify-between bg-surface border border-line rounded-xl hover:border-zinc-700 hover:shadow-lg hover:shadow-accent/5 transition-all space-y-4 relative overflow-hidden group cursor-pointer hover:-translate-y-0.5 duration-300"
                   >
                     {/* Background Logo Watermark */}
                     <div className="absolute -right-8 -bottom-8 text-accent/5 pointer-events-none transform -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-0 shrink-0">
@@ -387,7 +542,10 @@ export default function Dashboard({
                             <p className="text-[10px] text-muted font-mono mt-0.5">РД: {comp.registration_no}</p>
                           </div>
                         </div>
-                        <span className="text-[10px] font-bold text-positive bg-positive/10 border border-positive/20 px-2 py-0.5 rounded">Идэвхтэй</span>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[10px] font-bold text-positive bg-positive/10 border border-positive/20 px-2 py-0.5 rounded">Идэвхтэй</span>
+                          <ChevronRight className="w-4 h-4 text-muted group-hover:text-accent transition-colors" />
+                        </div>
                       </div>
 
                       {/* Middle: Fictional advantages / Davuu tal */}
@@ -439,7 +597,7 @@ export default function Dashboard({
                     </div>
 
                     {/* Bottom action: select a country to start applying through this company */}
-                    <div className="border-t border-line pt-4 mt-2 relative z-10">
+                    <div className="border-t border-line pt-4 mt-2 relative z-10" onClick={(e) => e.stopPropagation()}>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-muted font-mono mb-2">Виз мэдүүлэх улсаа сонгоно уу:</p>
                       <div className="flex flex-wrap gap-2">
                         {comp.allowed_countries.map((code) => {
@@ -449,7 +607,10 @@ export default function Dashboard({
                             <button
                               key={code}
                               type="button"
-                              onClick={() => onStartB2CVisa(country.name, code, country.eFee, country.sFee, comp.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onStartB2CVisa(country.name, code, country.eFee, country.sFee, comp.id);
+                              }}
                               className="text-[10.5px] font-bold text-white bg-accent hover:bg-opacity-95 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
                             >
                               <span>{country.flag}</span>

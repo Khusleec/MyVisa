@@ -22,7 +22,8 @@ export default function DashboardRoute() {
     getStatusConfig,
     setIsDanModalOpen,
     setFormError,
-    allCompanies
+    allCompanies,
+    startChatWithCompany,
   } = useVisaAppContext();
 
   const handleStartEmployee = (empId: string) => {
@@ -38,6 +39,15 @@ export default function DashboardRoute() {
   const handleGoToApply = () => {
     setFormError(null);
     router.push("/apply");
+  };
+
+  const handleStartChat = async (companyId: string, companyName: string) => {
+    const success = await startChatWithCompany(companyId, companyName);
+    if (success) {
+      router.push("/chat");
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -62,6 +72,7 @@ export default function DashboardRoute() {
         onOpenDanModal={() => setIsDanModalOpen(true)}
         onGoToApply={handleGoToApply}
         companiesList={allCompanies}
+        onStartChatWithCompany={handleStartChat}
       />
     </div>
   );

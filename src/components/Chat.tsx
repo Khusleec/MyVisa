@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 import PageHeader from "./ui/PageHeader";
+import { useVisaAppContext } from "./providers/VisaAppContext";
 
 interface ChatProps {
   currentProfile: {
@@ -227,8 +228,22 @@ function NewChatModal({
    Main Chat Component
 ───────────────────────────────────────────── */
 export default function Chat({ currentProfile }: ChatProps) {
+  const { activeChatContact, setActiveChatContact } = useVisaAppContext();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+
+  useEffect(() => {
+    if (activeChatContact) {
+      const contact = { ...activeChatContact };
+      setContacts(prev => {
+        if (prev.some(c => c.id === contact.id)) return prev;
+        return [contact, ...prev];
+      });
+      setSelectedContact(contact);
+      setActiveMobileView('conversation');
+      setActiveChatContact(null);
+    }
+  }, [activeChatContact, setActiveChatContact]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loadingContacts, setLoadingContacts] = useState(false);
@@ -303,7 +318,7 @@ export default function Chat({ currentProfile }: ChatProps) {
           if (prev.some(c => c.id === issuerContact.id)) return prev;
           return [issuerContact, ...prev];
         });
-        setSelectedContact(issuerContact);
+        setSelectedContact(prev => prev || issuerContact);
       }
     } catch (e) {
       console.error("Error loading visa issuer:", e);
