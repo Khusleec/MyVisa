@@ -59,7 +59,7 @@ export default function Sidebar({
     {
       id: "dashboard",
       icon: Database,
-      label: userRole === "business_admin" ? "Байгууллагын нүүр" : "Миний нүүр",
+      label: userRole === "business_admin" ? "Байгууллагын нүүр" : "Нүүр",
       mobileLabel: "Нүүр",
     },
     {

@@ -46,6 +46,7 @@ interface ApplicationFormProps {
   onOpenDanModal: () => void;
   formError?: string | null;
   onClearFormError?: () => void;
+  allowedCountries?: { name: string; code: string; eFee: number; sFee: number; desc?: string }[];
 }
 
 export default function ApplicationForm({
@@ -66,6 +67,7 @@ export default function ApplicationForm({
   onOpenDanModal,
   formError,
   onClearFormError,
+  allowedCountries = [],
 }: ApplicationFormProps) {
   const steps = [
     { step: 1, label: "Улс", full: "Улс сонгох" },
@@ -151,11 +153,7 @@ export default function ApplicationForm({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { name: "Бүгд Найрамдах Солонгос Улс", code: "KR", eFee: 110000, sFee: 40000 },
-                { name: "Япон Улс", code: "JP", eFee: 50000, sFee: 30000 },
-                { name: "Герман (Шенген)", code: "DE", eFee: 290000, sFee: 50000 }
-              ].map((country) => (
+              {allowedCountries.map((country) => (
                 <div 
                   key={country.code}
                   onClick={() => onCountryChange(country.name, country.code, country.eFee, country.sFee)}

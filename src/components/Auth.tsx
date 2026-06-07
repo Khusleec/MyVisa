@@ -460,7 +460,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         <input 
                            type="text" 
                           required
-                          placeholder="Юнител Групп ХХК" 
+                          placeholder="Терасофт Технологи ХХК" 
                           value={compName}
                           onChange={(e) => setCompName(e.target.value)}
                           className="input-field pl-9"

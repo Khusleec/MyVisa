@@ -1,11 +1,70 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { VisaApplication, Employee } from "../types/visa";
 import { useToast } from "../components/ui/Toast";
 import { supabase } from "../lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import type { AppTab } from "../components/Sidebar";
+
+export const ALL_COUNTRIES = [
+  { name: "Бүгд Найрамдах Солонгос Улс", code: "KR", eFee: 110000, sFee: 40000, desc: "C-3-9 аялал жуулчлалын ангилал. НД шимтгэл 6+ сар төлсөн байх шаардлагатай." },
+  { name: "Япон Улс", code: "JP", eFee: 50000, sFee: 30000, desc: "Богино хугацааны жуулчин. Хэвлэмэл бус QR-тай дансны хуулга шаардлагатай." },
+  { name: "Герман (Шенген)", code: "DE", eFee: 290000, sFee: 50000, desc: "Шенгений жуулчны виз. Биометрик хурууны хээгээ биеэр өгнө." },
+  { name: "Австрали Улс", code: "AU", eFee: 350000, sFee: 60000, desc: "Австрали улсын жуулчны виз. Санхүүгийн баталгаа болон ажлын тодорхойлолт шаардлагатай." }
+];
+
+export function getCompanyAllowedCountries(companyId: string | null): typeof ALL_COUNTRIES {
+  if (!companyId) return ALL_COUNTRIES;
+  // Simple deterministic hash of company ID
+  let hash = 0;
+  for (let i = 0; i < companyId.length; i++) {
+    hash = (hash << 5) - hash + companyId.charCodeAt(i);
+    hash |= 0;
+  }
+  hash = Math.abs(hash);
+  // Pick between 1 and 4 countries
+  const count = (hash % 4) + 1;
+  const picked: typeof ALL_COUNTRIES = [];
+  const temp = [...ALL_COUNTRIES];
+  for (let i = 0; i < count; i++) {
+    const idx = (hash + i) % temp.length;
+    picked.push(temp.splice(idx, 1)[0]);
+  }
+  return picked.sort((a, b) => a.code.localeCompare(b.code));
+}
+
+export function getFallbackCompany(email: string | undefined, profileName: string) {
+  const domain = email?.split('@')[1]?.toLowerCase();
+  const presets: Record<string, { name: string; registrationNo: string; industry: string; allowed_countries: string[] }> = {
+    'terasoft.mn': { name: 'Терасофт Технологи ХХК', registrationNo: '5091234', industry: 'Мэдээлэл Технологи', allowed_countries: ['KR', 'JP', 'DE'] },
+    'solongo.mn': { name: 'Солонго Телеком ХХК', registrationNo: '2054321', industry: 'Харилцаа Холбоо', allowed_countries: ['JP', 'DE', 'AU'] },
+    'asiacapital.mn': { name: 'Ази Капитал Банк ХХК', registrationNo: '5078912', industry: 'Банк Санхүү', allowed_countries: ['KR', 'AU'] },
+    'nomadtrade.mn': { name: 'Номад Трэйд ХХК', registrationNo: '5012345', industry: 'Худалдаа Үйлчилгээ', allowed_countries: ['DE'] },
+    'erdenetfood.mn': { name: 'Эрдэнэт Хүнс ХК', registrationNo: '2011223', industry: 'Үйлдвэрлэл', allowed_countries: ['KR', 'JP', 'DE', 'AU'] },
+    'munkhgroup.mn': { name: 'Мөнх Групп ХХК', registrationNo: '9011022', industry: 'Групп Хөрөнгө Оруулалт', allowed_countries: ['KR', 'JP'] },
+  };
+
+  if (domain && presets[domain]) {
+    return presets[domain];
+  }
+
+  // Deterministic fallback based on profileName hash
+  let hash = 0;
+  const str = profileName || "Шинэ";
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  hash = Math.abs(hash);
+  const pickedCountries = getCompanyAllowedCountries(hash.toString()).map(c => c.code);
+
+  const cleanName = profileName || "Шинэ Хэрэглэгч";
+  return {
+    name: cleanName.includes("ХХК") || cleanName.includes("ХК") ? cleanName : `${cleanName} ХХК`,
+    registrationNo: "901" + String((hash % 9000) + 1000),
+    industry: "Худалдаа Үйлчилгээ",
+    allowed_countries: pickedCountries
+  };
+}
 
 export function useVisaApp() {
   const { toast } = useToast();
@@ -89,11 +148,54 @@ export function useVisaApp() {
 
   // Business Profile
   const [company, setCompany] = useState({
-    name: "Юнител Групп ХХК",
+    name: "Терасофт Технологи ХХК",
     registrationNo: "5091234",
     industry: "Мэдээлэл Технологи",
-    employeesCount: 0
+    employeesCount: 0,
+    allowed_countries: null as string[] | null
   });
+
+  // Allowed countries list
+  const allowedCountries = useMemo(() => {
+    if (userRole !== 'business_admin') {
+      return ALL_COUNTRIES; // Individual users see all countries
+    }
+    if (company && company.allowed_countries) {
+      return ALL_COUNTRIES.filter(c => company.allowed_countries?.includes(c.code));
+    }
+    // Fallback based on profile company_id
+    if (profile?.company_id) {
+      return getCompanyAllowedCountries(profile.company_id);
+    }
+    // Fallback if no company_id is set
+    return getCompanyAllowedCountries(null);
+  }, [userRole, profile?.company_id, company]);
+
+  // Dynamic initialization of newApp country when allowedCountries change
+  useEffect(() => {
+    if (allowedCountries.length > 0) {
+      const defaultCountry = allowedCountries[0];
+      setNewApp(prev => {
+        if (!allowedCountries.some(c => c.code === prev.countryCode)) {
+          return {
+            ...prev,
+            country: defaultCountry.name,
+            countryCode: defaultCountry.code,
+            visaType: defaultCountry.code === 'KR' 
+              ? "Аялал жуулчлалын виз (C-3-9)" 
+              : defaultCountry.code === 'JP' 
+              ? "Богино хугацааны виз" 
+              : defaultCountry.code === 'DE'
+              ? "Шенгений виз"
+              : "Жуулчны виз",
+            embassyFee: defaultCountry.eFee,
+            serviceFee: defaultCountry.sFee,
+          };
+        }
+        return prev;
+      });
+    }
+  }, [allowedCountries]);
 
   // Company Employees
   const [employees, setEmployees] = useState<Employee[]>([
@@ -178,21 +280,39 @@ export function useVisaApp() {
       });
 
       // 2. If Corporate Admin, fetch company info
-      if (profileData.role === 'business_admin' && profileData.company_id) {
-        const { data: compData, error: compError } = await supabase
-          .from('companies')
-          .select('*')
-          .eq('id', profileData.company_id)
-          .single();
+      if (profileData.role === 'business_admin') {
+        let loadedComp = null;
+        if (profileData.company_id) {
+          const { data: compData, error: compError } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('id', profileData.company_id)
+            .single();
 
-        if (!compError && compData) {
-          setCompany({
-            name: compData.company_name,
-            registrationNo: compData.registration_no,
-            industry: compData.industry || "Бусад",
-            employeesCount: 0
-          });
+          if (!compError && compData) {
+            loadedComp = {
+              name: compData.name,
+              registrationNo: compData.registration_no,
+              industry: compData.industry || "Бусад",
+              employeesCount: 0,
+              allowed_countries: compData.allowed_countries || null
+            };
+          }
         }
+
+        if (!loadedComp) {
+          // Fallback based on registration email domain or profile name
+          const { data: { user: authUser } } = await supabase.auth.getUser();
+          const fallback = getFallbackCompany(authUser?.email, profileData.name);
+          loadedComp = {
+            name: fallback.name,
+            registrationNo: fallback.registrationNo,
+            industry: fallback.industry,
+            employeesCount: 0,
+            allowed_countries: fallback.allowed_countries
+          };
+        }
+        setCompany(loadedComp);
       }
 
       // 3. Load applications
@@ -219,8 +339,12 @@ export function useVisaApp() {
 
       if (!error && appsData) {
         const formattedApps: VisaApplication[] = appsData.map(app => {
-          const eFee = app.country_code === 'KR' ? 110000 : app.country_code === 'JP' ? 50000 : 290000;
-          const sFee = app.country_code === 'KR' ? 40000 : app.country_code === 'JP' ? 30000 : 50000;
+          const countryObj = ALL_COUNTRIES.find(c => c.code === app.country_code);
+          const eFee = countryObj ? countryObj.eFee : 290000;
+          const sFee = countryObj ? countryObj.sFee : 50000;
+          const visaTypeStr = countryObj 
+            ? (app.country_code === 'KR' ? 'Аялал жуулчлалын виз (C-3-9)' : app.country_code === 'JP' ? 'Богино хугацааны виз' : app.country_code === 'DE' ? 'Шенгений виз' : 'Жуулчны виз')
+            : 'Жуулчны виз';
           return {
             id: app.id,
             applicantType: app.user_id ? 'myself' : app.applicant_relation === 'Employee' ? 'employee' : 'family',
@@ -228,7 +352,7 @@ export function useVisaApp() {
             applicantName: app.applicant_name,
             country: app.country,
             countryCode: app.country_code,
-            visaType: app.country_code === 'KR' ? 'Аялал жуулчлалын виз (C-3-9)' : app.country_code === 'JP' ? 'Богино хугацааны виз' : 'Шенгений виз',
+            visaType: visaTypeStr,
             userRegister: app.register_no || "",
             status: app.status as VisaApplication['status'],
             khurSalary: app.khur_salary || undefined,
@@ -335,11 +459,13 @@ export function useVisaApp() {
       ...prev,
       country: countryName,
       countryCode: code,
-      visaType: countryName === "Бүгд Найрамдах Солонгос Улс" 
+      visaType: code === 'KR' 
         ? "Аялал жуулчлалын виз (C-3-9)" 
-        : countryName === "Япон Улс" 
-          ? "Богино хугацааны жуулчны виз" 
-          : "Шенгений жуулчны виз (Төрөл C)",
+        : code === 'JP' 
+        ? "Богино хугацааны виз" 
+        : code === 'DE'
+        ? "Шенгений виз"
+        : "Жуулчны виз",
       embassyFee: eFee,
       serviceFee: sFee
     }));
@@ -385,7 +511,7 @@ export function useVisaApp() {
       setNewApp(prev => ({
         ...prev,
         khurSalary: prev.applicantType === 'myself' ? 2850000 : prev.applicantType === 'employee' ? 3800000 : 0,
-        khurEmployer: prev.applicantType === 'myself' || prev.applicantType === 'employee' ? "Юнител Групп ХХК" : "Бусад",
+        khurEmployer: prev.applicantType === 'myself' || prev.applicantType === 'employee' ? (company?.name || "Терасофт Технологи ХХК") : "Бусад",
         khurInsuranceMonths: prev.applicantType === 'myself' ? 24 : prev.applicantType === 'employee' ? 36 : 0,
         khurChecked: true
       }));
@@ -533,14 +659,21 @@ export function useVisaApp() {
       setActiveTab('applications');
       toast("Төлбөр амжилттай баталгаажлаа", "success");
       
+      const defaultCountry = allowedCountries[0] || ALL_COUNTRIES[0];
       setNewApp({
         applicantType: userRole === 'business_admin' ? 'employee' : 'myself',
         applicantRelation: "Эхнэр/Нөхөр",
         applicantName: userRole === 'business_admin' ? "" : user.name,
         selectedEmployeeId: "",
-        country: "Бүгд Найрамдах Солонгос Улс",
-        countryCode: "KR",
-        visaType: "Аялал жуулчлалын виз (C-3-9)",
+        country: defaultCountry.name,
+        countryCode: defaultCountry.code,
+        visaType: defaultCountry.code === 'KR' 
+          ? "Аялал жуулчлалын виз (C-3-9)" 
+          : defaultCountry.code === 'JP' 
+          ? "Богино хугацааны виз" 
+          : defaultCountry.code === 'DE'
+          ? "Шенгений виз"
+          : "Жуулчны виз",
         registerNo: userRole === 'business_admin' ? "" : user.registerNo,
         step: 1,
         khurSalary: 0,
@@ -550,8 +683,8 @@ export function useVisaApp() {
         passportFile: null,
         bankStatementFile: null,
         photoFile: null,
-        embassyFee: 110000,
-        serviceFee: 40000,
+        embassyFee: defaultCountry.eFee,
+        serviceFee: defaultCountry.sFee,
         qpayInvoice: "",
         paymentStatus: "unpaid"
       });
@@ -666,6 +799,7 @@ export function useVisaApp() {
     newApp,
     setNewApp,
     bulkSelectIds,
+    allowedCountries,
     khurLoading,
     isQPayModalOpen,
     setIsQPayModalOpen,
