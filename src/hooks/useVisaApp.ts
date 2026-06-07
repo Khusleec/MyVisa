@@ -12,6 +12,63 @@ export const ALL_COUNTRIES = [
   { name: "Австрали Улс", code: "AU", eFee: 350000, sFee: 60000, desc: "Австрали улсын жуулчны виз. Санхүүгийн баталгаа болон ажлын тодорхойлолт шаардлагатай." }
 ];
 
+export const PRESET_COMPANIES = [
+  { 
+    id: 'c0000000-0000-0000-0000-000000000001', 
+    name: 'Терасофт Технологи ХХК', 
+    registration_no: '5091234', 
+    allowed_countries: ['KR', 'JP', 'DE'],
+    phone: '7575-1111', 
+    address: 'Сүхбаатар дүүрэг, 1-р хороо, Олимпын гудамж, Терасофт Тауэр', 
+    advantages: ['Хурдан шуурхай', 'Найдвартай хамт олон', '24/7 хэрэглэгчийн дэмжлэг']
+  },
+  { 
+    id: 'c0000000-0000-0000-0000-000000000002', 
+    name: 'Солонго Телеком ХХК', 
+    registration_no: '2054321', 
+    allowed_countries: ['JP', 'DE', 'AU'],
+    phone: '7575-2222', 
+    address: 'Чингэлтэй дүүрэг, 3-р хороо, Энхтайваны өргөн чөлөө, Солонго оффис', 
+    advantages: ['Бүрэн дижитал систем', 'Хамгийн хямд хураамж', 'Олон жилийн туршлага']
+  },
+  { 
+    id: 'c0000000-0000-0000-0000-000000000003', 
+    name: 'Ази Капитал Банк ХХК', 
+    registration_no: '5078912', 
+    allowed_countries: ['KR', 'AU'],
+    phone: '7575-3333', 
+    address: 'Сүхбаатар дүүрэг, 8-р хороо, Сүхбаатарын талбай 2, Ази Капитал төв', 
+    advantages: ['Дансны баталгаа үнэгүй', 'VIP үйлчилгээ', 'Зээлийн нөхцөлүүд']
+  },
+  { 
+    id: 'c0000000-0000-0000-0000-000000000004', 
+    name: 'Номад Трэйд ХХК', 
+    registration_no: '5012345', 
+    allowed_countries: ['DE'],
+    phone: '7575-4444', 
+    address: 'Баянзүрх дүүрэг, 26-р хороо, Их Монгол улсын гудамж, Номад плаза', 
+    advantages: ['Шенгений визний өндөр хувь', 'Материал орчуулга үнэгүй']
+  },
+  { 
+    id: 'c0000000-0000-0000-0000-000000000005', 
+    name: 'Эрдэнэт Хүнс ХК', 
+    registration_no: '2011223', 
+    allowed_countries: ['KR', 'JP', 'DE', 'AU'],
+    phone: '7575-5555', 
+    address: 'Баянгол дүүрэг, 4-р хороо, Үйлдвэрчний эвлэлийн гудамж, Эрдэнэт цогцолбор', 
+    advantages: ['Бүх төрлийн баримт бүрдүүлэлт', 'Хөнгөлөлттэй үнэ']
+  },
+  { 
+    id: 'c0000000-0000-0000-0000-000000000006', 
+    name: 'Мөнх Групп ХХК', 
+    registration_no: '9011022', 
+    allowed_countries: ['KR', 'JP'],
+    phone: '7575-6666', 
+    address: 'Хан-Уул дүүрэг, 15-р хороо, Махатма Гандийн гудамж, Мөнх плаза', 
+    advantages: ['Элчингийн найдвартай түнш', 'Өндөр баталгаа']
+  }
+];
+
 export function getCompanyAllowedCountries(companyId: string | null): typeof ALL_COUNTRIES {
   if (!companyId) return ALL_COUNTRIES;
   // Simple deterministic hash of company ID
@@ -155,6 +212,35 @@ export function useVisaApp() {
     allowed_countries: null as string[] | null
   });
 
+  const [allCompanies, setAllCompanies] = useState(PRESET_COMPANIES);
+
+  const fetchAllCompanies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('*');
+
+      if (!error && data && data.length > 0) {
+        const mapped = data.map(c => ({
+          id: c.id,
+          name: c.name,
+          registration_no: c.registration_no,
+          allowed_countries: c.allowed_countries || ['KR', 'JP', 'DE'],
+          phone: c.phone || '7575-1111',
+          address: c.address || 'Сүхбаатар дүүрэг, Олимпын гудамж',
+          advantages: c.advantages || ['Найдвартай үйлчилгээ', 'Хурдан шуурхай']
+        }));
+        setAllCompanies(mapped);
+      }
+    } catch (e) {
+      console.error("fetchAllCompanies error:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllCompanies();
+  }, []);
+
   // Allowed countries list
   const allowedCountries = useMemo(() => {
     if (userRole !== 'business_admin') {
@@ -214,6 +300,7 @@ export function useVisaApp() {
     applicantRelation: "Эхнэр/Нөхөр",
     applicantName: "",
     selectedEmployeeId: "",
+    selectedCompanyId: "",
     country: "Бүгд Найрамдах Солонгос Улс",
     countryCode: "KR",
     visaType: "Аялал жуулчлалын виз (C-3-9)",
@@ -629,7 +716,7 @@ export function useVisaApp() {
           .insert({
             user_id: newApp.applicantType === 'myself' ? profile.id : null,
             created_by: profile.id,
-            company_id: newApp.applicantType === 'employee' ? profile.company_id : null,
+            company_id: newApp.applicantType === 'employee' ? profile.company_id : (newApp.selectedCompanyId || null),
             applicant_name: newApp.applicantName,
             applicant_relation: applicantRel,
             country: newApp.country,
@@ -648,7 +735,7 @@ export function useVisaApp() {
           .from('payments')
           .insert({
             application_id: newDbApp.id,
-            company_id: newApp.applicantType === 'employee' ? profile.company_id : null,
+            company_id: newApp.applicantType === 'employee' ? profile.company_id : (newApp.selectedCompanyId || null),
             amount: newApp.embassyFee + newApp.serviceFee,
             qpay_invoice: newApp.qpayInvoice || `QPAY-INV-${Math.floor(100000 + Math.random() * 900000)}`,
             status: 'paid'
@@ -665,6 +752,7 @@ export function useVisaApp() {
         applicantRelation: "Эхнэр/Нөхөр",
         applicantName: userRole === 'business_admin' ? "" : user.name,
         selectedEmployeeId: "",
+        selectedCompanyId: "",
         country: defaultCountry.name,
         countryCode: defaultCountry.code,
         visaType: defaultCountry.code === 'KR' 
@@ -735,9 +823,13 @@ export function useVisaApp() {
     setActiveTab('apply');
   };
 
-  const handleStartB2CVisa = (countryName: string, countryCode: string, eFee: number, sFee: number) => {
+  const handleStartB2CVisa = (countryName: string, countryCode: string, eFee: number, sFee: number, companyId?: string) => {
     handleRoleToggle('individual');
     handleCountryChange(countryName, countryCode, eFee, sFee);
+    setNewApp(prev => ({
+      ...prev,
+      selectedCompanyId: companyId || ""
+    }));
     setActiveTab('apply');
   };
 
@@ -752,7 +844,7 @@ export function useVisaApp() {
         .insert({
           user_id: newApp.applicantType === 'myself' ? profile.id : null,
           created_by: profile.id,
-          company_id: newApp.applicantType === 'employee' ? profile.company_id : null,
+          company_id: newApp.applicantType === 'employee' ? profile.company_id : (newApp.selectedCompanyId || null),
           applicant_name: newApp.applicantName,
           applicant_relation: applicantRel,
           country: newApp.country,
@@ -800,6 +892,7 @@ export function useVisaApp() {
     setNewApp,
     bulkSelectIds,
     allowedCountries,
+    allCompanies,
     khurLoading,
     isQPayModalOpen,
     setIsQPayModalOpen,

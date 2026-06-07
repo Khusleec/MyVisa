@@ -1,5 +1,5 @@
 import React from "react";
-import { Info, CreditCard, Check, CheckSquare, Square, FileText, Plus } from "lucide-react";
+import { Info, CreditCard, Check, CheckSquare, Square, FileText, Plus, Building2, Phone, MapPin, CheckCircle, Globe } from "lucide-react";
 import { motion } from "framer-motion";
 import { VisaApplication, Employee } from "../types/visa";
 import PageHeader from "./ui/PageHeader";
@@ -19,11 +19,12 @@ interface DashboardProps {
   openBulkPaymentInvoice: () => void;
   openQPayInvoice: (appId: string, amount: number) => void;
   onStartEmployeeVisa: (employeeId: string) => void;
-  onStartB2CVisa: (countryName: string, countryCode: string, embassyFee: number, serviceFee: number) => void;
+  onStartB2CVisa: (countryName: string, countryCode: string, embassyFee: number, serviceFee: number, companyId?: string) => void;
   getStatusConfig: (status: VisaApplication['status']) => { text: string; bg: string; bar: string };
   isUserVerified: boolean;
   onOpenDanModal: () => void;
   onGoToApply?: () => void;
+  companiesList?: { id: string; name: string; registration_no: string; allowed_countries: string[]; phone?: string; address?: string; advantages?: string[] }[];
 }
 
 export default function Dashboard({
@@ -45,6 +46,7 @@ export default function Dashboard({
   isUserVerified,
   onOpenDanModal,
   onGoToApply,
+  companiesList = [],
 }: DashboardProps) {
   
   const b2bApplications = applications.filter(a => a.applicantType === 'employee');
@@ -320,49 +322,114 @@ export default function Dashboard({
         </div>
       ) : (
         <div className="space-y-6">
-          {/* B2C Available Visas list */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Боломжит виз мэдүүлгүүд</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                { name: "Өмнөд Солонгос", code: "KR", eFee: 110000, sFee: 40000, desc: "C-3-9 аялал жуулчлалын ангилал. НД шимтгэл 6+ сар төлсөн байх шаардлагатай." },
-                { name: "Япон Улс", code: "JP", eFee: 50000, sFee: 30000, desc: "Богино хугацааны жуулчин. Хэвлэмэл бус QR-тай дансны хуулга шаардлагатай." },
-                { name: "Герман (Шенген)", code: "DE", eFee: 290000, sFee: 50000, desc: "Шенгений жуулчны виз. Биометрик хурууны хээгээ биеэр өгнө." }
-              ].map((visa) => (
-                <div 
-                  key={visa.code}
-                  className="premium-card p-5 flex flex-col justify-between h-64 hover:border-zinc-700 transition-all bg-surface border border-line rounded-xl"
-                >
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-mono text-[10px] font-bold text-foreground bg-line px-2 py-0.5 rounded">{visa.code}</span>
-                      <span className="text-[10px] text-positive font-bold">ХУР холбогдсон</span>
-                    </div>
-                    <h5 className="text-sm font-bold text-foreground">{visa.name}</h5>
-                    <p className="text-[11px] text-muted leading-relaxed">{visa.desc}</p>
-                  </div>
+          {/* B2C Available Companies and Visas list */}
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Гэрээт байгууллагууд (Виз зуучлал)</h4>
+              <p className="text-[11px] text-muted">Та өөрийн виз мэдүүлгийг дараах баталгаат байгууллагуудын аль нэгийг сонгон илгээх боломжтой.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {companiesList.map((comp) => {
+                const countriesMap: Record<string, { name: string; label: string; flag: string; eFee: number; sFee: number }> = {
+                  KR: { name: "Бүгд Найрамдах Солонгос Улс", label: "БНСУ", flag: "🇰🇷", eFee: 110000, sFee: 40000 },
+                  JP: { name: "Япон Улс", label: "Япон", flag: "🇯🇵", eFee: 50000, sFee: 30000 },
+                  DE: { name: "Герман (Шенген)", label: "Герман", flag: "🇩🇪", eFee: 290000, sFee: 50000 },
+                  AU: { name: "Австрали Улс", label: "Австрали", flag: "🇦🇺", eFee: 350000, sFee: 60000 }
+                };
 
-                  <div className="border-t border-line pt-4 mt-2 space-y-3">
-                    <div className="flex justify-between text-[11px] font-mono text-muted">
-                      <span>ЭСЯ хураамж:</span>
-                      <span className="text-foreground">{visa.eFee.toLocaleString()} ₮</span>
+                return (
+                  <div 
+                    key={comp.id}
+                    className="premium-card p-5 flex flex-col justify-between bg-surface border border-line rounded-xl hover:border-zinc-700 transition-all space-y-4"
+                  >
+                    <div className="space-y-3">
+                      {/* Top: Header Info */}
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
+                            <Building2 className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h5 className="text-sm font-bold text-foreground line-clamp-1">{comp.name}</h5>
+                            <p className="text-[10px] text-muted font-mono mt-0.5">РД: {comp.registration_no}</p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-bold text-positive bg-positive/10 border border-positive/20 px-2 py-0.5 rounded">Идэвхтэй</span>
+                      </div>
+
+                      {/* Middle: Fictional advantages / Davuu tal */}
+                      {comp.advantages && comp.advantages.length > 0 && (
+                        <div className="space-y-1.5 pt-1">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-muted font-mono">Давуу талууд:</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {comp.advantages.map((adv, idx) => (
+                              <span key={idx} className="inline-flex items-center gap-1 text-[10.5px] font-medium text-foreground bg-elevated px-2 py-0.5 rounded-md border border-line">
+                                <CheckCircle className="w-3 h-3 text-positive shrink-0" />
+                                {adv}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Contacts: Utas & Hayg */}
+                      <div className="text-[11px] text-muted space-y-1 pt-1 bg-elevated/20 p-2.5 rounded-lg border border-line/50">
+                        {comp.phone && (
+                          <div className="flex items-center gap-1.5">
+                            <Phone className="w-3.5 h-3.5 text-muted shrink-0" />
+                            <span>Утас: <strong className="text-foreground">{comp.phone}</strong></span>
+                          </div>
+                        )}
+                        {comp.address && (
+                          <div className="flex items-start gap-1.5">
+                            <MapPin className="w-3.5 h-3.5 text-muted shrink-0 mt-0.5" />
+                            <span className="line-clamp-1">Хаяг: <span className="text-foreground">{comp.address}</span></span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Allowed countries tags */}
+                      <div className="space-y-1 pt-1">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted font-mono">Мэдүүлэх боломжтой улсууд:</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {comp.allowed_countries.map((code) => {
+                            const country = countriesMap[code];
+                            return (
+                              <span key={code} className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-foreground bg-accent/5 px-2 py-0.5 rounded-md border border-accent/10">
+                                <span className="text-xs">{country?.flag || "🌐"}</span>
+                                {country?.label || code}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-[11px] font-mono text-muted">
-                      <span>Үйлчилгээ:</span>
-                      <span className="text-foreground">{visa.sFee.toLocaleString()} ₮</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-1">
-                      <span className="text-xs font-bold font-mono text-foreground">{(visa.eFee + visa.sFee).toLocaleString()} ₮</span>
-                      <button 
-                        onClick={() => onStartB2CVisa(visa.name, visa.code, visa.eFee, visa.sFee)}
-                        className="text-xs font-bold text-white bg-accent hover:bg-opacity-95 px-3 py-1.5 rounded transition-all"
-                      >
-                        Мэдүүлэх
-                      </button>
+
+                    {/* Bottom action: select a country to start applying through this company */}
+                    <div className="border-t border-line pt-4 mt-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted font-mono mb-2">Виз мэдүүлэх улсаа сонгоно уу:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {comp.allowed_countries.map((code) => {
+                          const country = countriesMap[code];
+                          if (!country) return null;
+                          return (
+                            <button
+                              key={code}
+                              type="button"
+                              onClick={() => onStartB2CVisa(country.name, code, country.eFee, country.sFee, comp.id)}
+                              className="text-[10.5px] font-bold text-white bg-accent hover:bg-opacity-95 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
+                            >
+                              <span>{country.flag}</span>
+                              {country.label}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

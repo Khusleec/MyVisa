@@ -21,7 +21,8 @@ export default function DashboardRoute() {
     handleStartB2CVisa,
     getStatusConfig,
     setIsDanModalOpen,
-    setFormError
+    setFormError,
+    allCompanies
   } = useVisaAppContext();
 
   const handleStartEmployee = (empId: string) => {
@@ -29,8 +30,8 @@ export default function DashboardRoute() {
     router.push("/apply");
   };
 
-  const handleStartB2C = (countryName: string, countryCode: string, eFee: number, sFee: number) => {
-    handleStartB2CVisa(countryName, countryCode, eFee, sFee);
+  const handleStartB2C = (countryName: string, countryCode: string, eFee: number, sFee: number, companyId?: string) => {
+    handleStartB2CVisa(countryName, countryCode, eFee, sFee, companyId);
     router.push("/apply");
   };
 
@@ -60,6 +61,7 @@ export default function DashboardRoute() {
         isUserVerified={user.isVerified}
         onOpenDanModal={() => setIsDanModalOpen(true)}
         onGoToApply={handleGoToApply}
+        companiesList={allCompanies}
       />
     </div>
   );

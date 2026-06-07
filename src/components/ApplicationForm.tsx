@@ -13,6 +13,7 @@ interface ApplicationFormProps {
     applicantRelation: string;
     applicantName: string;
     selectedEmployeeId: string;
+    selectedCompanyId: string;
     country: string;
     countryCode: string;
     visaType: string;
