@@ -1,9 +1,35 @@
 import React from "react";
-import { Info, CreditCard, Check, CheckSquare, Square, FileText, Plus, Building2, Phone, MapPin, CheckCircle, Globe } from "lucide-react";
+import { 
+  Info, CreditCard, Check, CheckSquare, Square, FileText, Plus, 
+  Building2, Phone, MapPin, CheckCircle, Globe,
+  Zap, Wifi, Coins, Compass, Apple, Shield, LucideIcon
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { VisaApplication, Employee } from "../types/visa";
 import PageHeader from "./ui/PageHeader";
 import EmptyState from "./ui/EmptyState";
+
+const companyLogos: Record<string, LucideIcon> = {
+  'c0000000-0000-0000-0000-000000000001': Zap,       // Терасофт
+  'c0000000-0000-0000-0000-000000000002': Wifi,      // Солонго
+  'c0000000-0000-0000-0000-000000000003': Coins,     // Ази Капитал
+  'c0000000-0000-0000-0000-000000000004': Compass,   // Номад
+  'c0000000-0000-0000-0000-000000000005': Apple,     // Эрдэнэт Хүнс
+  'c0000000-0000-0000-0000-000000000006': Shield,    // Мөнх Групп
+};
+
+const getLogoIcon = (companyId: string): LucideIcon => {
+  const icons = [Zap, Wifi, Coins, Compass, Apple, Shield];
+  if (!companyId) return Building2;
+  
+  let hash = 0;
+  for (let i = 0; i < companyId.length; i++) {
+    hash = (hash << 5) - hash + companyId.charCodeAt(i);
+    hash |= 0;
+  }
+  hash = Math.abs(hash);
+  return companyLogos[companyId] || icons[hash % icons.length] || Building2;
+};
 
 interface DashboardProps {
   userRole: 'individual' | 'business_admin';
@@ -338,12 +364,18 @@ export default function Dashboard({
                   AU: { name: "Австрали Улс", label: "Австрали", flag: "🇦🇺", eFee: 350000, sFee: 60000 }
                 };
 
+                const LogoIcon = getLogoIcon(comp.id);
+
                 return (
                   <div 
                     key={comp.id}
-                    className="premium-card p-5 flex flex-col justify-between bg-surface border border-line rounded-xl hover:border-zinc-700 transition-all space-y-4"
+                    className="premium-card p-5 flex flex-col justify-between bg-surface border border-line rounded-xl hover:border-zinc-700 transition-all space-y-4 relative overflow-hidden group"
                   >
-                    <div className="space-y-3">
+                    {/* Background Logo Watermark */}
+                    <div className="absolute -right-8 -bottom-8 text-accent/5 pointer-events-none transform -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-0 shrink-0">
+                      <LogoIcon className="w-44 h-44" />
+                    </div>
+                    <div className="space-y-3 relative z-10">
                       {/* Top: Header Info */}
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex items-center gap-2.5">
@@ -407,7 +439,7 @@ export default function Dashboard({
                     </div>
 
                     {/* Bottom action: select a country to start applying through this company */}
-                    <div className="border-t border-line pt-4 mt-2">
+                    <div className="border-t border-line pt-4 mt-2 relative z-10">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-muted font-mono mb-2">Виз мэдүүлэх улсаа сонгоно уу:</p>
                       <div className="flex flex-wrap gap-2">
                         {comp.allowed_countries.map((code) => {
