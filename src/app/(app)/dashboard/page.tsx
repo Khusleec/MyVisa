@@ -22,8 +22,6 @@ export default function DashboardRoute() {
     getStatusConfig,
     setIsDanModalOpen,
     setFormError,
-    allCompanies,
-    startChatWithCompany,
     pendingInvites,
     inviteEmployee,
     updateApplicationStatus,
@@ -43,15 +41,6 @@ export default function DashboardRoute() {
   const handleGoToApply = () => {
     setFormError(null);
     router.push("/apply");
-  };
-
-  const handleStartChat = async (companyId: string, companyName: string) => {
-    const success = await startChatWithCompany(companyId, companyName);
-    if (success) {
-      router.push("/chat");
-      return true;
-    }
-    return false;
   };
 
   return (
@@ -75,8 +64,6 @@ export default function DashboardRoute() {
         isUserVerified={user.isVerified}
         onOpenDanModal={() => setIsDanModalOpen(true)}
         onGoToApply={handleGoToApply}
-        companiesList={allCompanies}
-        onStartChatWithCompany={handleStartChat}
         pendingInvites={pendingInvites}
         onInviteEmployee={inviteEmployee}
         onUpdateApplicationStatus={updateApplicationStatus}

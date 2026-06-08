@@ -54,6 +54,12 @@ export default function Navbar() {
       mobileLabel: "Нүүр",
     },
     {
+      href: "/issuer",
+      icon: FileText,
+      label: "Виз хянах",
+      mobileLabel: "Хянах",
+    },
+    {
       href: "/apply",
       icon: Plus,
       label: userRole === "business_admin" ? "Ажилтанд виз мэдүүлэх" : "Виз мэдүүлэх",
@@ -82,9 +88,9 @@ export default function Navbar() {
 
   const navItems = allNavItems.filter(item => {
     if (userRole === 'visa_issuer') {
-      return item.href === '/chat' || item.href === '/settings';
+      return item.href === '/issuer' || item.href === '/chat' || item.href === '/settings';
     }
-    return true;
+    return item.href !== '/issuer';
   });
 
   const isActive = (href: string) => pathname === href;
@@ -104,7 +110,7 @@ export default function Navbar() {
                 <h1 className="text-sm font-black text-foreground tracking-tight leading-none">
                   MyVisa<span className="text-accent">.mn</span>
                 </h1>
-                <span className="text-[8.5px] text-muted tracking-wider uppercase font-mono leading-none">
+                <span className="text-xs text-muted tracking-wider uppercase font-mono leading-none">
                   Виз мэдүүлэг
                 </span>
               </div>
@@ -125,7 +131,7 @@ export default function Navbar() {
                   <Icon className="w-3.5 h-3.5" />
                   <span>{label}</span>
                   {badge !== undefined && badge > 0 && (
-                    <span className="ml-1 bg-accent/10 text-accent text-[9.5px] px-1.5 py-0.5 rounded-full font-mono font-bold">
+                    <span className="ml-1 bg-accent/10 text-accent text-xs px-1.5 py-0.5 rounded-full font-mono font-bold">
                       {badge}
                     </span>
                   )}
@@ -145,7 +151,7 @@ export default function Navbar() {
                     handleRoleToggle("individual");
                     router.push("/dashboard");
                   }}
-                  className={`py-1 px-3 text-[10px] font-bold rounded transition-all cursor-pointer ${
+                  className={`py-1 px-3 text-xs font-bold rounded transition-all cursor-pointer ${
                     userRole === "individual"
                       ? "bg-elevated text-accent border border-line shadow-sm"
                       : "text-muted hover:text-foreground"
@@ -159,7 +165,7 @@ export default function Navbar() {
                     handleRoleToggle("business_admin");
                     router.push("/dashboard");
                   }}
-                  className={`py-1 px-3 text-[10px] font-bold rounded transition-all cursor-pointer ${
+                  className={`py-1 px-3 text-xs font-bold rounded transition-all cursor-pointer ${
                     userRole === "business_admin"
                       ? "bg-elevated text-accent border border-line shadow-sm"
                       : "text-muted hover:text-foreground"
@@ -198,10 +204,10 @@ export default function Navbar() {
                   )}
                 </div>
                 <div className="text-left max-w-[120px]">
-                  <p className="text-[11px] font-bold text-foreground truncate leading-tight">
+                  <p className="text-xs font-bold text-foreground truncate leading-tight">
                     {userRole === "business_admin" ? company.name : user.name}
                   </p>
-                  <p className="text-[9px] font-mono text-muted truncate leading-none">
+                  <p className="text-xs font-mono text-muted truncate leading-none mt-0.5">
                     {userRole === "business_admin" ? `РД: ${company.registrationNo}` : user.registerNo}
                   </p>
                 </div>
@@ -289,7 +295,7 @@ export default function Navbar() {
                   <p className="text-xs font-bold text-foreground truncate">
                     {userRole === "business_admin" ? company.name : user.name}
                   </p>
-                  <p className="text-[9px] font-mono text-muted truncate">
+                  <p className="text-xs font-mono text-muted truncate mt-0.5">
                     {userRole === "business_admin" ? `РД: ${company.registrationNo}` : user.registerNo}
                   </p>
                 </div>
@@ -299,17 +305,29 @@ export default function Navbar() {
                   setIsMobileMenuOpen(false);
                   handleSignOut();
                 }}
-                className="py-1.5 px-3 rounded-lg bg-negative/15 text-negative border border-negative/20 text-[10px] font-bold flex items-center gap-1 hover:bg-negative hover:text-white transition-all cursor-pointer"
+                className="py-1.5 px-3 rounded-lg bg-negative/15 text-negative border border-negative/20 text-xs font-bold flex items-center gap-1 hover:bg-negative hover:text-white transition-all cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Гарах</span>
               </button>
             </div>
 
+            {/* Mobile Settings Link inside profile menu */}
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/settings"
+                className="flex items-center gap-2.5 p-2.5 rounded-xl bg-elevated border border-line hover:bg-overlay/60 transition-colors text-xs font-bold text-foreground cursor-pointer"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <SettingsIcon className="w-4 h-4 text-accent" />
+                <span>Тохиргоо</span>
+              </Link>
+            </div>
+
             {/* Role switcher inside mobile menu */}
             {showRoleSwitcher && (
               <div className="space-y-1.5 pt-1">
-                <span className="text-[9px] font-mono text-muted uppercase tracking-wider block px-1">Харагдах байдал солих</span>
+                <span className="text-xs font-mono text-muted uppercase tracking-wider block px-1">Харагдах байдал солих</span>
                 <div className="flex p-0.5 bg-elevated rounded-lg border border-line w-full">
                   <button
                     type="button"
@@ -318,7 +336,7 @@ export default function Navbar() {
                       router.push("/dashboard");
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded transition-all cursor-pointer ${
+                    className={`flex-1 py-1.5 text-xs font-bold rounded transition-all cursor-pointer ${
                       userRole === "individual"
                         ? "bg-surface text-accent border border-line shadow-sm"
                         : "text-muted"
@@ -333,7 +351,7 @@ export default function Navbar() {
                       router.push("/dashboard");
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded transition-all cursor-pointer ${
+                    className={`flex-1 py-1.5 text-xs font-bold rounded transition-all cursor-pointer ${
                       userRole === "business_admin"
                         ? "bg-surface text-accent border border-line shadow-sm"
                         : "text-muted"
@@ -350,31 +368,33 @@ export default function Navbar() {
 
       {/* Mobile Bottom Tab Bar */}
       <nav className="fixed bottom-4 left-4 right-4 z-50 md:hidden flex justify-around items-center h-16 bg-surface/85 backdrop-blur-lg border border-line rounded-2xl shadow-xl px-2">
-        {navItems.map(({ href, icon: Icon, mobileLabel, badge }) => {
-          const active = isActive(href);
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex flex-col items-center justify-center flex-1 h-full min-h-[44px] min-w-[44px] transition-all relative ${
-                active ? "text-accent" : "text-muted hover:text-foreground"
-              }`}
-            >
-              <div className="relative">
-                <Icon className={`w-5 h-5 transition-transform ${active ? "scale-110" : ""}`} />
-                {badge !== undefined && badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[8px] px-1 py-0.2 rounded-full font-mono font-bold leading-none">
-                    {badge}
-                  </span>
+        {navItems
+          .filter((item) => item.href !== "/settings")
+          .map(({ href, icon: Icon, mobileLabel, badge }) => {
+            const active = isActive(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex flex-col items-center justify-center flex-1 h-full min-h-[44px] min-w-[44px] transition-all relative ${
+                  active ? "text-accent" : "text-muted hover:text-foreground"
+                }`}
+              >
+                <div className="relative">
+                  <Icon className={`w-5 h-5 transition-transform ${active ? "scale-110" : ""}`} />
+                  {badge !== undefined && badge > 0 && (
+                    <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[10px] px-1 py-0.2 rounded-full font-mono font-bold leading-none">
+                      {badge}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs font-semibold mt-1">{mobileLabel}</span>
+                {active && (
+                  <div className="absolute bottom-1.5 w-1 h-1 rounded-full bg-accent" />
                 )}
-              </div>
-              <span className="text-[9px] font-semibold mt-1">{mobileLabel}</span>
-              {active && (
-                <div className="absolute bottom-1.5 w-1 h-1 rounded-full bg-accent" />
-              )}
-            </Link>
-          );
-        })}
+              </Link>
+            );
+          })}
       </nav>
     </div>
   );

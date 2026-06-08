@@ -108,7 +108,6 @@ export default function ApplicationForm({
     { step: 2, label: "ХУР", full: "Лавлагаа (ХУР)" },
     { step: 3, label: "Баримт", full: "Баримт бичиг" },
     { step: 4, label: "Хяналт", full: "Материал хянах" },
-    { step: 5, label: "Төлбөр", full: "Хураамж төлөх" },
   ];
 
   const TrustStrip = () => (
@@ -134,7 +133,7 @@ export default function ApplicationForm({
     >
       <PageHeader
         title={userRole === "business_admin" ? "Ажилтанд виз мэдүүлэх" : "Виз мэдүүлэх"}
-        description={`Алхам ${newApp.step} / 5 — ${steps.find((s) => s.step === newApp.step)?.full}`}
+        description={`Алхам ${newApp.step} / 4 — ${steps.find((s) => s.step === newApp.step)?.full}`}
       />
 
       {/* Step indicators */}
@@ -283,17 +282,22 @@ export default function ApplicationForm({
             )}
 
             <div className="flex justify-end pt-4 border-t border-line">
-              <button 
-                type="button"
-                onClick={() => {
-                  onClearFormError?.();
-                  setNewApp(prev => ({ ...prev, step: 2 }));
-                }}
-                disabled={userRole === 'individual' && !newApp.selectedCompanyId}
-                className="btn-primary min-h-[44px] px-6 cursor-pointer"
-              >
-                Үргэлжлүүлэх <ChevronRight className="w-4 h-4" />
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                <button 
+                  type="button"
+                  onClick={() => {
+                    onClearFormError?.();
+                    setNewApp(prev => ({ ...prev, step: 2 }));
+                  }}
+                  disabled={userRole === 'individual' && !newApp.selectedCompanyId}
+                  className="btn-primary min-h-[44px] px-6 cursor-pointer"
+                >
+                  Үргэлжлүүлэх <ChevronRight className="w-4 h-4" />
+                </button>
+                {userRole === 'individual' && !newApp.selectedCompanyId && (
+                  <span className="text-[10px] text-muted font-medium">Зуучлагч байгууллага сонгоно уу.</span>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -373,7 +377,7 @@ export default function ApplicationForm({
                       <select 
                         value={newApp.applicantRelation}
                         onChange={(e) => setNewApp(prev => ({ ...prev, applicantRelation: e.target.value }))}
-                        className="w-full bg-surface border border-line rounded px-2.5 py-2 text-xs text-white focus:outline-none min-h-[40px]"
+                        className="w-full bg-surface border border-line rounded px-2.5 py-2 text-xs text-foreground focus:outline-none min-h-[40px]"
                       >
                         <option>Эхнэр/Нөхөр</option>
                         <option>Охин</option>
@@ -389,7 +393,7 @@ export default function ApplicationForm({
                         placeholder="Nergui Amin-Erdene"
                         value={newApp.applicantName} 
                         onChange={(e) => setNewApp(prev => ({ ...prev, applicantName: e.target.value }))}
-                        className="w-full bg-surface border border-line rounded px-2.5 py-2 text-xs text-white focus:outline-none min-h-[40px]"
+                        className="w-full bg-surface border border-line rounded px-2.5 py-2 text-xs text-foreground focus:outline-none min-h-[40px]"
                       />
                     </div>
                     <div className="p-4 rounded-xl bg-surface border border-line space-y-1.5">
@@ -400,7 +404,7 @@ export default function ApplicationForm({
                         value={newApp.registerNo} 
                         onChange={(e) => setNewApp(prev => ({ ...prev, registerNo: e.target.value.toUpperCase() }))}
                         maxLength={10}
-                        className="w-full bg-surface border border-line rounded px-2.5 py-2 text-xs font-mono text-white focus:outline-none min-h-[40px]"
+                        className="w-full bg-surface border border-line rounded px-2.5 py-2 text-xs font-mono text-foreground focus:outline-none min-h-[40px]"
                       />
                     </div>
                   </div>

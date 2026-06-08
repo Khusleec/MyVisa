@@ -293,12 +293,12 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
           {activeTab === 'forgot_password' ? (
             <div className="text-center space-y-1">
               <h3 className="text-sm font-bold text-foreground">Нууц үг сэргээх</h3>
-              <p className="text-[10px] text-muted">Бүртгэлтэй и-мэйл хаягаа оруулж нууц үг сэргээх заавар авна уу.</p>
+              <p className="text-xs text-muted">Бүртгэлтэй и-мэйл хаягаа оруулж нууц үг сэргээх заавар авна уу.</p>
             </div>
           ) : activeTab === 'resend_verification' ? (
             <div className="text-center space-y-1">
               <h3 className="text-sm font-bold text-foreground">Баталгаажуулах холбоос дахин илгээх</h3>
-              <p className="text-[10px] text-muted">Хэрэв танд баталгаажуулах холбоос ирээгүй бол доор и-мэйлээ оруулна уу.</p>
+              <p className="text-xs text-muted">Хэрэв танд баталгаажуулах холбоос ирээгүй бол доор и-мэйлээ оруулна уу.</p>
             </div>
           ) : (
             <div className="flex p-1 bg-surface rounded-xl border border-line">
@@ -337,7 +337,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
             /* LOGIN FORM */
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
+                <label className="text-xs text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-muted absolute left-3 top-3" />
                   <input 
@@ -352,7 +352,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Нууц үг</label>
+                <label className="text-xs text-muted font-mono uppercase tracking-wider block">Нууц үг</label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-muted absolute left-3 top-3" />
                   <input 
@@ -382,7 +382,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                 )}
               </button>
 
-              <div className="flex flex-col gap-2 text-[10.5px] mt-2 text-center font-semibold text-muted">
+              <div className="flex flex-col gap-2 text-xs mt-2 text-center font-semibold text-muted">
                 <button
                   type="button"
                   onClick={() => {
@@ -409,14 +409,14 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
 
               <div className="relative flex py-2 items-center">
                 <div className="flex-grow border-t border-line/60"></div>
-                <span className="flex-shrink mx-3 text-[10px] text-muted font-mono uppercase tracking-wider">Эсвэл</span>
+                <span className="flex-shrink mx-3 text-xs text-muted font-mono uppercase tracking-wider">Эсвэл</span>
                 <div className="flex-grow border-t border-line/60"></div>
               </div>
 
               <button
                 type="button"
                 onClick={() => handleOAuthLogin('google')}
-                className="w-full py-2.5 bg-elevated hover:bg-overlay border border-line hover:border-muted text-foreground text-[11px] font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all shadow cursor-pointer"
+                className="w-full py-2.5 bg-elevated hover:bg-overlay border border-line hover:border-muted text-foreground text-xs font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all shadow cursor-pointer"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -437,7 +437,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
               <div className="flex gap-4 p-1 bg-surface rounded-lg border border-line">
                 <button 
                   onClick={() => setRoleType('individual')}
-                  className={`flex-1 py-1.5 text-[10.5px] font-semibold rounded transition-all ${
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded transition-all ${
                     roleType === 'individual' 
                       ? 'bg-elevated text-accent' 
                       : 'text-muted'
@@ -447,7 +447,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                 </button>
                 <button 
                   onClick={() => setRoleType('business')}
-                  className={`flex-1 py-1.5 text-[10.5px] font-semibold rounded transition-all ${
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded transition-all ${
                     roleType === 'business' 
                       ? 'bg-elevated text-accent' 
                       : 'text-muted'
@@ -461,7 +461,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                 /* REGISTER INDIVIDUAL FORM */
                 <form onSubmit={handleRegisterIndividual} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Бүтэн Нэр (Англи)</label>
+                    <label className="text-xs text-muted font-mono uppercase tracking-wider block">Бүтэн Нэр (Англи)</label>
                     <div className="relative">
                       <User className="w-4 h-4 text-muted absolute left-3 top-3" />
                       <input 
@@ -487,10 +487,10 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         onChange={(e) => setIndRegisterNo(e.target.value)}
                         className="w-full bg-surface border border-line hover:border-muted focus:border-accent rounded-xl px-3 py-2.5 text-xs font-mono text-foreground focus:outline-none transition-all"
                       />
-                      <p className="text-[11px] text-muted mt-1 leading-normal">Хэлбэр: УУ12345678 (крилл 2 үсэг + 8 оронтой тоо)</p>
+                      <p className="text-xs text-muted mt-1 leading-normal">Хэлбэр: УУ12345678 (крилл 2 үсэг + 8 оронтой тоо)</p>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Утасны дугаар</label>
+                      <label className="text-xs text-muted font-mono uppercase tracking-wider block">Утасны дугаар</label>
                       <div className="relative">
                         <Phone className="w-4 h-4 text-muted absolute left-3 top-3" />
                         <input 
@@ -506,7 +506,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
+                    <label className="text-xs text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-muted absolute left-3 top-3" />
                       <input 
@@ -533,7 +533,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         className="input-field pl-9"
                       />
                     </div>
-                    <p className="text-[11px] text-muted mt-1 leading-normal">Хамгийн багадаа 6 оронтой, үсэг тоо орсон байна.</p>
+                    <p className="text-xs text-muted mt-1 leading-normal">Хамгийн багадаа 6 оронтой, үсэг тоо орсон байна.</p>
                   </div>
 
                   <button 
@@ -551,7 +551,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                       </>
                     )}
                   </button>
-                  <p className="text-[10px] text-muted text-center mt-3">
+                  <p className="text-xs text-muted text-center mt-3">
                     Бүртгүүлснээр та манай{" "}
                     <Link href="/legal" className="text-accent hover:underline">
                       Үйлчилгээний нөхцөл
@@ -568,7 +568,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                 <form onSubmit={handleRegisterBusiness} className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Байгууллагын нэр</label>
+                      <label className="text-xs text-muted font-mono uppercase tracking-wider block">Байгууллагын нэр</label>
                       <div className="relative">
                         <Building className="w-4 h-4 text-muted absolute left-3 top-3" />
                         <input 
@@ -591,12 +591,12 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         onChange={(e) => setCompRegNo(e.target.value)}
                         className="w-full bg-surface border border-line hover:border-muted focus:border-accent rounded-xl px-3 py-2.5 text-xs font-mono text-foreground focus:outline-none transition-all"
                       />
-                      <p className="text-[11px] text-muted mt-1 leading-normal">Хэлбэр: 7 оронтой тоо</p>
+                      <p className="text-xs text-muted mt-1 leading-normal">Хэлбэр: 7 оронтой тоо</p>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Администраторын нэр (Англи)</label>
+                    <label className="text-xs text-muted font-mono uppercase tracking-wider block">Администраторын нэр (Англи)</label>
                     <div className="relative">
                       <User className="w-4 h-4 text-muted absolute left-3 top-3" />
                       <input 
@@ -611,7 +611,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Утасны дугаар</label>
+                    <label className="text-xs text-muted font-mono uppercase tracking-wider block">Утасны дугаар</label>
                     <div className="relative">
                       <Phone className="w-4 h-4 text-muted absolute left-3 top-3" />
                       <input 
@@ -626,7 +626,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
+                    <label className="text-xs text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-muted absolute left-3 top-3" />
                       <input 
@@ -653,7 +653,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         className="input-field pl-9"
                       />
                     </div>
-                    <p className="text-[11px] text-muted mt-1 leading-normal">Хамгийн багадаа 6 оронтой, үсэг тоо орсон байна.</p>
+                    <p className="text-xs text-muted mt-1 leading-normal">Хамгийн багадаа 6 оронтой, үсэг тоо орсон байна.</p>
                   </div>
 
                   <button 
@@ -671,7 +671,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                       </>
                     )}
                   </button>
-                  <p className="text-[10px] text-muted text-center mt-3">
+                  <p className="text-xs text-muted text-center mt-3">
                     Бүртгүүлснээр танай байгууллага манай{" "}
                     <Link href="/legal" className="text-accent hover:underline">
                       Үйлчилгээний нөхцөл
@@ -691,7 +691,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
             /* FORGOT PASSWORD FORM */
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
+                <label className="text-xs text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-muted absolute left-3 top-3" />
                   <input 
@@ -737,7 +737,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
             /* RESEND VERIFICATION FORM */
             <form onSubmit={handleResendVerification} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
+                <label className="text-xs text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-muted absolute left-3 top-3" />
                   <input 

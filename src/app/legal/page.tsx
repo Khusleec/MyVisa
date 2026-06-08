@@ -26,7 +26,7 @@ export default function LegalPage() {
 
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-black tracking-tight text-white">
+          <h1 className="text-3xl font-black tracking-tight text-foreground">
             Хууль эрх зүй & <span className="text-accent">Нөхцөлүүд</span>
           </h1>
           <p className="text-sm text-muted">
@@ -72,7 +72,7 @@ export default function LegalPage() {
         <div className="premium-card p-6 md:p-10 bg-surface/50 border border-line rounded-2xl shadow-xl space-y-6">
           {activeTab === 'terms' && (
             <div className="space-y-6 text-sm text-muted leading-relaxed">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                 <FileText className="w-5 h-5 text-accent" /> 1. Үйлчилгээний нөхцөл
               </h2>
               <p className="text-xs">Сүүлд шинэчлэгдсэн: 2026 оны 6 сарын 8</p>
@@ -82,22 +82,22 @@ export default function LegalPage() {
                   MyVisa.mn цахим виз мэдүүлгийн системд тавтай морилно уу. Энэхүү үйлчилгээний нөхцөл нь тус платформоор дамжуулан үйлчилгээ авахтай холбоотой үүсэх харилцааг зохицуулна.
                 </p>
 
-                <h3 className="font-bold text-white mt-4">1. Үйлчилгээний хамрах хүрээ</h3>
+                <h3 className="font-bold text-foreground mt-4">1. Үйлчилгээний хамрах хүрээ</h3>
                 <p>
                   MyVisa.mn нь гадаад улс руу зорчих виз мэдүүлэгчид (хувь хүн болон байгууллага)-д зориулсан визний материал бүрдүүлэх, зөвлөгөө өгөх, холбогдох Элчин сайдын яамдад зуучлан хүргэх цахим платформ юм. Виз олгох эцсийн шийдвэрийг тухайн улсын Элчин сайдын яам (ЭСЯ) гаргах бөгөөд бид шийдвэрт нөлөөлөх эрхгүй.
                 </p>
 
-                <h3 className="font-bold text-white mt-4">2. Дансны аюулгүй байдал</h3>
+                <h3 className="font-bold text-foreground mt-4">2. Дансны аюулгүй байдал</h3>
                 <p>
                   Хэрэглэгч системд бүртгүүлэхдээ үнэн зөв мэдээлэл өгөх үүрэгтэй. Нэвтрэх нэр, нууц үгийн нууцлалыг хэрэглэгч өөрөө хариуцах бөгөөд таны бүртгэлээр хийгдсэн аливаа үйлдлийг таны өөрийн үйлдсэнд тооцно.
                 </p>
 
-                <h3 className="font-bold text-white mt-4">3. Төлбөр тооцоо ба буцаалт</h3>
+                <h3 className="font-bold text-foreground mt-4">3. Төлбөр тооцоо ба буцаалт</h3>
                 <p>
                   Визний хураамж болон платформын үйлчилгээний хураамжийг QPay цахим төлбөрийн системээр дамжуулан төлнө. Виз мэдүүлгийн ажиллагаа эхэлсэн эсвэл ЭСЯ-нд материал хүргэгдсэнээс хойш төлбөр буцаах боломжгүй.
                 </p>
 
-                <h3 className="font-bold text-white mt-4">4. Үйлчилгээний хязгаарлалт</h3>
+                <h3 className="font-bold text-foreground mt-4">4. Үйлчилгээний хязгаарлалт</h3>
                 <p>
                   Хуурамч бичиг баримт бүрдүүлсэн, бусдын нэрийг ашиглан хууран мэхлэхийг оролдсон тохиолдолд үйлчилгээг шууд цуцалж, холбогдох хууль хяналтын байгууллагад мэдэгдэх эрхтэй.
                 </p>
@@ -107,7 +107,7 @@ export default function LegalPage() {
 
           {activeTab === 'privacy' && (
             <div className="space-y-6 text-sm text-muted leading-relaxed">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                 <Shield className="w-5 h-5 text-accent" /> 2. Нууцлалын бодлого
               </h2>
               <p className="text-xs">Сүүлд шинэчлэгдсэн: 2026 оны 6 сарын 8</p>
@@ -117,19 +117,19 @@ export default function LegalPage() {
                   Хувийн мэдээлэл хамгаалах тухай хуулийн дагуу виз мэдүүлэгчийн хувийн нууцлал болон мэдээллийн аюулгүй байдлыг хангах нь манай хамгийн чухал зорилт юм.
                 </p>
 
-                <h3 className="font-bold text-white mt-4">1. Бидний цуглуулдаг мэдээлэл</h3>
+                <h3 className="font-bold text-foreground mt-4">1. Бидний цуглуулдаг мэдээлэл</h3>
                 <ul className="list-disc pl-5 space-y-1.5">
                   <li>Суурь мэдээлэл: Овог нэр, регистрийн дугаар, иргэний үнэмлэхийн мэдээлэл, утасны дугаар, цахим хаяг.</li>
                   <li>Санхүүгийн мэдээлэл: Нийгмийн даатгалын мэдээлэл (ХУР системээс), ажил олгогч байгууллагын нэр, сарын цалин, банкны хуулга.</li>
                   <li>Бичиг баримт: Гадаад паспортын хуулбар, цээж зураг, виз мэдүүлгийн бусад баримтууд.</li>
                 </ul>
 
-                <h3 className="font-bold text-white mt-4">2. Мэдээллийн хамгаалалт</h3>
+                <h3 className="font-bold text-foreground mt-4">2. Мэдээллийн хамгаалалт</h3>
                 <p>
                   Таны байршуулсан бүх бичиг баримт (паспорт, зураг, хуулга) нь Supabase-ийн хувийн хадгалах сан (Private Storage Bucket)-д байрших бөгөөд зөвхөн эрх бүхий Элчин сайдын яам болон компанийн админ түр хугацаанд үүсгэсэн хамгаалалттай холбоосоор (Signed URL) хандах боломжтой байна. Мэдээллийг дамжуулахдаа SSL/TLS шифрлэлт ашигладаг.
                 </p>
 
-                <h3 className="font-bold text-white mt-4">3. Мэдээлэл хадгалах хугацаа</h3>
+                <h3 className="font-bold text-foreground mt-4">3. Мэдээлэл хадгалах хугацаа</h3>
                 <p>
                   Таны виз мэдүүлгийн бичиг баримтууд виз мэдүүлэгдсэнээс хойш 6 сарын дараа системээс автоматаар бүрмөсөн устгагдах болно. Мэдүүлэгч хүсвэл өөрийн бүртгэлийг хэдийд ч устгах боломжтой.
                 </p>
@@ -139,7 +139,7 @@ export default function LegalPage() {
 
           {activeTab === 'consent' && (
             <div className="space-y-6 text-sm text-muted leading-relaxed">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
                 <FileSignature className="w-5 h-5 text-accent" /> 3. Хувийн мэдээлэл боловсруулах зөвшөөрөл
               </h2>
               <p className="text-xs">Сүүлд шинэчлэгдсэн: 2026 оны 6 сарын 8</p>
@@ -153,24 +153,24 @@ export default function LegalPage() {
                   <div className="flex gap-2.5 items-start">
                     <CheckSquare className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold text-white text-xs">ДАН систем болон ХУР системд нэвтрэх зөвшөөрөл</p>
-                      <p className="text-[11px] mt-0.5">Үндэсний цахим танилт нэвтрэлтийн ДАН систем болон төрийн мэдээлэл солилцооны ХУР системээс иргэний овог нэр, регистрийн дугаар, нийгмийн даатгалын шимтгэл төлөлтийн мэдээллийг автоматаар татах.</p>
+                      <p className="font-bold text-foreground text-xs">ДАН систем болон ХУР системд нэвтрэх зөвшөөрөл</p>
+                      <p className="text-xs mt-0.5">Үндэсний цахим танилт нэвтрэлтийн ДАН систем болон төрийн мэдээлэл солилцооны ХУР системээс иргэний овог нэр, регистрийн дугаар, нийгмийн даатгалын шимтгэл төлөлтийн мэдээллийг автоматаар татах.</p>
                     </div>
                   </div>
 
                   <div className="flex gap-2.5 items-start">
                     <CheckSquare className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold text-white text-xs">Бичиг баримт дамжуулах зөвшөөрөл</p>
-                      <p className="text-[11px] mt-0.5">Виз мэдүүлгийн зорилгоор таны гаргасан гадаад паспорт, цээж зураг, банкны хуулга зэрэг хувийн мэдээллийг сонгосон Элчин сайдын яамны консулын хэлтэст дамжуулах.</p>
+                      <p className="font-bold text-foreground text-xs">Бичиг баримт дамжуулах зөвшөөрөл</p>
+                      <p className="text-xs mt-0.5">Виз мэдүүлгийн зорилгоор таны гаргасан гадаад паспорт, цээж зураг, банкны хуулга зэрэг хувийн мэдээллийг сонгосон Элчин сайдын яамны консулын хэлтэст дамжуулах.</p>
                     </div>
                   </div>
 
                   <div className="flex gap-2.5 items-start">
                     <CheckSquare className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                     <div>
-                      <p className="font-bold text-white text-xs">Байгууллагын ажилтны баталгаажуулалт</p>
-                      <p className="text-[11px] mt-0.5">Байгууллагын ажилтны хувиар виз мэдүүлж байгаа бол тухайн байгууллагын ажил олгогч таны ажилтны мэдээлэлд хандаж баталгаажуулах.</p>
+                      <p className="font-bold text-foreground text-xs">Байгууллагын ажилтны баталгаажуулалт</p>
+                      <p className="text-xs mt-0.5">Байгууллагын ажилтны хувиар виз мэдүүлж байгаа бол тухайн байгууллагын ажил олгогч таны ажилтны мэдээлэлд хандаж баталгаажуулах.</p>
                     </div>
                   </div>
                 </div>

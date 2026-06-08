@@ -17,7 +17,6 @@ const TIPS = [
 export default function LoadingScreen({ message }: { message?: string }) {
   const [tipIndex, setTipIndex] = useState(0);
   const [visible, setVisible] = useState(true);
-  const [progress, setProgress] = useState(12);
   const [dotCount, setDotCount] = useState(1);
 
   // Cycle tips with fade transition
@@ -29,18 +28,6 @@ export default function LoadingScreen({ message }: { message?: string }) {
         setVisible(true);
       }, 350);
     }, 2800);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Animated progress bar — slowly creeps toward 90%
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 88) return p;
-        const step = Math.max(0.4, (88 - p) * 0.06);
-        return Math.min(88, p + step);
-      });
-    }, 120);
     return () => clearInterval(interval);
   }, []);
 
@@ -103,7 +90,7 @@ export default function LoadingScreen({ message }: { message?: string }) {
       <h1 className="text-base font-black text-foreground tracking-tight mb-0.5">
         MyVisa<span style={{ color: "var(--color-cta)" }}>.mn</span>
       </h1>
-      <p className="text-[9px] font-mono text-muted uppercase tracking-[0.2em] mb-8">
+      <p className="text-xs font-mono text-muted uppercase tracking-[0.2em] mb-8">
         Visa Application System
       </p>
 
@@ -121,17 +108,6 @@ export default function LoadingScreen({ message }: { message?: string }) {
         >
           {displaySub}
         </p>
-      </div>
-
-      {/* Progress bar */}
-      <div className="w-56 h-1 rounded-full overflow-hidden mb-4" style={{ background: "var(--color-border)" }}>
-        <div
-          className="h-full rounded-full transition-all duration-200 ease-out"
-          style={{
-            width: `${progress}%`,
-            background: "linear-gradient(90deg, var(--color-cta) 0%, #60a5fa 100%)",
-          }}
-        />
       </div>
 
       {/* Staggered dots */}

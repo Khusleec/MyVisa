@@ -44,8 +44,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-surface text-foreground transition-colors duration-200 antialiased font-sans">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[9999] bg-accent text-white px-4 py-2 rounded-lg font-bold shadow-lg text-xs">
+        Үндсэн контент руу очих
+      </a>
       <Navbar />
-      <main className="flex-1 flex flex-col min-h-0 bg-surface mobile-nav-safe">
+      <main id="main-content" className="flex-1 flex flex-col min-h-0 bg-surface mobile-nav-safe">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 md:py-8">
           {children}
         </div>

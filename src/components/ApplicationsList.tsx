@@ -96,7 +96,7 @@ export default function ApplicationsList({
                   <div className="min-w-0">
                     <h4 className="text-sm font-bold text-foreground flex flex-wrap items-center gap-2">
                       {app.country}
-                      <span className="text-[9px] font-mono text-muted bg-line px-1.5 py-0.5 rounded border border-line truncate max-w-[140px]">
+                      <span className="text-xs font-mono text-muted bg-line px-1.5 py-0.5 rounded border border-line truncate max-w-[140px]">
                         {app.id.slice(0, 8)}…
                       </span>
                     </h4>
@@ -121,7 +121,7 @@ export default function ApplicationsList({
                       const conf = getStatusConfig(app.status);
                       return (
                         <span
-                          className={`px-2.5 py-0.5 rounded text-[10px] font-bold border ${conf.bg}`}
+                          className={`px-2.5 py-0.5 rounded text-xs font-bold border ${conf.bg}`}
                         >
                           {conf.text}
                         </span>
@@ -133,7 +133,7 @@ export default function ApplicationsList({
                         onClick={() =>
                           openQPayInvoice(app.id, app.embassyFee + app.serviceFee)
                         }
-                        className="btn-primary text-[11px] py-1 px-3"
+                        className="btn-primary text-xs py-1 px-3"
                       >
                         Төлөх
                       </button>
@@ -168,7 +168,7 @@ export default function ApplicationsList({
                       }`}
                     />
                     <p
-                      className={`text-[10px] font-bold ${
+                      className={`text-xs font-bold ${
                         step.active || step.pulse ? "text-foreground" : "text-muted"
                       }`}
                     >

@@ -142,7 +142,7 @@ function NewChatModal({
         >
           <div>
             <h2 className="text-sm font-bold text-foreground">Шинэ чат эхлүүлэх</h2>
-            <p className="text-[10px] text-muted mt-0.5">Байгууллагыг сонгоно уу</p>
+            <p className="text-xs text-muted mt-0.5">Байгууллагыг сонгоно уу</p>
           </div>
           <button
             type="button"
@@ -215,7 +215,7 @@ function NewChatModal({
                 </div>
                 <div className="flex-1 overflow-hidden">
                   <p className="text-xs font-bold text-foreground truncate">{entry.company_name}</p>
-                  <p className="text-[9.5px] text-muted font-mono truncate">Төлөөлөгч: {entry.admin_name}</p>
+                  <p className="text-xs text-muted font-mono truncate">Төлөөлөгч: {entry.admin_name}</p>
                 </div>
                 <ChevronRight className="w-3.5 h-3.5 text-muted group-hover:text-accent transition-colors shrink-0" />
               </button>
@@ -482,7 +482,7 @@ export default function Chat({ currentProfile }: ChatProps) {
                       key={f}
                       type="button"
                       onClick={() => setContactFilter(f)}
-                      className={`flex-1 py-1.5 text-[10px] font-bold rounded transition-all ${
+                      className={`flex-1 py-1.5 text-xs font-bold rounded transition-all ${
                         contactFilter === f ? "bg-elevated text-accent border border-line" : "text-muted hover:text-foreground"
                       }`}
                     >
@@ -515,7 +515,7 @@ export default function Chat({ currentProfile }: ChatProps) {
                         <p className="text-xs font-bold text-foreground truncate">
                           {contact.role === 'business_admin' ? (contact.company_name || 'Бизнес харилцагч') : contact.name}
                         </p>
-                        <p className="text-[9.5px] text-muted font-mono truncate">
+                        <p className="text-xs text-muted font-mono truncate">
                           {contact.role === 'business_admin' ? `Админ: ${contact.name}` : 'Хувь хүн'}
                         </p>
                       </div>
@@ -532,7 +532,7 @@ export default function Chat({ currentProfile }: ChatProps) {
               activeMobileView === 'conversation' ? 'hidden md:flex' : 'flex'
             }`}>
               <div className="p-3 border-b border-line bg-elevated/55">
-                <h3 className="text-[10px] font-bold text-muted uppercase tracking-wider font-mono">Чатууд</h3>
+                <h3 className="text-xs font-bold text-muted uppercase tracking-wider font-mono">Чатууд</h3>
               </div>
               <div className="flex-1 overflow-y-auto p-2 space-y-1">
                 {contacts.map(contact => (
@@ -555,10 +555,10 @@ export default function Chat({ currentProfile }: ChatProps) {
                       )}
                     </div>
                     <div className="overflow-hidden flex-1">
-                      <p className="text-[11px] font-bold text-foreground truncate">
+                      <p className="text-xs font-bold text-foreground truncate">
                         {contact.role === 'visa_issuer' ? 'Визний Ажилтан' : contact.company_name || contact.name}
                       </p>
-                      <p className="text-[9px] text-muted font-mono truncate">
+                      <p className="text-xs text-muted font-mono truncate">
                         {contact.role === 'visa_issuer' ? 'ЭСЯ' : `Төлөөлөгч: ${contact.name}`}
                       </p>
                     </div>
@@ -604,7 +604,7 @@ export default function Chat({ currentProfile }: ChatProps) {
                           ? (selectedContact.company_name || 'Бизнес харилцагч')
                           : selectedContact.name}
                       </h4>
-                      <p className="text-[9.5px] text-muted font-mono uppercase tracking-wider">
+                      <p className="text-xs text-muted font-mono uppercase tracking-wider">
                         {selectedContact.role === 'visa_issuer'
                           ? 'ЭСЯ • Визний Ажилтан'
                           : selectedContact.role === 'business_admin'
@@ -637,7 +637,7 @@ export default function Chat({ currentProfile }: ChatProps) {
                             }`}>
                               <p>{msg.message}</p>
                             </div>
-                            <span className={`text-[8.5px] text-muted block font-mono ${isMe ? 'text-right' : 'text-left'}`}>
+                            <span className={`text-xs text-muted block font-mono ${isMe ? 'text-right' : 'text-left'}`}>
                               {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
@@ -655,7 +655,7 @@ export default function Chat({ currentProfile }: ChatProps) {
                     placeholder="Зурвас бичих..."
                     value={newMessage}
                     onChange={e => setNewMessage(e.target.value)}
-                    className="flex-1 bg-surface border border-line hover:border-muted focus:border-accent rounded-xl px-4 py-2 text-xs text-white focus:outline-none transition-all"
+                    className="flex-1 bg-surface border border-line hover:border-muted focus:border-accent rounded-xl px-4 py-2 text-xs text-foreground focus:outline-none transition-all"
                   />
                   <button
                     type="submit"

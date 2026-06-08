@@ -100,7 +100,7 @@ export default function DanModal({ isOpen, onClose, onSuccess }: DanModalProps) 
                         <input 
                           type="text" 
                           placeholder="99112233" 
-                          className="flex-1 bg-surface border border-line rounded-lg px-3 py-2 text-xs text-white focus:outline-none"
+                          className="flex-1 bg-surface border border-line rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none"
                         />
                         <button 
                           onClick={() => setDanOtpSent(true)}
@@ -127,7 +127,7 @@ export default function DanModal({ isOpen, onClose, onSuccess }: DanModalProps) 
                         maxLength={6}
                         value={danOtpCode}
                         onChange={(e) => setDanOtpCode(e.target.value)}
-                        className="w-full bg-surface border border-line rounded-lg px-3 py-2 text-xs font-mono text-center text-white focus:outline-none tracking-widest text-base"
+                        className="w-full bg-surface border border-line rounded-lg px-3 py-2 text-xs font-mono text-center text-foreground focus:outline-none tracking-widest text-base"
                       />
                       <p className="text-[10px] text-muted">Таны утсанд ирсэн 6 оронтой нууц кодыг оруулна уу.</p>
                     </div>

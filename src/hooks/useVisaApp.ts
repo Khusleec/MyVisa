@@ -3,7 +3,7 @@ import { VisaApplication, Employee, EmployeeInvite } from "../types/visa";
 import { useToast } from "../components/ui/Toast";
 import { supabase } from "../lib/supabase";
 import { Session } from "@supabase/supabase-js";
-import type { AppTab } from "../components/Sidebar";
+export type AppTab = 'dashboard' | 'apply' | 'applications' | 'chat' | 'settings' | 'issuer';
 
 export const ALL_COUNTRIES = [
   { name: "Бүгд Найрамдах Солонгос Улс", code: "KR", eFee: 110000, sFee: 40000, desc: "C-3-9 аялал жуулчлалын ангилал. НД шимтгэл 6+ сар төлсөн байх шаардлагатай." },
@@ -744,7 +744,7 @@ export function useVisaApp() {
     setNewApp(prev => ({
       ...prev,
       qpayInvoice: mockInvoice,
-      step: 5
+      step: 4
     }));
     openQPayInvoice('new_app_invoice', newApp.embassyFee + newApp.serviceFee);
   };
