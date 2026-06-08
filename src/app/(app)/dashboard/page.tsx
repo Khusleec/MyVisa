@@ -26,6 +26,8 @@ export default function DashboardRoute() {
     startChatWithCompany,
     pendingInvites,
     inviteEmployee,
+    updateApplicationStatus,
+    getDocumentUrl,
   } = useVisaAppContext();
 
   const handleStartEmployee = (empId: string) => {
@@ -55,7 +57,7 @@ export default function DashboardRoute() {
   return (
     <div className="w-full max-w-5xl mx-auto">
       <Dashboard
-        userRole={userRole as 'individual' | 'business_admin'}
+        userRole={userRole as 'individual' | 'business_admin' | 'visa_issuer'}
         userName={user.name}
         companyName={company.name}
         companyRegistration={company.registrationNo}
@@ -77,6 +79,8 @@ export default function DashboardRoute() {
         onStartChatWithCompany={handleStartChat}
         pendingInvites={pendingInvites}
         onInviteEmployee={inviteEmployee}
+        onUpdateApplicationStatus={updateApplicationStatus}
+        onGetDocumentUrl={getDocumentUrl}
       />
     </div>
   );

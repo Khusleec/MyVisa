@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Mail, Lock, User, Building, Phone, ArrowRight, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -548,6 +549,17 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                       </>
                     )}
                   </button>
+                  <p className="text-[10px] text-muted text-center mt-3">
+                    Бүртгүүлснээр та манай{" "}
+                    <Link href="/legal" className="text-accent hover:underline">
+                      Үйлчилгээний нөхцөл
+                    </Link>{" "}
+                    болон{" "}
+                    <Link href="/legal" className="text-accent hover:underline">
+                      Нууцлалын бодлого
+                    </Link>{" "}
+                    буюу хувийн мэдээлэл боловсруулах зөвшөөрлийг хүлээн зөвшөөрч байгаа болно.
+                  </p>
                 </form>
               ) : (
                 /* REGISTER BUSINESS FORM */
@@ -655,6 +667,17 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                       </>
                     )}
                   </button>
+                  <p className="text-[10px] text-muted text-center mt-3">
+                    Бүртгүүлснээр танай байгууллага манай{" "}
+                    <Link href="/legal" className="text-accent hover:underline">
+                      Үйлчилгээний нөхцөл
+                    </Link>{" "}
+                    болон{" "}
+                    <Link href="/legal" className="text-accent hover:underline">
+                      Нууцлалын бодлого
+                    </Link>{" "}
+                    буюу мэдээлэл боловсруулах зөвшөөрлийг хүлээн зөвшөөрч байгаа болно.
+                  </p>
                 </form>
               )}
             </div>

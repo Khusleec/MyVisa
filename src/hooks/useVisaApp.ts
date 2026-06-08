@@ -481,7 +481,9 @@ export function useVisaApp() {
     try {
       let query = supabase.from('visa_applications').select('*');
 
-      if (userProfile.role === 'business_admin' && userProfile.company_id) {
+      if (userProfile.role === 'visa_issuer') {
+        // Visa issuers see all applications submitted to the embassy
+      } else if (userProfile.role === 'business_admin' && userProfile.company_id) {
         query = query.eq('company_id', userProfile.company_id);
       } else {
         query = query.eq('created_by', userProfile.id);
@@ -1000,6 +1002,39 @@ export function useVisaApp() {
     }
   };
 
+  const updateApplicationStatus = async (appId: string, newStatus: VisaApplication['status']) => {
+    try {
+      const { error } = await supabase
+        .from('visa_applications')
+        .update({ status: newStatus })
+        .eq('id', appId);
+
+      if (error) throw error;
+
+      toast("Амжилтай шинэчлэгдлээ", "success");
+      if (profile) {
+        await loadUserData(profile.id);
+      }
+    } catch (e: unknown) {
+      console.error("updateApplicationStatus error:", e);
+      const err = e as Error;
+      toast(`Алдаа гарлаа: ${err.message}`, "error");
+    }
+  };
+
+  const getDocumentUrl = async (path: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .createSignedUrl(path, 600);
+      if (error) throw error;
+      return data.signedUrl;
+    } catch (e) {
+      console.error("getDocumentUrl error:", e);
+      return null;
+    }
+  };
+
   return {
     session,
     loadingSession,
@@ -1056,5 +1091,7 @@ export function useVisaApp() {
     activeChatContact,
     setActiveChatContact,
     startChatWithCompany,
+    updateApplicationStatus,
+    getDocumentUrl,
   };
 }

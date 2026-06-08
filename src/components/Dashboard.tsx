@@ -33,7 +33,7 @@ const getLogoIcon = (companyId: string): LucideIcon => {
 };
 
 interface DashboardProps {
-  userRole: 'individual' | 'business_admin';
+  userRole: 'individual' | 'business_admin' | 'visa_issuer';
   userName: string;
   companyName: string;
   companyRegistration: string;
@@ -55,6 +55,8 @@ interface DashboardProps {
   onStartChatWithCompany?: (companyId: string, companyName: string) => Promise<boolean>;
   pendingInvites?: EmployeeInvite[];
   onInviteEmployee?: (name: string, email: string, registerNo: string, position: string) => Promise<void>;
+  onUpdateApplicationStatus?: (appId: string, newStatus: VisaApplication['status']) => Promise<void>;
+  onGetDocumentUrl?: (path: string) => Promise<string | null>;
 }
 
 export default function Dashboard({
@@ -80,6 +82,8 @@ export default function Dashboard({
   onStartChatWithCompany,
   pendingInvites = [],
   onInviteEmployee,
+  onUpdateApplicationStatus,
+  onGetDocumentUrl,
 }: DashboardProps) {
   
   const [selectedCompanyDetailId, setSelectedCompanyDetailId] = React.useState<string | null>(null);
@@ -127,17 +131,21 @@ export default function Dashboard({
     >
       <PageHeader
         title={
-          userRole === "business_admin"
+          userRole === "visa_issuer"
+            ? "ЭСЯ-ны Шүүгчийн хянах хэсэг"
+            : userRole === "business_admin"
             ? `Байгууллагын хянах хэсэг`
             : `Сайн байна уу, ${userName.split(" ").slice(-1)[0] || userName}?`
         }
         description={
-          userRole === "business_admin"
+          userRole === "visa_issuer"
+            ? "Виз мэдүүлгийн материалыг хянах, зөвшөөрөх/татгалзах шийдвэр гаргах."
+            : userRole === "business_admin"
             ? `${companyName} — ажилтны виз, нэгдсэн төлбөр, бүртгэл.`
             : "Визийн материалаа гэрээсээ бэлдэж, ЭСЯ руу шууд илгээнэ үү."
         }
         action={
-          onGoToApply ? (
+          onGoToApply && userRole !== 'visa_issuer' ? (
             <button type="button" onClick={onGoToApply} className="btn-primary">
               <Plus className="w-4 h-4" />
               Шинэ мэдүүлэг
@@ -161,7 +169,31 @@ export default function Dashboard({
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {userRole === 'business_admin' ? (
+        {userRole === 'visa_issuer' ? (
+          <>
+            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Шүүх мэдүүлгүүд</p>
+              <p className="text-sm font-bold text-foreground">
+                {applications.filter((a) => a.status === "submitted" || a.status === "khur_checked").length} мэдүүлэг
+              </p>
+              <p className="text-[10px] text-accent font-mono">Шийдвэрлэлт хүлээж буй</p>
+            </div>
+            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Зөвшөөрсөн</p>
+              <p className="text-sm font-bold text-positive">
+                {applications.filter((a) => a.status === "approved").length} мэдүүлэг
+              </p>
+              <p className="text-[10px] text-positive font-mono">Олгосон виз</p>
+            </div>
+            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+              <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Татгалзсан</p>
+              <p className="text-sm font-bold text-negative">
+                {applications.filter((a) => a.status === "rejected").length} мэдүүлэг
+              </p>
+              <p className="text-[10px] text-negative font-mono">Буцаасан материал</p>
+            </div>
+          </>
+        ) : userRole === 'business_admin' ? (
           <>
             <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
               <p className="text-[10px] text-muted font-mono uppercase tracking-wider">Идэвхтэй Ажилчид</p>
@@ -672,6 +704,142 @@ export default function Dashboard({
             </div>
           </div>
         </motion.div>
+      ) : userRole === 'visa_issuer' ? (
+        <div className="space-y-6">
+          {/* Issuer Visa Review Table */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">
+                Шүүгдэх хүлээгдэж буй мэдүүлгүүд ({applications.filter(a => a.status === 'submitted' || a.status === 'khur_checked').length})
+              </h4>
+            </div>
+
+            {applications.filter(a => a.status !== 'draft' && a.status !== 'payment_pending').length === 0 ? (
+              <EmptyState
+                icon={FileText}
+                title="Мэдүүлэг байхгүй"
+                description="Шинээр ирсэн виз мэдүүлгийн материал одоогоор байхгүй байна."
+              />
+            ) : (
+              <div className="premium-card overflow-hidden bg-surface border border-line rounded-xl">
+                <div className="overflow-x-auto text-[12px]">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-elevated border-b border-line text-[10px] font-mono text-muted uppercase">
+                        <th className="p-4">Мэдүүлэгч</th>
+                        <th className="p-4">Улс / Виз</th>
+                        <th className="p-4">Бичиг баримтууд</th>
+                        <th className="p-4">Төлөв</th>
+                        <th className="p-4 text-right">Үйлдэл</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line/45">
+                      {applications.filter(a => a.status !== 'draft' && a.status !== 'payment_pending').map((app) => {
+                        const statusConfig = getStatusConfig(app.status);
+                        return (
+                          <tr key={app.id} className="hover:bg-overlay/20 transition-colors">
+                            <td className="p-4">
+                              <div className="font-bold text-foreground">{app.applicantName}</div>
+                              <div className="text-[10px] text-muted font-mono">{app.userRegister}</div>
+                            </td>
+                            <td className="p-4">
+                              <div className="font-semibold text-foreground">{app.country}</div>
+                              <div className="text-[10px] text-muted">{app.visaType}</div>
+                            </td>
+                            <td className="p-4 space-y-1.5">
+                              {app.passportFile ? (
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    if (onGetDocumentUrl) {
+                                      const url = await onGetDocumentUrl(app.passportFile!);
+                                      if (url) window.open(url, '_blank');
+                                    }
+                                  }}
+                                  className="text-[10px] text-accent hover:underline block text-left cursor-pointer"
+                                >
+                                  📄 Гадаад паспорт
+                                </button>
+                              ) : (
+                                <span className="text-[10px] text-muted block">📄 Пасспорт байхгүй</span>
+                              )}
+                              {app.photoFile ? (
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    if (onGetDocumentUrl) {
+                                      const url = await onGetDocumentUrl(app.photoFile!);
+                                      if (url) window.open(url, '_blank');
+                                    }
+                                  }}
+                                  className="text-[10px] text-accent hover:underline block text-left cursor-pointer"
+                                >
+                                  🖼 Цээж зураг
+                                </button>
+                              ) : (
+                                <span className="text-[10px] text-muted block">🖼 Зураг байхгүй</span>
+                              )}
+                              {app.bankStatementFile ? (
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    if (onGetDocumentUrl) {
+                                      const url = await onGetDocumentUrl(app.bankStatementFile!);
+                                      if (url) window.open(url, '_blank');
+                                    }
+                                  }}
+                                  className="text-[10px] text-accent hover:underline block text-left cursor-pointer"
+                                >
+                                  🏦 Дансны хуулга
+                                </button>
+                              ) : null}
+                            </td>
+                            <td className="p-4">
+                              <span className={`inline-flex px-2.5 py-0.5 rounded text-[9px] font-bold ${statusConfig.bg}`}>
+                                {statusConfig.text}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right">
+                              <div className="flex justify-end gap-1.5">
+                                {(app.status === 'submitted' || app.status === 'khur_checked') && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => onUpdateApplicationStatus?.(app.id, 'approved')}
+                                      className="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-400 text-[10px] font-bold rounded-lg transition-all cursor-pointer"
+                                    >
+                                      Зөвшөөрөх
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => onUpdateApplicationStatus?.(app.id, 'rejected')}
+                                      className="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/35 text-rose-400 text-[10px] font-bold rounded-lg transition-all cursor-pointer"
+                                    >
+                                      Татгалзах
+                                    </button>
+                                  </>
+                                )}
+                                {onStartChatWithCompany && (
+                                  <button
+                                    type="button"
+                                    onClick={() => onStartChatWithCompany(app.id, app.applicantName)}
+                                    className="px-2 py-1 bg-accent/20 hover:bg-accent/35 text-accent text-[10px] font-bold rounded-lg transition-all cursor-pointer"
+                                  >
+                                    Чатлах
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       ) : (
         <div className="space-y-6">
           {/* B2C Available Companies and Visas list */}
