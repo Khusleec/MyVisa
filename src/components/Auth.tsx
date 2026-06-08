@@ -477,7 +477,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Регистрийн №</label>
+                      <label className="text-xs text-muted font-mono uppercase tracking-wider block">Регистрийн №</label>
                       <input 
                         type="text" 
                         required
@@ -487,6 +487,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         onChange={(e) => setIndRegisterNo(e.target.value)}
                         className="w-full bg-surface border border-line hover:border-muted focus:border-accent rounded-xl px-3 py-2.5 text-xs font-mono text-foreground focus:outline-none transition-all"
                       />
+                      <p className="text-[11px] text-muted mt-1 leading-normal">Хэлбэр: УУ12345678 (крилл 2 үсэг + 8 оронтой тоо)</p>
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Утасны дугаар</label>
@@ -520,7 +521,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Нууц үг</label>
+                    <label className="text-xs text-muted font-mono uppercase tracking-wider block">Нууц үг</label>
                     <div className="relative">
                       <Lock className="w-4 h-4 text-muted absolute left-3 top-3" />
                       <input 
@@ -532,6 +533,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         className="input-field pl-9"
                       />
                     </div>
+                    <p className="text-[11px] text-muted mt-1 leading-normal">Хамгийн багадаа 6 оронтой, үсэг тоо орсон байна.</p>
                   </div>
 
                   <button 
@@ -580,7 +582,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                       </div>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Байгууллагын РД</label>
+                      <label className="text-xs text-muted font-mono uppercase tracking-wider block">Байгууллагын РД</label>
                       <input 
                         type="text" 
                         required
@@ -589,6 +591,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         onChange={(e) => setCompRegNo(e.target.value)}
                         className="w-full bg-surface border border-line hover:border-muted focus:border-accent rounded-xl px-3 py-2.5 text-xs font-mono text-foreground focus:outline-none transition-all"
                       />
+                      <p className="text-[11px] text-muted mt-1 leading-normal">Хэлбэр: 7 оронтой тоо</p>
                     </div>
                   </div>
 
@@ -638,7 +641,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Нууц үг</label>
+                    <label className="text-xs text-muted font-mono uppercase tracking-wider block">Нууц үг</label>
                     <div className="relative">
                       <Lock className="w-4 h-4 text-muted absolute left-3 top-3" />
                       <input 
@@ -650,6 +653,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                         className="input-field pl-9"
                       />
                     </div>
+                    <p className="text-[11px] text-muted mt-1 leading-normal">Хамгийн багадаа 6 оронтой, үсэг тоо орсон байна.</p>
                   </div>
 
                   <button 

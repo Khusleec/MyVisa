@@ -45,7 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-surface text-foreground transition-colors duration-200 antialiased font-sans">
       <Navbar />
-      <main className="flex-1 flex flex-col min-h-0 bg-surface">
+      <main className="flex-1 flex flex-col min-h-0 bg-surface mobile-nav-safe">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 md:py-8">
           {children}
         </div>

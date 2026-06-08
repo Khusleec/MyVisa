@@ -24,7 +24,8 @@ export default function ApplyRoute() {
     setIsDanModalOpen,
     formError,
     setFormError,
-    allowedCountries
+    allowedCountries,
+    allCompanies
   } = useVisaAppContext();
 
   return (
@@ -49,6 +50,7 @@ export default function ApplyRoute() {
         formError={formError}
         onClearFormError={() => setFormError(null)}
         allowedCountries={allowedCountries}
+        companiesList={allCompanies}
       />
     </div>
   );

@@ -1,5 +1,6 @@
 import React from "react";
-import { Check, ChevronRight, Info, HelpCircle, Lock, Upload, RefreshCw, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Check, ChevronRight, Info, HelpCircle, Lock, Upload, RefreshCw, AlertCircle, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import { Employee } from "../types/visa";
 import PageHeader from "./ui/PageHeader";
@@ -49,6 +50,7 @@ interface ApplicationFormProps {
   formError?: string | null;
   onClearFormError?: () => void;
   allowedCountries?: { name: string; code: string; eFee: number; sFee: number; desc?: string }[];
+  companiesList?: { id: string; name: string; registration_no: string; allowed_countries: string[]; phone: string; address: string }[];
 }
 
 export default function ApplicationForm({
@@ -71,6 +73,7 @@ export default function ApplicationForm({
   formError,
   onClearFormError,
   allowedCountries = [],
+  companiesList = [],
 }: ApplicationFormProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [activeUploadType, setActiveUploadType] = React.useState<'passport' | 'statement' | 'photo' | null>(null);
@@ -90,13 +93,35 @@ export default function ApplicationForm({
     }
   };
 
+  const getFlagEmoji = (code: string) => {
+    switch (code) {
+      case 'KR': return '🇰🇷';
+      case 'JP': return '🇯🇵';
+      case 'DE': return '🇩🇪';
+      case 'AU': return '🇦🇺';
+      default: return '🏳️';
+    }
+  };
+
   const steps = [
     { step: 1, label: "Улс", full: "Улс сонгох" },
-    { step: 2, label: "ХУР", full: "Лавлагаа" },
-    { step: 3, label: "Баримт", full: "Материал" },
-    { step: 4, label: "Хяналт", full: "Хяналт" },
-    { step: 5, label: "Төлбөр", full: "Төлбөр" },
+    { step: 2, label: "ХУР", full: "Лавлагаа (ХУР)" },
+    { step: 3, label: "Баримт", full: "Баримт бичиг" },
+    { step: 4, label: "Хяналт", full: "Материал хянах" },
+    { step: 5, label: "Төлбөр", full: "Хураамж төлөх" },
   ];
+
+  const TrustStrip = () => (
+    <div className="p-3.5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 flex items-center gap-2.5 text-xs text-muted">
+      <Lock className="w-4.5 h-4.5 text-emerald-400 shrink-0" />
+      <span className="flex-1 leading-relaxed">
+        Таны хувийн мэдээлэл болон баримт бичгүүдийг 256-бит шифрлэлтээр хамгаалсан бөгөөд зөвхөн ЭСЯ-ны хянагч харах эрхтэй.{" "}
+        <Link href="/legal" target="_blank" className="text-accent hover:underline font-bold inline-flex items-center gap-0.5">
+          Мэдээлэл боловсруулах зөвшөөрөл
+        </Link>
+      </span>
+    </div>
+  );
 
   return (
     <motion.div 
@@ -112,58 +137,76 @@ export default function ApplicationForm({
         description={`Алхам ${newApp.step} / 5 — ${steps.find((s) => s.step === newApp.step)?.full}`}
       />
 
+      {/* Step indicators */}
       <div className="premium-card p-4 md:p-5 bg-surface border border-line rounded-xl overflow-x-auto">
         <div className="flex items-center min-w-[min(100%,20rem)] max-w-xl mx-auto gap-0" role="list" aria-label="Мэдүүлгийн алхмууд">
-          {steps.map((s, i) => (
-            <React.Fragment key={s.step}>
-              <div className="flex flex-col items-center flex-1 min-w-[3.5rem]" role="listitem">
-                <div
-                  className={`w-8 h-8 rounded-full border text-[11px] font-bold font-mono flex items-center justify-center transition-all ${
-                    newApp.step === s.step
-                      ? "bg-accent border-accent text-white shadow-[0_0_12px_rgba(0,102,255,0.35)]"
-                      : newApp.step > s.step
-                        ? "bg-positive border-positive text-white"
-                        : "bg-surface border-line text-muted"
-                  }`}
-                  aria-current={newApp.step === s.step ? "step" : undefined}
-                >
-                  {newApp.step > s.step ? <Check className="w-3.5 h-3.5" aria-hidden /> : s.step}
+          {steps.map((s, i) => {
+            const isCompleted = newApp.step > s.step;
+            const isActiveStep = newApp.step === s.step;
+            const isAccessible = s.step <= newApp.step;
+
+            return (
+              <React.Fragment key={s.step}>
+                <div className="flex flex-col items-center flex-1 min-w-[4rem]" role="listitem">
+                  <button
+                    type="button"
+                    disabled={!isAccessible}
+                    onClick={() => {
+                      if (isAccessible) {
+                        onClearFormError?.();
+                        setNewApp(prev => ({ ...prev, step: s.step }));
+                      }
+                    }}
+                    className={`w-9 h-9 rounded-full border text-xs font-bold font-mono flex items-center justify-center transition-all focus:outline-none focus:ring-2 focus:ring-accent ${
+                      isAccessible ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+                    } ${
+                      isActiveStep
+                        ? "bg-accent border-accent text-white shadow-[0_0_12px_rgba(0,102,255,0.35)]"
+                        : isCompleted
+                          ? "bg-positive border-positive text-white hover:bg-opacity-85"
+                          : "bg-surface border-line text-muted"
+                    }`}
+                    aria-current={isActiveStep ? "step" : undefined}
+                    title={s.full}
+                  >
+                    {isCompleted ? <Check className="w-4 h-4" aria-hidden /> : s.step}
+                  </button>
+                  <span
+                    className={`text-xs mt-2 font-bold text-center ${
+                      isActiveStep ? "text-foreground" : "text-muted"
+                    }`}
+                  >
+                    <span className="sm:hidden">{s.label}</span>
+                    <span className="hidden sm:inline">{s.full}</span>
+                  </span>
                 </div>
-                <span
-                  className={`text-[9px] sm:text-[10px] mt-1.5 font-bold text-center ${
-                    newApp.step === s.step ? "text-foreground" : "text-muted"
-                  }`}
-                >
-                  <span className="sm:hidden">{s.label}</span>
-                  <span className="hidden sm:inline">{s.full}</span>
-                </span>
-              </div>
-              {i < steps.length - 1 && (
-                <div
-                  className={`h-px flex-1 min-w-[8px] mb-5 ${
-                    newApp.step > s.step ? "bg-positive" : "bg-line"
-                  }`}
-                  aria-hidden
-                />
-              )}
-            </React.Fragment>
-          ))}
+                {i < steps.length - 1 && (
+                  <div
+                    className={`h-px flex-1 min-w-[8px] mb-6 ${
+                      isCompleted ? "bg-positive" : "bg-line"
+                    }`}
+                    aria-hidden
+                  />
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
 
       {formError && (
-        <div className="form-error-banner" role="alert">
-          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
-          <span className="flex-1">{formError}</span>
+        <div className="form-error-banner p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/5 text-xs text-rose-400 flex gap-2.5 items-start" role="alert">
+          <AlertCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" aria-hidden />
+          <span className="flex-1 leading-normal">{formError}</span>
           {onClearFormError && (
-            <button type="button" onClick={onClearFormError} className="text-[10px] font-bold underline shrink-0">
+            <button type="button" onClick={onClearFormError} className="text-xs font-bold underline shrink-0 cursor-pointer">
               Хаах
             </button>
           )}
         </div>
       )}
 
-      <div className="premium-card p-6 md:p-8 bg-surface border border-line rounded-xl">
+      <div className="premium-card p-6 md:p-8 bg-surface border border-line rounded-xl space-y-6">
         
         {/* STEP 1: Country select */}
         {newApp.step === 1 && (
@@ -171,31 +214,73 @@ export default function ApplicationForm({
             <div className="space-y-1">
               <h3 className="text-base font-bold text-foreground">Виз мэдүүлэх улсаа сонгоно уу</h3>
               <p className="text-xs text-muted">Визийн шаардлага болон хураамж улс бүрээр өөр өөр байна.</p>
+              <p className="text-xs font-semibold text-accent mt-1">Виз мэдүүлэх улсаа сонгож, хураамж болон шаардлагатай баримтуудтай танилцана уу.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {allowedCountries.map((country) => (
-                <div 
+                <button 
                   key={country.code}
+                  type="button"
                   onClick={() => onCountryChange(country.name, country.code, country.eFee, country.sFee)}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all flex justify-between items-center ${
+                  className={`p-4 rounded-xl border transition-all flex justify-between items-center w-full text-left focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer min-h-[56px] ${
                     newApp.countryCode === country.code 
-                      ? 'bg-elevated border-accent' 
+                      ? 'bg-elevated border-accent shadow-sm' 
                       : 'bg-surface border-line hover:border-muted'
                   }`}
                 >
-                  <div>
-                    <p className="text-xs font-bold text-foreground">{country.name}</p>
-                    <p className="text-[10px] text-muted mt-0.5">Нийт дүн: {(country.eFee + country.sFee).toLocaleString()} ₮</p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl" role="img" aria-label={country.name}>
+                      {getFlagEmoji(country.code)}
+                    </span>
+                    <div>
+                      <p className="text-sm font-bold text-foreground">{country.name}</p>
+                      <p className="text-xs text-muted mt-0.5">Нийт хураамж: {(country.eFee + country.sFee).toLocaleString()} ₮</p>
+                    </div>
                   </div>
-                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                    newApp.countryCode === country.code ? 'border-accent bg-accent text-white' : 'border-zinc-700'
+                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                    newApp.countryCode === country.code ? 'border-accent bg-accent text-white' : 'border-line'
                   }`}>
-                    {newApp.countryCode === country.code && <Check className="w-3 h-3" />}
+                    {newApp.countryCode === country.code && <Check className="w-3.5 h-3.5" />}
                   </div>
-                </div>
+                </button>
               ))}
             </div>
+
+            {/* B2C Company Selector inside Wizard */}
+            {userRole === 'individual' && newApp.countryCode && (
+              <div className="space-y-4 pt-6 border-t border-line animate-in fade-in duration-200">
+                <span className="text-xs font-bold text-foreground block uppercase tracking-wider font-mono">2. Зуучлагч байгууллага сонгох</span>
+                <p className="text-xs text-muted">Тус улсын визийг хариуцан шийдвэрлэх итгэмжлэгдсэн байгууллага сонгоно уу.</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {companiesList
+                    .filter(comp => comp.allowed_countries.includes(newApp.countryCode))
+                    .map(comp => (
+                      <button
+                        key={comp.id}
+                        type="button"
+                        onClick={() => setNewApp(prev => ({ ...prev, selectedCompanyId: comp.id }))}
+                        className={`p-4 rounded-xl border text-left flex justify-between items-center transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent ${
+                          newApp.selectedCompanyId === comp.id
+                            ? 'bg-elevated border-accent shadow-sm'
+                            : 'bg-surface border-line hover:border-muted'
+                        }`}
+                      >
+                        <div>
+                          <p className="text-sm font-bold text-foreground">{comp.name}</p>
+                          <p className="text-xs text-muted mt-1">Хаяг: {comp.address}</p>
+                          <p className="text-xs text-accent mt-0.5">Утас: {comp.phone}</p>
+                        </div>
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                          newApp.selectedCompanyId === comp.id ? 'border-accent bg-accent text-white' : 'border-line'
+                        }`}>
+                          {newApp.selectedCompanyId === comp.id && <Check className="w-3.5 h-3.5" />}
+                        </div>
+                      </button>
+                    ))}
+                </div>
+              </div>
+            )}
 
             <div className="flex justify-end pt-4 border-t border-line">
               <button 
@@ -204,7 +289,8 @@ export default function ApplicationForm({
                   onClearFormError?.();
                   setNewApp(prev => ({ ...prev, step: 2 }));
                 }}
-                className="btn-primary"
+                disabled={userRole === 'individual' && !newApp.selectedCompanyId}
+                className="btn-primary min-h-[44px] px-6 cursor-pointer"
               >
                 Үргэлжлүүлэх <ChevronRight className="w-4 h-4" />
               </button>
@@ -218,23 +304,27 @@ export default function ApplicationForm({
             <div className="space-y-1">
               <h3 className="text-base font-bold text-foreground">Мэдүүлэгчийн мэдээлэл болон Лавлагаа шалгах</h3>
               <p className="text-xs text-muted">ЭСЯ руу илгээх хүний хувийн РД болон төрийн ХУР лавлагаа мэдээллийг холбоно уу.</p>
+              <p className="text-xs font-semibold text-accent mt-1">Таны нийгмийн даатгалын шимтгэл төлөлт болон сарын цалингийн мэдээллийг ХУР системээс шууд татна.</p>
             </div>
+
+            {/* Trust Strip */}
+            <TrustStrip />
 
             {/* Show toggle options depending on role */}
             {userRole === 'business_admin' ? (
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-surface border border-line space-y-3">
-                  <span className="text-[10px] text-muted font-mono uppercase tracking-wider block">Виз мэдүүлэх ажилтан сонгох</span>
+                  <span className="text-xs text-muted font-mono uppercase tracking-wider block">Виз мэдүүлэх ажилтан сонгох</span>
                   <div className="flex flex-wrap gap-2">
                     {employees.map(emp => (
                       <button
                         key={emp.id}
                         type="button"
                         onClick={() => onEmployeeSelection(emp.id)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                        className={`px-3.5 py-2 rounded-lg text-xs font-semibold border transition-all cursor-pointer min-h-[40px] ${
                           newApp.selectedEmployeeId === emp.id 
-                            ? 'bg-accent/10 border-accent text-white' 
-                            : 'bg-surface border-line text-muted hover:text-foreground'
+                            ? 'bg-accent/10 border-accent text-white font-bold' 
+                            : 'bg-surface border-line text-muted hover:text-foreground hover:bg-elevated/40'
                         }`}
                       >
                         {emp.name} ({emp.position})
@@ -246,12 +336,12 @@ export default function ApplicationForm({
                 {newApp.selectedEmployeeId && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 rounded-xl bg-surface border border-line">
-                      <span className="text-[10px] text-muted font-mono">Ажилтны бүтэн нэр:</span>
-                      <p className="text-xs font-bold text-foreground mt-1">{newApp.applicantName}</p>
+                      <span className="text-xs text-muted font-mono">Ажилтны бүтэн нэр:</span>
+                      <p className="text-sm font-bold text-foreground mt-1">{newApp.applicantName}</p>
                     </div>
                     <div className="p-4 rounded-xl bg-surface border border-line">
-                      <span className="text-[10px] text-muted font-mono">Регистрийн дугаар:</span>
-                      <p className="text-xs font-mono font-bold text-foreground mt-1">{newApp.registerNo}</p>
+                      <span className="text-xs text-muted font-mono">Регистрийн дугаар:</span>
+                      <p className="text-sm font-mono font-bold text-foreground mt-1">{newApp.registerNo}</p>
                     </div>
                   </div>
                 )}
@@ -259,18 +349,18 @@ export default function ApplicationForm({
             ) : (
               <div className="space-y-4">
                 {/* Selector B2C Tabs */}
-                <div className="flex gap-4 p-1 bg-surface rounded-lg border border-line">
+                <div className="flex gap-4 p-1.5 bg-surface rounded-lg border border-line">
                   <button 
                     type="button"
                     onClick={() => onApplicantTypeChange('myself')}
-                    className={`flex-1 py-2 text-xs font-semibold rounded transition-all ${newApp.applicantType === 'myself' ? 'bg-elevated text-accent' : 'text-muted'}`}
+                    className={`flex-1 py-2.5 text-xs font-bold rounded transition-all cursor-pointer min-h-[40px] ${newApp.applicantType === 'myself' ? 'bg-elevated text-accent border border-line shadow-sm' : 'text-muted'}`}
                   >
                     Миний бие өөрөө
                   </button>
                   <button 
                     type="button"
                     onClick={() => onApplicantTypeChange('family')}
-                    className={`flex-1 py-2 text-xs font-semibold rounded transition-all ${newApp.applicantType === 'family' ? 'bg-elevated text-accent' : 'text-muted'}`}
+                    className={`flex-1 py-2.5 text-xs font-bold rounded transition-all cursor-pointer min-h-[40px] ${newApp.applicantType === 'family' ? 'bg-elevated text-accent border border-line shadow-sm' : 'text-muted'}`}
                   >
                     Гэр бүлийн гишүүн
                   </button>
@@ -278,12 +368,12 @@ export default function ApplicationForm({
 
                 {newApp.applicantType === 'family' && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl bg-surface border border-line space-y-1">
-                      <span className="text-[10px] text-muted font-mono uppercase tracking-wider">Хамаарал</span>
+                    <div className="p-4 rounded-xl bg-surface border border-line space-y-1.5">
+                      <span className="text-xs text-muted font-mono uppercase tracking-wider block">Хамаарал</span>
                       <select 
                         value={newApp.applicantRelation}
                         onChange={(e) => setNewApp(prev => ({ ...prev, applicantRelation: e.target.value }))}
-                        className="w-full bg-surface border border-line rounded p-1.5 text-xs text-white focus:outline-none"
+                        className="w-full bg-surface border border-line rounded px-2.5 py-2 text-xs text-white focus:outline-none min-h-[40px]"
                       >
                         <option>Эхнэр/Нөхөр</option>
                         <option>Охин</option>
@@ -292,25 +382,25 @@ export default function ApplicationForm({
                         <option>Ээж</option>
                       </select>
                     </div>
-                    <div className="p-4 rounded-xl bg-surface border border-line space-y-1">
-                      <span className="text-[10px] text-muted font-mono uppercase tracking-wider">Англи бүтэн нэр</span>
+                    <div className="p-4 rounded-xl bg-surface border border-line space-y-1.5">
+                      <span className="text-xs text-muted font-mono uppercase tracking-wider block">Англи бүтэн нэр</span>
                       <input 
                         type="text" 
                         placeholder="Nergui Amin-Erdene"
                         value={newApp.applicantName} 
                         onChange={(e) => setNewApp(prev => ({ ...prev, applicantName: e.target.value }))}
-                        className="w-full bg-surface border border-line rounded px-2.5 py-1.5 text-xs text-white focus:outline-none"
+                        className="w-full bg-surface border border-line rounded px-2.5 py-2 text-xs text-white focus:outline-none min-h-[40px]"
                       />
                     </div>
-                    <div className="p-4 rounded-xl bg-surface border border-line space-y-1">
-                      <span className="text-[10px] text-muted font-mono uppercase tracking-wider">Регистрийн дугаар</span>
+                    <div className="p-4 rounded-xl bg-surface border border-line space-y-1.5">
+                      <span className="text-xs text-muted font-mono uppercase tracking-wider block">Регистрийн дугаар</span>
                       <input 
                         type="text" 
                         placeholder="УУ18230492"
                         value={newApp.registerNo} 
                         onChange={(e) => setNewApp(prev => ({ ...prev, registerNo: e.target.value.toUpperCase() }))}
                         maxLength={10}
-                        className="w-full bg-surface border border-line rounded px-2.5 py-1.5 text-xs font-mono text-white focus:outline-none"
+                        className="w-full bg-surface border border-line rounded px-2.5 py-2 text-xs font-mono text-white focus:outline-none min-h-[40px]"
                       />
                     </div>
                   </div>
@@ -320,30 +410,30 @@ export default function ApplicationForm({
 
             {/* KHUR Verification trigger */}
             <div className="space-y-4 pt-4 border-t border-line">
-              <span className="text-xs font-bold text-foreground block">Төрийн мэдээлэл баталгаажуулалт (KHUR)</span>
+              <span className="text-sm font-bold text-foreground block">Төрийн мэдээлэл баталгаажуулалт (ХУР)</span>
 
               {userRole === 'business_admin' && (
                 <>
                   {khurLoading ? (
                     <div className="p-6 bg-surface rounded-xl border border-line flex flex-col items-center justify-center gap-3 text-center">
                       <RefreshCw className="w-6 h-6 text-accent animate-spin" />
-                      <p className="text-[10px] font-mono text-muted">API Query: 150.129.143.18 / E-Mongolia secure link</p>
+                      <p className="text-xs font-mono text-muted">API холболтоор ХУР системээс лавлагаа шалгаж байна...</p>
                     </div>
                   ) : newApp.khurChecked ? (
-                    <div className="p-4 bg-positive/5 border border-positive/25 rounded-xl space-y-3">
-                      <p className="text-xs text-foreground font-bold flex items-center gap-1.5">
-                        <Check className="w-4 h-4 text-positive" /> Нийгмийн Даатгалын шимтгэл төлөлт баталгаажлаа.
+                    <div className="p-4 bg-positive/5 border border-positive/25 rounded-xl space-y-3 animate-in fade-in duration-200">
+                      <p className="text-sm text-foreground font-bold flex items-center gap-1.5">
+                        <Check className="w-5 h-5 text-positive" /> Нийгмийн Даатгалын шимтгэл төлөлт баталгаажлаа.
                       </p>
-                      <div className="grid grid-cols-2 gap-4 text-[10.5px] font-mono text-muted pt-2">
+                      <div className="grid grid-cols-2 gap-4 text-xs font-mono text-muted pt-1">
                         <div>Ажил олгогч: <span className="text-foreground font-bold">{newApp.khurEmployer}</span></div>
-                        <div>Сүүлийн цалин: <span className="text-foreground font-bold">{newApp.khurSalary.toLocaleString()} ₮</span></div>
+                        <div>Сүүлийн сарын цалин: <span className="text-foreground font-bold">{newApp.khurSalary.toLocaleString()} ₮</span></div>
                       </div>
                     </div>
                   ) : (
                     <button
                       type="button"
                       onClick={onPullKhurData}
-                      className="w-full py-2.5 rounded-lg bg-accent hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
+                      className="w-full py-3 rounded-lg bg-accent hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow cursor-pointer min-h-[44px]"
                     >
                       ХУР системээс ажил олгогч, даатгалын лавлагааг татах
                     </button>
@@ -355,18 +445,18 @@ export default function ApplicationForm({
                 <>
                   {!isUserVerified ? (
                     <div className="p-4 bg-amber-500/5 border border-amber-500/25 rounded-xl space-y-3">
-                      <p className="text-xs text-amber-500 font-bold">
-                        DAN системээр холбогдоогүй байна.
+                      <p className="text-sm text-amber-500 font-bold">
+                        ДАН цахим системээр холбогдох шаардлагатай
                       </p>
-                      <p className="text-[10.5px] text-muted leading-relaxed">
-                        ХУР системээс лавлагаа мэдээллээ татахын тулд эхлээд өөрийн биеэр нэвтэрч баталгаажсан байх шаардлагатай.
+                      <p className="text-xs text-muted leading-relaxed">
+                        ХУР системээс таны нийгмийн даатгал, ажлын тодорхойлолт зэрэг нууц мэдээллийг татахын тулд Үндэсний цахим танилт нэвтрэлтийн ДАН системээр таныг хэн болохыг аюулгүй баталгаажуулах шаардлагатай.
                       </p>
                       <button
                         type="button"
                         onClick={onOpenDanModal}
-                        className="px-4 py-2 rounded-lg bg-accent hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
+                        className="px-5 py-2.5 rounded-lg bg-accent hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow cursor-pointer min-h-[44px]"
                       >
-                        DAN системээр нэвтрэх
+                        ДАН системээр нэвтрэх
                       </button>
                     </div>
                   ) : (
@@ -374,23 +464,23 @@ export default function ApplicationForm({
                       {khurLoading ? (
                         <div className="p-6 bg-surface rounded-xl border border-line flex flex-col items-center justify-center gap-3 text-center">
                           <RefreshCw className="w-6 h-6 text-accent animate-spin" />
-                          <p className="text-[10px] font-mono text-muted">API Query: 150.129.143.18 / E-Mongolia secure link</p>
+                          <p className="text-xs font-mono text-muted">ХУР төрийн мэдээлэл солилцооны системээс аюулгүй лавлагаа татаж байна...</p>
                         </div>
                       ) : newApp.khurChecked ? (
-                        <div className="p-4 bg-positive/5 border border-positive/25 rounded-xl space-y-3">
-                          <p className="text-xs text-foreground font-bold flex items-center gap-1.5">
-                            <Check className="w-4 h-4 text-positive" /> Нийгмийн Даатгалын шимтгэл төлөлт баталгаажлаа.
+                        <div className="p-4 bg-positive/5 border border-positive/25 rounded-xl space-y-3 animate-in fade-in duration-200">
+                          <p className="text-sm text-foreground font-bold flex items-center gap-1.5">
+                            <Check className="w-5 h-5 text-positive" /> Нийгмийн Даатгалын шимтгэл төлөлт баталгаажлаа.
                           </p>
-                          <div className="grid grid-cols-2 gap-4 text-[10.5px] font-mono text-muted pt-2">
+                          <div className="grid grid-cols-2 gap-4 text-xs font-mono text-muted pt-1">
                             <div>Ажил олгогч: <span className="text-foreground font-bold">{newApp.khurEmployer}</span></div>
-                            <div>Сүүлийн цалин: <span className="text-foreground font-bold">{newApp.khurSalary.toLocaleString()} ₮</span></div>
+                            <div>Сүүлийн сарын цалин: <span className="text-foreground font-bold">{newApp.khurSalary.toLocaleString()} ₮</span></div>
                           </div>
                         </div>
                       ) : (
                         <button 
                           type="button"
                           onClick={onPullKhurData}
-                          className="w-full py-2.5 rounded-lg bg-accent hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow"
+                          className="w-full py-3 rounded-lg bg-accent hover:bg-opacity-95 text-xs font-bold text-white transition-all shadow cursor-pointer min-h-[44px]"
                         >
                           ХУР системээс ажил олгогч, даатгалын лавлагааг татах
                         </button>
@@ -405,9 +495,9 @@ export default function ApplicationForm({
               <button 
                 type="button"
                 onClick={() => setNewApp(prev => ({ ...prev, step: 1 }))}
-                className="px-4 py-2 rounded-lg border border-line hover:bg-surface text-xs font-semibold text-muted"
+                className="px-4 py-2.5 rounded-lg border border-line hover:bg-elevated text-xs font-bold text-muted hover:text-foreground transition-all cursor-pointer min-h-[44px]"
               >
-                Өмнөх
+                Буцах (Улс сонгох)
               </button>
               <button 
                 type="button"
@@ -416,7 +506,7 @@ export default function ApplicationForm({
                   (userRole === 'business_admin' && (!newApp.selectedEmployeeId || !newApp.khurChecked)) || 
                   (userRole === 'individual' && newApp.applicantType === 'myself' && !newApp.khurChecked)
                 }
-                className="px-5 py-2.5 rounded-lg bg-accent hover:bg-opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all disabled:opacity-50"
+                className="px-5 py-2.5 rounded-lg bg-accent hover:bg-opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer min-h-[44px]"
               >
                 Үргэлжлүүлэх <ChevronRight className="w-4 h-4" />
               </button>
@@ -430,15 +520,19 @@ export default function ApplicationForm({
             <div className="space-y-1">
               <h3 className="text-base font-bold text-foreground">Баримт бичгүүдийг хуулах</h3>
               <p className="text-xs text-muted">ЭСЯ-ны шаардлагын дагуу дараах баримтуудыг зөв хуулна уу.</p>
+              <p className="text-xs font-semibold text-accent mt-1">Гадаад паспорт, цээж зураг, дансны хуулга зэрэг баримтуудыг зураг болон PDF форматаар оруулна.</p>
             </div>
 
+            {/* Trust Strip */}
+            <TrustStrip />
+
             {/* Consumer-friendly B2C hints */}
-            <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 text-[11px] leading-relaxed text-muted space-y-1">
-              <p className="font-bold text-foreground flex items-center gap-1">
-                <HelpCircle className="w-3.5 h-3.5 text-amber-500" />
+            <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 text-xs leading-relaxed text-muted space-y-1.5">
+              <p className="font-bold text-foreground flex items-center gap-1.5">
+                <HelpCircle className="w-4 h-4 text-amber-500" />
                 Зөв файл хуулах зөвлөмж:
               </p>
-              <ul className="list-disc pl-4 space-y-1">
+              <ul className="list-disc pl-5 space-y-1 leading-relaxed">
                 <li>Гадаад паспортыг гэрэл гялбахгүй, дөрвөн өнцөг нь бүтэн харагдахаар уншуулна уу.</li>
                 <li>Цээж зураг заавал цагаан дэвсгэртэй, чих ил гарсан, эгц харсан байна.</li>
                 <li>Дансны хуулгыг банкны аппликейшнээс шууд татсан, баруун дээд буландаа QR баталгаажуулалттай PDF файлаар оруулна.</li>
@@ -466,29 +560,29 @@ export default function ApplicationForm({
                   <div>
                     <h4 className="text-xs font-bold text-foreground">{item.title}</h4>
                     {item.key === 'statement' && newApp.countryCode !== 'KR' ? (
-                      <p className="text-[10px] mt-1 font-semibold text-amber-500 font-mono">Сонголттой (Заавал биш)</p>
+                      <p className="text-xs mt-1 font-semibold text-amber-500 font-mono">Сонголттой (Заавал биш)</p>
                     ) : (
-                      <p className="text-[10px] text-muted mt-1 font-mono">Шаардлагатай баримт</p>
+                      <p className="text-xs text-muted mt-1 font-mono">Шаардлагатай баримт</p>
                     )}
                   </div>
 
                   {uploadingFile === item.key ? (
-                    <div className="py-2.5 flex items-center justify-center gap-2 text-xs text-muted">
+                    <div className="py-3 flex items-center justify-center gap-2 text-xs text-muted">
                       <RefreshCw className="w-4 h-4 animate-spin text-accent" />
                       <span>Хуулж байна...</span>
                     </div>
                   ) : item.file ? (
-                    <div className="p-2 rounded bg-positive/10 border border-positive/20 flex items-center justify-between text-[9.5px] font-mono text-positive overflow-hidden">
+                    <div className="p-2.5 rounded bg-positive/10 border border-positive/20 flex items-center justify-between text-xs font-mono text-positive overflow-hidden">
                       <span className="truncate max-w-[130px]">{item.file.split('/').pop()}</span>
-                      <Lock className="w-3 h-3 shrink-0 ml-1" />
+                      <Lock className="w-3.5 h-3.5 shrink-0 ml-1" />
                     </div>
                   ) : (
                     <button 
                       type="button"
                       onClick={() => handleUploadClick(item.key as 'passport' | 'statement' | 'photo')}
-                      className="py-2.5 rounded-lg border border-dashed border-line hover:border-muted text-xs font-bold text-muted hover:text-foreground flex items-center justify-center gap-1.5 transition-all bg-surface/50 cursor-pointer"
+                      className="py-2.5 rounded-lg border border-dashed border-line hover:border-muted text-xs font-bold text-muted hover:text-foreground flex items-center justify-center gap-1.5 transition-all bg-surface/50 cursor-pointer min-h-[44px]"
                     >
-                      <Upload className="w-3.5 h-3.5" /> Файл хуулах
+                      <Upload className="w-4 h-4" /> Файл хуулах
                     </button>
                   )}
                 </div>
@@ -499,14 +593,14 @@ export default function ApplicationForm({
               <button 
                 type="button"
                 onClick={() => setNewApp(prev => ({ ...prev, step: 2 }))}
-                className="px-4 py-2 rounded-lg border border-line hover:bg-elevated text-xs font-semibold text-muted hover:text-foreground transition-colors"
+                className="px-4 py-2.5 rounded-lg border border-line hover:bg-elevated text-xs font-bold text-muted hover:text-foreground transition-all cursor-pointer min-h-[44px]"
               >
-                Өмнөх
+                Буцах (Мэдээлэл холбох)
               </button>
               <button 
                 type="button"
                 onClick={onNextToPricing}
-                className="px-5 py-2.5 rounded-lg bg-accent hover:opacity-90 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow"
+                className="px-5 py-2.5 rounded-lg bg-accent hover:opacity-90 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow cursor-pointer min-h-[44px]"
               >
                 Дараах <ChevronRight className="w-4 h-4" />
               </button>
@@ -520,7 +614,11 @@ export default function ApplicationForm({
             <div className="space-y-1 text-center">
               <h3 className="text-base font-bold text-foreground">Мэдүүлгийг хянах</h3>
               <p className="text-xs text-muted">ЭСЯ руу илгээхээс өмнө өөрийн мэдүүлгийн дүн болон мэдээллээ хянана уу.</p>
+              <p className="text-xs font-semibold text-accent mt-1">Оруулсан баримт бичиг болон мэдүүлгийн дэлгэрэнгүйг эцсийн байдлаар шалгаж, баталгаажуулна уу.</p>
             </div>
+
+            {/* Trust Strip */}
+            <TrustStrip />
 
             <div className="premium-card p-5 space-y-4 bg-surface border border-line rounded-xl">
               <div className="flex justify-between items-center text-xs">
@@ -562,8 +660,8 @@ export default function ApplicationForm({
             </div>
 
             {userRole === 'business_admin' && (
-              <div className="p-3 bg-surface rounded-lg border border-line text-[11px] leading-relaxed text-muted flex gap-2">
-                <Info className="w-4 h-4 text-accent shrink-0" />
+              <div className="p-3.5 bg-surface rounded-lg border border-line text-xs leading-relaxed text-muted flex gap-2">
+                <Info className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                 <p>Одоо төлөх эсвэл түр хадгалаад бусад ажилтны мэдүүлэгтэй нэгдсэн QPay нэхэмжлэхээр төлөх боломжтой.</p>
               </div>
             )}
@@ -572,25 +670,25 @@ export default function ApplicationForm({
               <button 
                 type="button"
                 onClick={() => setNewApp(prev => ({ ...prev, step: 3 }))}
-                className="px-4 py-2 rounded-lg border border-line hover:bg-surface text-xs font-semibold text-muted"
+                className="px-4 py-2.5 rounded-lg border border-line hover:bg-surface text-xs font-bold text-muted hover:text-foreground cursor-pointer min-h-[44px]"
               >
-                Өмнөх
+                Буцах (Баримт хуулах)
               </button>
               
               {userRole === 'business_admin' && (
                 <button 
                   type="button"
                   onClick={onSaveAsDraft}
-                  className="px-4 py-2.5 rounded-lg border border-zinc-700 hover:bg-surface text-xs font-bold text-muted"
+                  className="px-4 py-2.5 rounded-lg border border-zinc-700 hover:bg-surface text-xs font-bold text-muted hover:text-foreground cursor-pointer min-h-[44px]"
                 >
-                  Түр хадгалах (Нэгтгэж төлөх)
+                  Түр хадгалах
                 </button>
               )}
 
               <button 
                 type="button"
                 onClick={onGenerateInvoice}
-                className="px-5 py-2.5 rounded-lg bg-accent hover:bg-opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow"
+                className="px-5 py-2.5 rounded-lg bg-accent hover:bg-opacity-95 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow cursor-pointer min-h-[44px]"
               >
                 Төлбөр төлөх <ChevronRight className="w-4 h-4" />
               </button>

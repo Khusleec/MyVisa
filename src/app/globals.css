@@ -44,16 +44,16 @@
 }
 
 .light-theme {
-  /* Light Mode — Pure White Page with Blue Accent */
-  --bg-main: #ffffff;
+  /* Light Mode — Clean Slate Page with White Cards and Blue Accent */
+  --bg-main: #F8FAFC;
   --bg-card: #ffffff;
   --color-brand: #2563EB;
   --color-cta: #2563EB;
   --color-text-main: #0F172A;
   --color-text-muted: #475569;
   --color-dim: #94A3B8;
-  --color-border: #cbd5e1;
-  --color-panel-hover-val: #f1f5f9;
+  --color-border: #E2E8F0;
+  --color-panel-hover-val: #F1F5F9;
   --color-success: #10B981;
   --color-error: #EF4444;
 }

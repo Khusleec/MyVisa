@@ -842,11 +842,87 @@ export default function Dashboard({
         </div>
       ) : (
         <div className="space-y-6">
+          {/* B2C Hero CTA Section */}
+          <div className="premium-card p-6 md:p-8 bg-surface border border-line rounded-xl text-center space-y-4 relative overflow-hidden">
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-accent/5 blur-[100px] pointer-events-none"></div>
+            <h3 className="text-sm sm:text-base font-bold text-foreground">Цахим виз мэдүүлэг эхлүүлэх</h3>
+            <p className="text-xs text-muted max-w-lg mx-auto leading-relaxed">
+              БНСУ, Япон, Герман, Австрали улсын визний мэдүүлгийг ДАН баталгаажуулалт, ХУР системийн төрийн лавлагаатайгаар хялбар мэдүүлнэ үү.
+            </p>
+            <button
+              type="button"
+              onClick={onGoToApply}
+              className="btn-primary min-h-[44px] px-8 text-xs font-bold cursor-pointer shadow-md inline-flex items-center gap-2"
+            >
+              <Plus className="w-4.5 h-4.5" />
+              Шинэ виз мэдүүлэх
+            </button>
+          </div>
+
+          {/* B2C Visa Tracking History */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Миний виз мэдүүлгийн түүх</h4>
+            <div className="space-y-3">
+              {b2cApplications.length === 0 ? (
+                <EmptyState
+                  icon={FileText}
+                  title="Виз мэдүүлэг байхгүй"
+                  description="Дээрх 'Шинэ виз мэдүүлэх' товч дээр дарж эхний мэдүүлгээ эхлүүлнэ үү."
+                />
+              ) : null}
+              {b2cApplications.map((app) => (
+                <div key={app.id} className="premium-card p-5 space-y-4 bg-surface border border-line rounded-xl">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                      <h5 className="text-sm font-bold text-foreground flex items-center gap-2">
+                        {app.country}
+                        <span className="text-xs font-normal text-muted">({app.applicantType === 'myself' ? 'Өөрийн мэдүүлэг' : `${app.applicantRelation}: ${app.applicantName}`})</span>
+                      </h5>
+                      <p className="text-xs text-muted mt-0.5">{app.visaType} • ID: {app.id}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {(() => {
+                        const conf = getStatusConfig(app.status);
+                        return (
+                          <span className={`px-2.5 py-0.5 rounded text-xs font-bold border ${conf.bg}`}>
+                            {conf.text}
+                          </span>
+                        );
+                      })()}
+                      {app.status === 'payment_pending' && (
+                        <button 
+                          onClick={() => openQPayInvoice(app.id, app.embassyFee + app.serviceFee)}
+                          className="px-3 py-1.5 rounded bg-accent hover:bg-opacity-95 text-white text-xs font-bold transition-all shadow cursor-pointer min-h-[36px]"
+                        >
+                          Төлөх
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-2 pt-2 border-t border-line">
+                    {[
+                      { label: "Бүртгэл", active: true },
+                      { label: "Төрийн лавлагаа", active: app.status !== 'draft' },
+                      { label: "Төлбөр төлөлт", active: app.paymentStatus === 'paid' },
+                      { label: "ЭСЯ хяналт", active: app.status === 'approved', pulse: app.status === 'submitted' }
+                    ].map((s, i) => (
+                      <div key={i} className="space-y-1">
+                        <div className={`h-1 rounded ${s.pulse ? 'bg-accent animate-pulse' : s.active ? 'bg-positive' : 'bg-line'}`}></div>
+                        <span className="text-xs font-bold text-foreground block">{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* B2C Available Companies and Visas list */}
-          <div className="space-y-4">
+          <div className="space-y-4 pt-4 border-t border-line">
             <div className="space-y-1">
               <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Гэрээт байгууллагууд (Виз зуучлал)</h4>
-              <p className="text-[11px] text-muted">Та өөрийн виз мэдүүлгийг дараах баталгаат байгууллагуудын аль нэгийг сонгон илгээх боломжтой.</p>
+              <p className="text-xs text-muted">Та өөрийн виз мэдүүлгийг дараах баталгаат байгууллагуудын аль нэгийг сонгон илгээх боломжтой.</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -879,22 +955,22 @@ export default function Dashboard({
                           </div>
                           <div>
                             <h5 className="text-sm font-bold text-foreground line-clamp-1">{comp.name}</h5>
-                            <p className="text-[10px] text-muted font-mono mt-0.5">РД: {comp.registration_no}</p>
+                            <p className="text-xs text-muted font-mono mt-0.5">РД: {comp.registration_no}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-[10px] font-bold text-positive bg-positive/10 border border-positive/20 px-2 py-0.5 rounded">Идэвхтэй</span>
+                          <span className="text-xs font-bold text-positive bg-positive/10 border border-positive/20 px-2 py-0.5 rounded">Идэвхтэй</span>
                           <ChevronRight className="w-4 h-4 text-muted group-hover:text-accent transition-colors" />
                         </div>
                       </div>
 
-                      {/* Middle: Fictional advantages / Davuu tal */}
+                      {/* Middle: Fictional advantages */}
                       {comp.advantages && comp.advantages.length > 0 && (
                         <div className="space-y-1.5 pt-1">
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-muted font-mono">Давуу талууд:</p>
+                          <p className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Давуу талууд:</p>
                           <div className="flex flex-wrap gap-1.5">
                             {comp.advantages.map((adv, idx) => (
-                              <span key={idx} className="inline-flex items-center gap-1 text-[10.5px] font-medium text-foreground bg-elevated px-2 py-0.5 rounded-md border border-line">
+                              <span key={idx} className="inline-flex items-center gap-1 text-xs font-medium text-foreground bg-elevated px-2 py-0.5 rounded-md border border-line">
                                 <CheckCircle className="w-3 h-3 text-positive shrink-0" />
                                 {adv}
                               </span>
@@ -904,7 +980,7 @@ export default function Dashboard({
                       )}
 
                       {/* Contacts: Utas & Hayg */}
-                      <div className="text-[11px] text-muted space-y-1 pt-1 bg-elevated/20 p-2.5 rounded-lg border border-line/50">
+                      <div className="text-xs text-muted space-y-1 pt-1 bg-elevated/20 p-2.5 rounded-lg border border-line/50">
                         {comp.phone && (
                           <div className="flex items-center gap-1.5">
                             <Phone className="w-3.5 h-3.5 text-muted shrink-0" />
@@ -921,12 +997,12 @@ export default function Dashboard({
 
                       {/* Allowed countries tags */}
                       <div className="space-y-1 pt-1">
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted font-mono">Мэдүүлэх боломжтой улсууд:</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Мэдүүлэх боломжтой улсууд:</p>
                         <div className="flex flex-wrap gap-1.5">
                           {comp.allowed_countries.map((code) => {
                             const country = countriesMap[code];
                             return (
-                              <span key={code} className="inline-flex items-center gap-1 text-[10.5px] font-semibold text-foreground bg-accent/5 px-2 py-0.5 rounded-md border border-accent/10">
+                              <span key={code} className="inline-flex items-center gap-1 text-xs font-semibold text-foreground bg-accent/5 px-2 py-0.5 rounded-md border border-accent/10">
                                 <span className="text-xs">{country?.flag || "🌐"}</span>
                                 {country?.label || code}
                               </span>
@@ -938,7 +1014,7 @@ export default function Dashboard({
 
                     {/* Bottom action: select a country to start applying through this company */}
                     <div className="border-t border-line pt-4 mt-2 relative z-10" onClick={(e) => e.stopPropagation()}>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted font-mono mb-2">Виз мэдүүлэх улсаа сонгоно уу:</p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-muted font-mono mb-2">Виз мэдүүлэх улсаа сонгоно уу:</p>
                       <div className="flex flex-wrap gap-2">
                         {comp.allowed_countries.map((code) => {
                           const country = countriesMap[code];
@@ -951,7 +1027,7 @@ export default function Dashboard({
                                 e.stopPropagation();
                                 onStartB2CVisa(country.name, code, country.eFee, country.sFee, comp.id);
                               }}
-                              className="text-[10.5px] font-bold text-white bg-accent hover:bg-opacity-95 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
+                              className="text-xs font-bold text-white bg-accent hover:bg-opacity-95 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 shadow-sm shrink-0 cursor-pointer min-h-[36px]"
                             >
                               <span>{country.flag}</span>
                               {country.label}
@@ -963,65 +1039,6 @@ export default function Dashboard({
                   </div>
                 );
               })}
-            </div>
-          </div>
-
-          {/* B2C Visa Tracking History */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Миний виз мэдүүлгийн түүх</h4>
-            <div className="space-y-3">
-              {b2cApplications.length === 0 ? (
-                <EmptyState
-                  icon={FileText}
-                  title="Виз мэдүүлэг байхгүй"
-                  description="Доорх улсаас сонгож эхний мэдүүлгээ эхлүүлнэ үү."
-                />
-              ) : null}
-              {b2cApplications.map((app) => (
-                <div key={app.id} className="premium-card p-5 space-y-4 bg-surface border border-line rounded-xl">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div>
-                      <h5 className="text-sm font-bold text-foreground flex items-center gap-2">
-                        {app.country}
-                        <span className="text-[10px] font-normal text-muted">({app.applicantType === 'myself' ? 'Өөрийн мэдүүлэг' : `${app.applicantRelation}: ${app.applicantName}`})</span>
-                      </h5>
-                      <p className="text-[11px] text-muted mt-0.5">{app.visaType} • ID: {app.id}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {(() => {
-                        const conf = getStatusConfig(app.status);
-                        return (
-                          <span className={`px-2.5 py-0.5 rounded text-[10.5px] font-bold border ${conf.bg}`}>
-                            {conf.text}
-                          </span>
-                        );
-                      })()}
-                      {app.status === 'payment_pending' && (
-                        <button 
-                          onClick={() => openQPayInvoice(app.id, app.embassyFee + app.serviceFee)}
-                          className="px-3 py-1 rounded bg-accent hover:bg-opacity-95 text-white text-[11px] font-bold transition-all shadow"
-                        >
-                          Төлөх
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-2 pt-2 border-t border-line">
-                    {[
-                      { label: "Бүртгэл", active: true },
-                      { label: "Төрийн лавлагаа", active: app.status !== 'draft' },
-                      { label: "Төлбөр төлөлт", active: app.paymentStatus === 'paid' },
-                      { label: "ЭСЯ хяналт", active: app.status === 'approved', pulse: app.status === 'submitted' }
-                    ].map((s, i) => (
-                      <div key={i} className="space-y-1">
-                        <div className={`h-1 rounded ${s.pulse ? 'bg-accent animate-pulse' : s.active ? 'bg-positive' : 'bg-line'}`}></div>
-                        <span className="text-[10px] font-bold text-foreground block">{s.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
