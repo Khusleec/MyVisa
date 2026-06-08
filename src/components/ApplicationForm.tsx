@@ -37,12 +37,13 @@ interface ApplicationFormProps {
   onApplicantTypeChange: (type: 'myself' | 'family' | 'employee') => void;
   onEmployeeSelection: (empId: string) => void;
   onPullKhurData: () => void;
-  onFileUpload: (type: 'passport' | 'statement' | 'photo') => void;
+  onFileUpload: (type: 'passport' | 'statement' | 'photo', file: File) => void;
   onNextToPricing: () => void;
   onGenerateInvoice: () => void;
   onSaveAsDraft: () => void;
   
   khurLoading: boolean;
+  uploadingFile?: 'passport' | 'statement' | 'photo' | null;
   isUserVerified: boolean;
   onOpenDanModal: () => void;
   formError?: string | null;
@@ -64,12 +65,31 @@ export default function ApplicationForm({
   onGenerateInvoice,
   onSaveAsDraft,
   khurLoading,
+  uploadingFile,
   isUserVerified,
   onOpenDanModal,
   formError,
   onClearFormError,
   allowedCountries = [],
 }: ApplicationFormProps) {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [activeUploadType, setActiveUploadType] = React.useState<'passport' | 'statement' | 'photo' | null>(null);
+
+  const handleUploadClick = (type: 'passport' | 'statement' | 'photo') => {
+    setActiveUploadType(type);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && activeUploadType) {
+      onFileUpload(activeUploadType, file);
+    }
+  };
+
   const steps = [
     { step: 1, label: "Улс", full: "Улс сонгох" },
     { step: 2, label: "ХУР", full: "Лавлагаа" },
@@ -425,6 +445,14 @@ export default function ApplicationForm({
               </ul>
             </div>
 
+            <input 
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/*,application/pdf"
+              style={{ display: 'none' }}
+            />
+
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
               {[
                 { key: 'passport', title: "Гадаад паспорт", file: newApp.passportFile },
@@ -444,16 +472,21 @@ export default function ApplicationForm({
                     )}
                   </div>
 
-                  {item.file ? (
+                  {uploadingFile === item.key ? (
+                    <div className="py-2.5 flex items-center justify-center gap-2 text-xs text-muted">
+                      <RefreshCw className="w-4 h-4 animate-spin text-accent" />
+                      <span>Хуулж байна...</span>
+                    </div>
+                  ) : item.file ? (
                     <div className="p-2 rounded bg-positive/10 border border-positive/20 flex items-center justify-between text-[9.5px] font-mono text-positive overflow-hidden">
-                      <span className="truncate max-w-[130px]">{item.file}</span>
+                      <span className="truncate max-w-[130px]">{item.file.split('/').pop()}</span>
                       <Lock className="w-3 h-3 shrink-0 ml-1" />
                     </div>
                   ) : (
                     <button 
                       type="button"
-                      onClick={() => onFileUpload(item.key as 'passport' | 'statement' | 'photo')}
-                      className="py-2.5 rounded-lg border border-dashed border-line hover:border-muted text-xs font-bold text-muted hover:text-foreground flex items-center justify-center gap-1.5 transition-all bg-surface/50"
+                      onClick={() => handleUploadClick(item.key as 'passport' | 'statement' | 'photo')}
+                      className="py-2.5 rounded-lg border border-dashed border-line hover:border-muted text-xs font-bold text-muted hover:text-foreground flex items-center justify-center gap-1.5 transition-all bg-surface/50 cursor-pointer"
                     >
                       <Upload className="w-3.5 h-3.5" /> Файл хуулах
                     </button>

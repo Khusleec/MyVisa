@@ -288,15 +288,7 @@ export default function PremiumTradePro() {
   // Segment hover state
   const [focusedSegment, setFocusedSegment] = useState<{ label: string; value: number } | null>(null);
 
-  // Swipe-to-confirm trigger
-  useEffect(() => {
-    if (sliderVal >= 92) {
-      setSliderVal(100);
-      handleExecuteTransfer();
-    }
-  }, [sliderVal]);
-
-  const handleExecuteTransfer = () => {
+  const handleExecuteTransfer = useCallback(() => {
     const amt = parseFloat(transferAmount);
     if (!transferTarget.trim()) {
       triggerToast("Recipient address or email is required.", "error");
@@ -334,7 +326,18 @@ export default function PremiumTradePro() {
       setSliderVal(0);
       setIsTransferring(false);
     }, 1500);
-  };
+  }, [transferAmount, transferTarget, cashBalance, triggerToast]);
+
+  // Swipe-to-confirm trigger
+  useEffect(() => {
+    if (sliderVal >= 92) {
+      const handler = setTimeout(() => {
+        setSliderVal(100);
+        handleExecuteTransfer();
+      }, 0);
+      return () => clearTimeout(handler);
+    }
+  }, [sliderVal, handleExecuteTransfer]);
 
   // Buy/Sell executor
   const handleExecuteTrade = (e: React.FormEvent) => {

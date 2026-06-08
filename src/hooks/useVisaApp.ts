@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { VisaApplication, Employee } from "../types/visa";
+import { VisaApplication, Employee, EmployeeInvite } from "../types/visa";
 import { useToast } from "../components/ui/Toast";
 import { supabase } from "../lib/supabase";
 import { Session } from "@supabase/supabase-js";
@@ -189,7 +189,7 @@ export function useVisaApp() {
     }
 
     try {
-      const dbUpdates: Record<string, any> = {};
+      const dbUpdates: Record<string, string | null> = {};
       if (updates.name !== undefined) dbUpdates.name = updates.name;
       if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
       if (updates.profilePhoto !== undefined) dbUpdates.profile_photo = updates.profilePhoto;
@@ -205,7 +205,7 @@ export function useVisaApp() {
       } else {
         toast("Мэдээлэл амжилттай хадгалагдлаа", "success");
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("updateUser error:", e);
     }
   };
@@ -220,86 +220,6 @@ export function useVisaApp() {
   });
 
   const [allCompanies, setAllCompanies] = useState(PRESET_COMPANIES);
-
-  const fetchAllCompanies = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('companies')
-        .select('*');
-
-      if (!error && data && data.length > 0) {
-        const mapped = data.map(c => ({
-          id: c.id,
-          name: c.name,
-          registration_no: c.registration_no,
-          allowed_countries: c.allowed_countries || ['KR', 'JP', 'DE'],
-          phone: c.phone || '7575-1111',
-          address: c.address || 'Сүхбаатар дүүрэг, Олимпын гудамж',
-          advantages: c.advantages || ['Найдвартай үйлчилгээ', 'Хурдан шуурхай']
-        }));
-        setAllCompanies(mapped);
-      }
-    } catch (e) {
-      console.error("fetchAllCompanies error:", e);
-    }
-  };
-
-  useEffect(() => {
-    fetchAllCompanies();
-  }, []);
-
-  // Allowed countries list
-  const allowedCountries = useMemo(() => {
-    if (userRole !== 'business_admin') {
-      return ALL_COUNTRIES; // Individual users see all countries
-    }
-    if (company && company.allowed_countries) {
-      return ALL_COUNTRIES.filter(c => company.allowed_countries?.includes(c.code));
-    }
-    // Fallback based on profile company_id
-    if (profile?.company_id) {
-      return getCompanyAllowedCountries(profile.company_id);
-    }
-    // Fallback if no company_id is set
-    return getCompanyAllowedCountries(null);
-  }, [userRole, profile?.company_id, company]);
-
-  // Dynamic initialization of newApp country when allowedCountries change
-  useEffect(() => {
-    if (allowedCountries.length > 0) {
-      const defaultCountry = allowedCountries[0];
-      setNewApp(prev => {
-        if (!allowedCountries.some(c => c.code === prev.countryCode)) {
-          return {
-            ...prev,
-            country: defaultCountry.name,
-            countryCode: defaultCountry.code,
-            visaType: defaultCountry.code === 'KR' 
-              ? "Аялал жуулчлалын виз (C-3-9)" 
-              : defaultCountry.code === 'JP' 
-              ? "Богино хугацааны виз" 
-              : defaultCountry.code === 'DE'
-              ? "Шенгений виз"
-              : "Жуулчны виз",
-            embassyFee: defaultCountry.eFee,
-            serviceFee: defaultCountry.sFee,
-          };
-        }
-        return prev;
-      });
-    }
-  }, [allowedCountries]);
-
-  // Company Employees
-  const [employees, setEmployees] = useState<Employee[]>([
-    { id: "EMP-101", name: "Т.Ананд", registerNo: "УУ98041211", position: "Ахлах Инженер", danVerified: true, activeVisaId: "VISA-2026-0892" },
-    { id: "EMP-102", name: "Г.Марал", registerNo: "УУ99052042", position: "Дата Аналист", danVerified: true },
-    { id: "EMP-103", name: "С.Билгүүн", registerNo: "УУ95110312", position: "Төслийн Менежер", danVerified: false },
-    { id: "EMP-104", name: "О.Золбоо", registerNo: "УУ96081531", position: "Мэдээллийн ажилтан", danVerified: true }
-  ]);
-
-  // Visa applications database
-  const [applications, setApplications] = useState<VisaApplication[]>([]);
 
   // Form State for new application
   const [newApp, setNewApp] = useState({
@@ -326,17 +246,152 @@ export function useVisaApp() {
     paymentStatus: "unpaid" as 'unpaid' | 'paid'
   });
 
+  useEffect(() => {
+    const fetchAllCompanies = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('companies')
+          .select('*');
+
+        if (!error && data && data.length > 0) {
+          const mapped = data.map(c => ({
+            id: c.id,
+            name: c.name,
+            registration_no: c.registration_no,
+            allowed_countries: c.allowed_countries || ['KR', 'JP', 'DE'],
+            phone: c.phone || '7575-1111',
+            address: c.address || 'Сүхбаатар дүүрэг, Олимпын гудамж',
+            advantages: c.advantages || ['Найдвартай үйлчилгээ', 'Хурдан шуурхай']
+          }));
+          setAllCompanies(mapped);
+        }
+      } catch (e) {
+        console.error("fetchAllCompanies error:", e);
+      }
+    };
+    fetchAllCompanies();
+  }, []);
+
+  // Allowed countries list
+  const allowedCountries = useMemo(() => {
+    if (userRole !== 'business_admin') {
+      return ALL_COUNTRIES; // Individual users see all countries
+    }
+    if (company && company.allowed_countries) {
+      return ALL_COUNTRIES.filter(c => company.allowed_countries?.includes(c.code));
+    }
+    // Fallback based on profile company_id
+    if (profile?.company_id) {
+      return getCompanyAllowedCountries(profile?.company_id);
+    }
+    // Fallback if no company_id is set
+    return getCompanyAllowedCountries(null);
+  }, [userRole, profile?.company_id, company]);
+
+  // Dynamic initialization of newApp country when allowedCountries change
+  useEffect(() => {
+    if (allowedCountries.length > 0) {
+      const defaultCountry = allowedCountries[0];
+      const timer = setTimeout(() => {
+        setNewApp(prev => {
+          if (!allowedCountries.some(c => c.code === prev.countryCode)) {
+            return {
+              ...prev,
+              country: defaultCountry.name,
+              countryCode: defaultCountry.code,
+              visaType: defaultCountry.code === 'KR' 
+                ? "Аялал жуулчлалын виз (C-3-9)" 
+                : defaultCountry.code === 'JP' 
+                ? "Богино хугацааны виз" 
+                : defaultCountry.code === 'DE'
+                ? "Шенгений виз"
+                : "Жуулчны виз",
+              embassyFee: defaultCountry.eFee,
+              serviceFee: defaultCountry.sFee,
+            };
+          }
+          return prev;
+        });
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [allowedCountries]);
+
+  // Company Employees & Invites
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<EmployeeInvite[]>([]);
+
+  // Visa applications database
+  const [applications, setApplications] = useState<VisaApplication[]>([]);
+
   // Bulk Payment States for B2B
   const [bulkSelectIds, setBulkSelectIds] = useState<string[]>([]);
 
   // Local integration simulators
   const [khurLoading, setKhurLoading] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState<'passport' | 'statement' | 'photo' | null>(null);
   const [isQPayModalOpen, setIsQPayModalOpen] = useState(false);
   const [activePaymentId, setActivePaymentId] = useState<string | null>(null);
   const [qpayAmount, setQpayAmount] = useState<number>(0);
   const [qpayCountdown, setQpayCountdown] = useState<number>(300);
 
 
+
+  const loadEmployees = async (companyId: string) => {
+    try {
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, name, register_no, position, is_verified')
+        .eq('company_id', companyId)
+        .eq('role', 'business_employee');
+
+      if (!profilesError && profilesData) {
+        const mappedEmps: Employee[] = profilesData.map(p => ({
+          id: p.id,
+          name: p.name,
+          registerNo: p.register_no || "",
+          position: p.position || "Ажилтан",
+          danVerified: p.is_verified
+        }));
+        setEmployees(mappedEmps);
+      }
+
+      const { data: invitesData, error: invitesError } = await supabase
+        .from('employee_invites')
+        .select('*')
+        .eq('company_id', companyId);
+
+      if (!invitesError && invitesData) {
+        setPendingInvites(invitesData);
+      }
+    } catch (e) {
+      console.error("loadEmployees error:", e);
+    }
+  };
+
+  const inviteEmployee = async (name: string, email: string, registerNo: string, position: string) => {
+    if (!profile || !profile.company_id) return;
+    try {
+      const { error } = await supabase
+        .from('employee_invites')
+        .insert({
+          company_id: profile.company_id,
+          name,
+          email,
+          register_no: registerNo.toUpperCase(),
+          position
+        });
+
+      if (error) throw error;
+
+      toast("Ажилтныг амжилттай урилаа", "success");
+      await loadEmployees(profile.company_id);
+    } catch (e: unknown) {
+      console.error("Invite error:", e);
+      const err = e as Error;
+      toast(`Урилга илгээхэд алдаа: ${err.message}`, "error");
+    }
+  };
 
   const loadUserData = async (userId: string) => {
     setLoadingSession(true);
@@ -407,6 +462,9 @@ export function useVisaApp() {
           };
         }
         setCompany(loadedComp);
+        if (profileData.company_id) {
+          await loadEmployees(profileData.company_id);
+        }
       }
 
       // 3. Load applications
@@ -453,8 +511,9 @@ export function useVisaApp() {
             khurEmployer: app.khur_employer || undefined,
             khurInsuranceMonths: app.khur_insurance_months || undefined,
             khurChecked: !!app.khur_salary,
-            passportFile: app.passport_file || "PASSPORT_SIGNED.enc",
-            photoFile: app.photo_file || "PHOTO.enc",
+            passportFile: app.passport_url || null,
+            photoFile: app.photo_url || null,
+            bankStatementFile: app.bank_statement_url || null,
             embassyFee: eFee,
             serviceFee: sFee,
             createdAt: app.created_at,
@@ -479,7 +538,13 @@ export function useVisaApp() {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        if (typeof window !== 'undefined') {
+          window.location.assign('/reset-password');
+        }
+        return;
+      }
       setSession(session);
       if (session) {
         loadUserData(session.user.id);
@@ -612,17 +677,40 @@ export function useVisaApp() {
     }, 1800);
   };
 
-  const handleFileUpload = (type: 'passport' | 'statement' | 'photo') => {
-    const fileName = type === 'passport' 
-      ? `PASSPORT_${newApp.registerNo || "GUEST"}_SECURED.enc` 
-      : type === 'statement' 
-        ? `BANK_STATEMENT_${newApp.registerNo || "GUEST"}_SIGNED.enc` 
-        : `PHOTO_3X4_${newApp.registerNo || "GUEST"}.enc`;
-    const stateKey = type === 'statement' ? 'bankStatementFile' : `${type}File`;
-    setNewApp(prev => ({
-      ...prev,
-      [stateKey]: fileName
-    }));
+  const handleFileUpload = async (type: 'passport' | 'statement' | 'photo', file: File) => {
+    if (!profile) {
+      toast("Та нэвтэрсэн байх шаардлагатай", "error");
+      return;
+    }
+    setUploadingFile(type);
+    try {
+      const fileExt = file.name.split('.').pop() || '';
+      const uniqueId = Math.random().toString(36).substring(2, 10);
+      const cleanReg = (newApp.registerNo || "guest").replace(/[^a-zA-Z0-9]/g, '');
+      const filePath = `${profile.id}/${type}_${cleanReg}_${uniqueId}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      const stateKey = type === 'statement' ? 'bankStatementFile' : `${type}File`;
+      setNewApp(prev => ({
+        ...prev,
+        [stateKey]: data.path
+      }));
+      toast("Файл амжилттай хуулагдлаа", "success");
+    } catch (e: unknown) {
+      console.error("Upload error:", e);
+      const err = e as Error;
+      toast(`Файл хуулахад алдаа: ${err.message}`, "error");
+    } finally {
+      setUploadingFile(null);
+    }
   };
 
   const handleNextToPricing = () => {
@@ -733,6 +821,9 @@ export function useVisaApp() {
             khur_salary: newApp.khurSalary || null,
             khur_employer: newApp.khurEmployer || null,
             khur_insurance_months: newApp.khurInsuranceMonths || null,
+            passport_url: newApp.passportFile,
+            photo_url: newApp.photoFile,
+            bank_statement_url: newApp.bankStatementFile,
           })
           .select('*')
           .single();
@@ -861,6 +952,9 @@ export function useVisaApp() {
           khur_salary: newApp.khurSalary || null,
           khur_employer: newApp.khurEmployer || null,
           khur_insurance_months: newApp.khurInsuranceMonths || null,
+          passport_url: newApp.passportFile,
+          photo_url: newApp.photoFile,
+          bank_statement_url: newApp.bankStatementFile,
         })
         .select('*')
         .single();
@@ -930,12 +1024,15 @@ export function useVisaApp() {
     allowedCountries,
     allCompanies,
     khurLoading,
+    uploadingFile,
     isQPayModalOpen,
     setIsQPayModalOpen,
     activePaymentId,
     setActivePaymentId,
     qpayAmount,
     qpayCountdown,
+    pendingInvites,
+    inviteEmployee,
 
     updateUser,
     handleSignOut,

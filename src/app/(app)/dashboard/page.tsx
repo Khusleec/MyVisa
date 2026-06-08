@@ -24,6 +24,8 @@ export default function DashboardRoute() {
     setFormError,
     allCompanies,
     startChatWithCompany,
+    pendingInvites,
+    inviteEmployee,
   } = useVisaAppContext();
 
   const handleStartEmployee = (empId: string) => {
@@ -73,6 +75,8 @@ export default function DashboardRoute() {
         onGoToApply={handleGoToApply}
         companiesList={allCompanies}
         onStartChatWithCompany={handleStartChat}
+        pendingInvites={pendingInvites}
+        onInviteEmployee={inviteEmployee}
       />
     </div>
   );

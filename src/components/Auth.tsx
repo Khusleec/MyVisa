@@ -9,12 +9,16 @@ interface AuthProps {
 }
 
 export default function Auth({ onAuthSuccess }: AuthProps) {
-  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [activeTab, setActiveTab] = useState<'login' | 'register' | 'forgot_password' | 'resend_verification'>('login');
   const [roleType, setRoleType] = useState<'individual' | 'business'>('individual');
   
   // Login form state
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  
+  // Forgot password & Resend verification email states
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [resendEmail, setResendEmail] = useState("");
   
   // Register Individual form state
   const [indName, setIndName] = useState("");
@@ -35,6 +39,60 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setLoading(true);
+
+    try {
+      const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}/reset-password` : undefined;
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: redirectUrl,
+      });
+
+      if (error) throw error;
+
+      setSuccessMessage("Нууц үг сэргээх холбоос таны и-мэйл рүү илгээгдлээ. Та и-мэйлээ шалгана уу.");
+      setActiveTab('login');
+      setForgotEmail("");
+    } catch (err: unknown) {
+      const error = err as Error;
+      setErrorMessage(error.message || "Алдаа гарлаа. Та дахин оролдоно уу.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setLoading(true);
+
+    try {
+      const redirectUrl = typeof window !== 'undefined' ? `${window.location.origin}` : undefined;
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: resendEmail,
+        options: {
+          emailRedirectTo: redirectUrl,
+        }
+      });
+
+      if (error) throw error;
+
+      setSuccessMessage("Баталгаажуулах и-мэйл амжилттай дахин илгээгдлээ. Та и-мэйлээ шалгана уу.");
+      setActiveTab('login');
+      setResendEmail("");
+    } catch (err: unknown) {
+      const error = err as Error;
+      setErrorMessage(error.message || "Алдаа гарлаа. Та дахин оролдоно уу.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,6 +277,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
             <span>{errorMessage}</span>
           </div>
         )}
+
         {successMessage && (
           <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-xs text-emerald-400 flex gap-2.5 items-start">
             <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
@@ -226,40 +285,54 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
           </div>
         )}
 
-        {/* Auth Glass Card */}
+        {/* Form Card */}
         <div className="premium-card p-6 md:p-8 bg-surface border border-line rounded-2xl shadow-2xl space-y-6">
-          
-          {/* Signin vs Signup switch */}
-          <div className="flex p-1 bg-surface rounded-xl border border-line">
-            <button 
-              onClick={() => {
-                setActiveTab('login');
-                setErrorMessage(null);
-              }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
-                activeTab === 'login' 
-                  ? 'bg-elevated text-accent border border-line' 
-                  : 'text-muted hover:text-foreground'
-              }`}
-            >
-              Нэвтрэх
-            </button>
-            <button 
-              onClick={() => {
-                setActiveTab('register');
-                setErrorMessage(null);
-              }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
-                activeTab === 'register' 
-                  ? 'bg-elevated text-accent border border-line' 
-                  : 'text-muted hover:text-foreground'
-              }`}
-            >
-              Бүртгүүлэх
-            </button>
-          </div>
 
-          {activeTab === 'login' ? (
+          {/* Signin vs Signup switch */}
+          {activeTab === 'forgot_password' ? (
+            <div className="text-center space-y-1">
+              <h3 className="text-sm font-bold text-foreground">Нууц үг сэргээх</h3>
+              <p className="text-[10px] text-muted">Бүртгэлтэй и-мэйл хаягаа оруулж нууц үг сэргээх заавар авна уу.</p>
+            </div>
+          ) : activeTab === 'resend_verification' ? (
+            <div className="text-center space-y-1">
+              <h3 className="text-sm font-bold text-foreground">Баталгаажуулах холбоос дахин илгээх</h3>
+              <p className="text-[10px] text-muted">Хэрэв танд баталгаажуулах холбоос ирээгүй бол доор и-мэйлээ оруулна уу.</p>
+            </div>
+          ) : (
+            <div className="flex p-1 bg-surface rounded-xl border border-line">
+              <button 
+                type="button"
+                onClick={() => {
+                  setActiveTab('login');
+                  setErrorMessage(null);
+                }}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                  activeTab === 'login' 
+                    ? 'bg-elevated text-accent border border-line' 
+                    : 'text-muted hover:text-foreground'
+                }`}
+              >
+                Нэвтрэх
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  setActiveTab('register');
+                  setErrorMessage(null);
+                }}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                  activeTab === 'register' 
+                    ? 'bg-elevated text-accent border border-line' 
+                    : 'text-muted hover:text-foreground'
+                }`}
+              >
+                Бүртгүүлэх
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'login' && (
             /* LOGIN FORM */
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-1.5">
@@ -295,7 +368,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full py-2.5 bg-accent hover:bg-opacity-95 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow disabled:opacity-50 mt-2"
+                className="w-full py-2.5 bg-accent hover:bg-opacity-95 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow disabled:opacity-50 mt-2 cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -308,6 +381,31 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                 )}
               </button>
 
+              <div className="flex flex-col gap-2 text-[10.5px] mt-2 text-center font-semibold text-muted">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('forgot_password');
+                    setErrorMessage(null);
+                    setSuccessMessage(null);
+                  }}
+                  className="hover:text-accent transition-colors cursor-pointer"
+                >
+                  Нууц үгээ мартсан уу?
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('resend_verification');
+                    setErrorMessage(null);
+                    setSuccessMessage(null);
+                  }}
+                  className="hover:text-accent transition-colors cursor-pointer"
+                >
+                  Баталгаажуулах и-мэйл дахин илгээх
+                </button>
+              </div>
+
               <div className="relative flex py-2 items-center">
                 <div className="flex-grow border-t border-line/60"></div>
                 <span className="flex-shrink mx-3 text-[10px] text-muted font-mono uppercase tracking-wider">Эсвэл</span>
@@ -317,7 +415,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
               <button
                 type="button"
                 onClick={() => handleOAuthLogin('google')}
-                className="w-full py-2.5 bg-elevated hover:bg-overlay border border-line hover:border-muted text-foreground text-[11px] font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all shadow"
+                className="w-full py-2.5 bg-elevated hover:bg-overlay border border-line hover:border-muted text-foreground text-[11px] font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all shadow cursor-pointer"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -328,7 +426,9 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                 <span>Google бүртгэлээр нэвтрэх</span>
               </button>
             </form>
-          ) : (
+          )}
+
+          {activeTab === 'register' && (
             /* REGISTER FLOW */
             <div className="space-y-4">
               
@@ -436,7 +536,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                   <button 
                     type="submit" 
                     disabled={loading}
-                    className="w-full py-2.5 bg-accent hover:bg-opacity-95 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow disabled:opacity-50 mt-2"
+                    className="w-full py-2.5 bg-accent hover:bg-opacity-95 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow disabled:opacity-50 mt-2 cursor-pointer"
                   >
                     {loading ? (
                       <>
@@ -458,7 +558,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                       <div className="relative">
                         <Building className="w-4 h-4 text-muted absolute left-3 top-3" />
                         <input 
-                           type="text" 
+                          type="text" 
                           required
                           placeholder="Терасофт Технологи ХХК" 
                           value={compName}
@@ -543,7 +643,7 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                   <button 
                     type="submit" 
                     disabled={loading}
-                    className="w-full py-2.5 bg-accent hover:bg-opacity-95 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow disabled:opacity-50 mt-2"
+                    className="w-full py-2.5 bg-accent hover:bg-opacity-95 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow disabled:opacity-50 mt-2 cursor-pointer"
                   >
                     {loading ? (
                       <>
@@ -558,6 +658,98 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
                 </form>
               )}
             </div>
+          )}
+
+          {activeTab === 'forgot_password' && (
+            /* FORGOT PASSWORD FORM */
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-muted absolute left-3 top-3" />
+                  <input 
+                    type="email" 
+                    required
+                    placeholder="name@domain.com" 
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    className="input-field pl-9"
+                  />
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full py-2.5 bg-accent hover:bg-opacity-95 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow disabled:opacity-50 mt-2 cursor-pointer"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Илгээж байна...
+                  </>
+                ) : (
+                  <span>Холбоос илгээх</span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('login');
+                  setErrorMessage(null);
+                  setSuccessMessage(null);
+                }}
+                className="w-full py-2 text-xs font-bold text-muted hover:text-foreground transition-all block text-center cursor-pointer"
+              >
+                Буцах
+              </button>
+            </form>
+          )}
+
+          {activeTab === 'resend_verification' && (
+            /* RESEND VERIFICATION FORM */
+            <form onSubmit={handleResendVerification} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-muted absolute left-3 top-3" />
+                  <input 
+                    type="email" 
+                    required
+                    placeholder="name@domain.com" 
+                    value={resendEmail}
+                    onChange={(e) => setResendEmail(e.target.value)}
+                    className="input-field pl-9"
+                  />
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full py-2.5 bg-accent hover:bg-opacity-95 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow disabled:opacity-50 mt-2 cursor-pointer"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Илгээж байна...
+                  </>
+                ) : (
+                  <span>Баталгаажуулалт дахин илгээх</span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('login');
+                  setErrorMessage(null);
+                  setSuccessMessage(null);
+                }}
+                className="w-full py-2 text-xs font-bold text-muted hover:text-foreground transition-all block text-center cursor-pointer"
+              >
+                Буцах
+              </button>
+            </form>
           )}
 
         </div>

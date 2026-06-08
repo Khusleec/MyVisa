@@ -3,10 +3,10 @@ import {
   Info, CreditCard, Check, CheckSquare, Square, FileText, Plus, 
   Building2, Phone, MapPin, CheckCircle, Globe,
   Zap, Wifi, Coins, Compass, Apple, Shield, LucideIcon,
-  ArrowLeft, MessageSquare, ChevronRight
+  ArrowLeft, MessageSquare, ChevronRight, X, RefreshCw
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { VisaApplication, Employee } from "../types/visa";
+import { VisaApplication, Employee, EmployeeInvite } from "../types/visa";
 import PageHeader from "./ui/PageHeader";
 import EmptyState from "./ui/EmptyState";
 
@@ -53,6 +53,8 @@ interface DashboardProps {
   onGoToApply?: () => void;
   companiesList?: { id: string; name: string; registration_no: string; allowed_countries: string[]; phone?: string; address?: string; advantages?: string[] }[];
   onStartChatWithCompany?: (companyId: string, companyName: string) => Promise<boolean>;
+  pendingInvites?: EmployeeInvite[];
+  onInviteEmployee?: (name: string, email: string, registerNo: string, position: string) => Promise<void>;
 }
 
 export default function Dashboard({
@@ -76,10 +78,39 @@ export default function Dashboard({
   onGoToApply,
   companiesList = [],
   onStartChatWithCompany,
+  pendingInvites = [],
+  onInviteEmployee,
 }: DashboardProps) {
   
   const [selectedCompanyDetailId, setSelectedCompanyDetailId] = React.useState<string | null>(null);
   
+  const [isInviteModalOpen, setIsInviteModalOpen] = React.useState(false);
+  const [inviteName, setInviteName] = React.useState("");
+  const [inviteEmail, setInviteEmail] = React.useState("");
+  const [inviteRegisterNo, setInviteRegisterNo] = React.useState("");
+  const [invitePosition, setInvitePosition] = React.useState("");
+  const [inviting, setInviting] = React.useState(false);
+
+  const handleInviteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteName || !inviteEmail || !inviteRegisterNo || !invitePosition) return;
+    setInviting(true);
+    try {
+      if (onInviteEmployee) {
+        await onInviteEmployee(inviteName, inviteEmail, inviteRegisterNo, invitePosition);
+        setIsInviteModalOpen(false);
+        setInviteName("");
+        setInviteEmail("");
+        setInviteRegisterNo("");
+        setInvitePosition("");
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setInviting(false);
+    }
+  };
+
   const b2bApplications = applications.filter(a => a.applicantType === 'employee');
   const b2cApplications = applications.filter(a => a.applicantType !== 'employee');
 
@@ -308,50 +339,191 @@ export default function Dashboard({
           </div>
 
           {/* Company Staff list section */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Ажилчдын бүртгэл</h4>
-            <div className="premium-card overflow-hidden bg-surface border border-line rounded-xl">
-              <div className="overflow-x-auto text-[12px]">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-elevated border-b border-line text-[10px] font-mono text-muted uppercase">
-                      <th className="p-4">ID</th>
-                      <th className="p-4">Нэр</th>
-                      <th className="p-4">РД</th>
-                      <th className="p-4">Албан тушаал</th>
-                      <th className="p-4">DAN систем</th>
-                      <th className="p-4 text-right">Виз үүсгэх</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line">
-                    {employees.map((emp) => (
-                      <tr key={emp.id} className="hover:bg-elevated/50">
-                        <td className="p-4 font-mono text-muted">{emp.id}</td>
-                        <td className="p-4 font-bold text-foreground">{emp.name}</td>
-                        <td className="p-4 font-mono text-foreground">{emp.registerNo}</td>
-                        <td className="p-4 text-muted">{emp.position}</td>
-                        <td className="p-4">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                            emp.danVerified ? 'bg-positive/15 text-positive' : 'bg-zinc-800 text-muted'
-                          }`}>
-                            {emp.danVerified ? 'Баталгаажсан' : 'Холболтгүй'}
-                          </span>
-                        </td>
-                        <td className="p-4 text-right">
-                          <button 
-                            onClick={() => onStartEmployeeVisa(emp.id)}
-                            className="text-xs font-semibold text-accent hover:text-white border border-accent/20 hover:bg-accent px-2.5 py-1 rounded transition-all"
-                          >
-                            Виз эхлүүлэх
-                          </button>
-                        </td>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Ажилчдын бүртгэл</h4>
+              <button
+                type="button"
+                onClick={() => setIsInviteModalOpen(true)}
+                className="btn-primary flex items-center gap-1.5 px-3 py-1.5 text-xs cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Ажилтан урих
+              </button>
+            </div>
+
+            {employees.length === 0 ? (
+              <div className="p-6 text-center text-xs text-muted border border-dashed border-line rounded-xl bg-surface/30">
+                Бүртгэлтэй ажилтан байхгүй байна. &quot;Ажилтан урих&quot; товчийг дарж ажилтан нэмнэ үү.
+              </div>
+            ) : (
+              <div className="premium-card overflow-hidden bg-surface border border-line rounded-xl">
+                <div className="overflow-x-auto text-[12px]">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-elevated border-b border-line text-[10px] font-mono text-muted uppercase">
+                        <th className="p-4">Нэр</th>
+                        <th className="p-4">РД</th>
+                        <th className="p-4">Албан тушаал</th>
+                        <th className="p-4">DAN систем</th>
+                        <th className="p-4 text-right">Виз үүсгэх</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-line">
+                      {employees.map((emp) => (
+                        <tr key={emp.id} className="hover:bg-elevated/50">
+                          <td className="p-4 font-bold text-foreground">{emp.name}</td>
+                          <td className="p-4 font-mono text-foreground">{emp.registerNo}</td>
+                          <td className="p-4 text-muted">{emp.position}</td>
+                          <td className="p-4">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                              emp.danVerified ? 'bg-positive/15 text-positive' : 'bg-zinc-800 text-muted'
+                            }`}>
+                              {emp.danVerified ? 'Баталгаажсан' : 'Холболтгүй'}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <button 
+                              onClick={() => onStartEmployeeVisa(emp.id)}
+                              className="text-xs font-semibold text-accent hover:text-white border border-accent/20 hover:bg-accent px-2.5 py-1 rounded transition-all cursor-pointer"
+                            >
+                              Виз эхлүүлэх
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Pending Invites list */}
+            {pendingInvites && pendingInvites.length > 0 && (
+              <div className="space-y-2 pt-2">
+                <h5 className="text-[10px] font-bold uppercase tracking-wider text-muted font-mono">Хүлээгдэж буй урилгууд ({pendingInvites.length})</h5>
+                <div className="premium-card overflow-hidden bg-surface border border-line rounded-xl">
+                  <div className="overflow-x-auto text-[11px]">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-elevated border-b border-line text-[9px] font-mono text-muted uppercase">
+                          <th className="p-3">Нэр</th>
+                          <th className="p-3">И-мэйл</th>
+                          <th className="p-3">РД</th>
+                          <th className="p-3">Албан тушаал</th>
+                          <th className="p-3 text-right">Төлөв</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-line">
+                        {pendingInvites.map((inv) => (
+                          <tr key={inv.id} className="hover:bg-elevated/40">
+                            <td className="p-3 font-semibold text-foreground">{inv.name}</td>
+                            <td className="p-3 text-muted">{inv.email}</td>
+                            <td className="p-3 font-mono text-muted">{inv.register_no}</td>
+                            <td className="p-3 text-muted">{inv.position}</td>
+                            <td className="p-3 text-right">
+                              <span className="text-[9.5px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-muted">
+                                Уригдсан
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Invite Employee Modal */}
+          {isInviteModalOpen && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
+              onClick={(e) => { if (e.target === e.currentTarget) setIsInviteModalOpen(false); }}
+            >
+              <div
+                className="w-full max-w-md p-6 rounded-2xl shadow-2xl space-y-4"
+                style={{ background: "var(--bg-card)", border: "1px solid var(--color-border)" }}
+              >
+                <div className="flex justify-between items-center pb-2 border-b border-line">
+                  <h3 className="text-sm font-bold text-foreground">Шинэ ажилтан урих</h3>
+                  <button
+                    type="button"
+                    onClick={() => setIsInviteModalOpen(false)}
+                    className="p-1 rounded hover:bg-overlay text-muted hover:text-foreground cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleInviteSubmit} className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Бүтэн Нэр</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Бат-Эрдэнэ Болд"
+                      value={inviteName}
+                      onChange={(e) => setInviteName(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">И-мэйл хаяг</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="employee@company.com"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Регистрийн №</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="УУ94021512"
+                        maxLength={10}
+                        value={inviteRegisterNo}
+                        onChange={(e) => setInviteRegisterNo(e.target.value)}
+                        className="w-full bg-surface border border-line hover:border-muted focus:border-accent rounded-xl px-3 py-2 text-xs font-mono text-foreground focus:outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-muted font-mono uppercase tracking-wider block">Албан тушаал</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ахлах Инженер"
+                        value={invitePosition}
+                        onChange={(e) => setInvitePosition(e.target.value)}
+                        className="input-field"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={inviting}
+                    className="w-full py-2 bg-accent hover:bg-opacity-95 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all shadow disabled:opacity-50 mt-4 cursor-pointer"
+                  >
+                    {inviting ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <span>Урилга илгээх</span>
+                    )}
+                  </button>
+                </form>
               </div>
             </div>
-          </div>
+          )}
         </div>
       ) : selectedCompany ? (
         <motion.div 

@@ -57,11 +57,6 @@ function NewChatModal({
   const [loading, setLoading] = useState(true);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    searchRef.current?.focus();
-    fetchCompanies();
-  }, []);
-
   const fetchCompanies = async () => {
     setLoading(true);
     try {
@@ -101,6 +96,14 @@ function NewChatModal({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    searchRef.current?.focus();
+    const timer = setTimeout(() => {
+      fetchCompanies();
+    }, 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filtered = companies.filter(c =>
     c.company_name.toLowerCase().includes(query.toLowerCase()) ||
@@ -231,19 +234,6 @@ export default function Chat({ currentProfile }: ChatProps) {
   const { activeChatContact, setActiveChatContact } = useVisaAppContext();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-
-  useEffect(() => {
-    if (activeChatContact) {
-      const contact = { ...activeChatContact };
-      setContacts(prev => {
-        if (prev.some(c => c.id === contact.id)) return prev;
-        return [contact, ...prev];
-      });
-      setSelectedContact(contact);
-      setActiveMobileView('conversation');
-      setActiveChatContact(null);
-    }
-  }, [activeChatContact, setActiveChatContact]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loadingContacts, setLoadingContacts] = useState(false);
@@ -252,6 +242,22 @@ export default function Chat({ currentProfile }: ChatProps) {
   const [activeMobileView, setActiveMobileView] = useState<'contacts' | 'conversation'>('contacts');
   const [contactFilter, setContactFilter] = useState<'all' | 'individual' | 'business_admin'>('all');
   const [showNewChatModal, setShowNewChatModal] = useState(false);
+
+  useEffect(() => {
+    if (activeChatContact) {
+      const contact = { ...activeChatContact };
+      const handler = setTimeout(() => {
+        setContacts(prev => {
+          if (prev.some(c => c.id === contact.id)) return prev;
+          return [contact, ...prev];
+        });
+        setSelectedContact(contact);
+        setActiveMobileView('conversation');
+        setActiveChatContact(null);
+      }, 0);
+      return () => clearTimeout(handler);
+    }
+  }, [activeChatContact, setActiveChatContact]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

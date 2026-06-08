@@ -19,6 +19,7 @@ export default function ApplyRoute() {
     handleGenerateInvoice,
     handleSaveAsDraft,
     khurLoading,
+    uploadingFile,
     user,
     setIsDanModalOpen,
     formError,
@@ -42,6 +43,7 @@ export default function ApplyRoute() {
         onGenerateInvoice={handleGenerateInvoice}
         onSaveAsDraft={handleSaveAsDraft}
         khurLoading={khurLoading}
+        uploadingFile={uploadingFile}
         isUserVerified={user.isVerified}
         onOpenDanModal={() => setIsDanModalOpen(true)}
         formError={formError}

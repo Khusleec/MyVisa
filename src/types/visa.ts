@@ -13,6 +13,11 @@ export interface VisaApplication {
   khurEmployer?: string;
   khurInsuranceMonths?: number;
   passportUrl?: string;
+  photoUrl?: string;
+  bankStatementUrl?: string;
+  passportFile?: string | null;
+  photoFile?: string | null;
+  bankStatementFile?: string | null;
   embassyFee: number;
   serviceFee: number;
   createdAt: string;
@@ -26,4 +31,14 @@ export interface Employee {
   position: string;
   danVerified: boolean;
   activeVisaId?: string;
+}
+
+export interface EmployeeInvite {
+  id: string;
+  company_id: string;
+  email: string;
+  name: string;
+  register_no: string;
+  position: string;
+  created_at: string;
 }
