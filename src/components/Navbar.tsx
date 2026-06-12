@@ -96,8 +96,8 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <div className="sticky top-4 z-40 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto">
-      <header className="border border-line rounded-2xl bg-surface/80 backdrop-blur-md transition-all duration-200 shadow-md">
+    <div className="sticky top-3 z-40 px-4 sm:px-6 lg:px-8 w-full max-w-7xl mx-auto">
+      <header className="border border-line/80 rounded-2xl bg-elevated/90 backdrop-blur-xl transition-all duration-200 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.12)]">
         <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         
           {/* Left: Branding */}
@@ -122,10 +122,10 @@ export default function Navbar() {
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150 ${
                     isActive(href)
-                      ? "bg-elevated text-accent border border-line"
-                      : "text-muted hover:text-foreground hover:bg-elevated/40"
+                      ? "bg-accent/10 text-accent border border-accent/20 shadow-sm"
+                      : "text-muted hover:text-foreground hover:bg-overlay/60"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -367,7 +367,11 @@ export default function Navbar() {
       </header>
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="fixed bottom-4 left-4 right-4 z-50 md:hidden flex justify-around items-center h-16 bg-surface/85 backdrop-blur-lg border border-line rounded-2xl shadow-xl px-2">
+      <nav
+        className="fixed bottom-3 left-3 right-3 z-50 md:hidden flex justify-around items-stretch gap-1 bg-elevated/92 backdrop-blur-xl border border-line/80 rounded-2xl shadow-[0_8px_32px_-8px_rgba(0,0,0,0.25)] px-1.5 py-1.5"
+        style={{ height: "var(--mobile-nav-height)", marginBottom: "var(--safe-bottom)" }}
+        aria-label="Гар утасны цэс"
+      >
         {navItems
           .filter((item) => item.href !== "/settings")
           .map(({ href, icon: Icon, mobileLabel, badge }) => {
@@ -376,22 +380,23 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`flex flex-col items-center justify-center flex-1 h-full min-h-[44px] min-w-[44px] transition-all relative ${
-                  active ? "text-accent" : "text-muted hover:text-foreground"
+                className={`flex flex-col items-center justify-center flex-1 min-h-[44px] min-w-[44px] rounded-xl transition-all relative ${
+                  active
+                    ? "text-accent bg-accent/10"
+                    : "text-muted hover:text-foreground hover:bg-overlay/50"
                 }`}
               >
                 <div className="relative">
-                  <Icon className={`w-5 h-5 transition-transform ${active ? "scale-110" : ""}`} />
+                  <Icon className={`w-5 h-5 transition-transform ${active ? "scale-105" : ""}`} />
                   {badge !== undefined && badge > 0 && (
-                    <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[10px] px-1 py-0.2 rounded-full font-mono font-bold leading-none">
-                      {badge}
+                    <span className="absolute -top-1.5 -right-2.5 bg-negative text-white text-[9px] min-w-[1rem] h-4 px-1 rounded-full font-mono font-bold leading-none flex items-center justify-center">
+                      {badge > 9 ? "9+" : badge}
                     </span>
                   )}
                 </div>
-                <span className="text-xs font-semibold mt-1">{mobileLabel}</span>
-                {active && (
-                  <div className="absolute bottom-1.5 w-1 h-1 rounded-full bg-accent" />
-                )}
+                <span className={`text-[10px] font-semibold mt-1 ${active ? "text-accent" : ""}`}>
+                  {mobileLabel}
+                </span>
               </Link>
             );
           })}

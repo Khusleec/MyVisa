@@ -1,25 +1,28 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { verifyWebhookSecret } from '../../../../lib/webhookAuth';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 export async function POST(request: Request) {
   try {
-    // 1. Verify QPay webhook secret to protect the endpoint
-    const authHeader = request.headers.get('x-qpay-secret');
-    const expectedSecret = process.env.QPAY_WEBHOOK_SECRET;
-
-    if (expectedSecret && authHeader !== expectedSecret) {
-      return NextResponse.json({ error: 'Unauthorized callback' }, { status: 401 });
+    const authFailure = verifyWebhookSecret(request, 'x-qpay-secret', process.env.QPAY_WEBHOOK_SECRET);
+    if (authFailure) {
+      return authFailure;
     }
 
-    // 2. Parse payload
     const body = await request.json();
     const { invoice_id, status } = body;
 
-    if (!invoice_id || !status) {
-      return NextResponse.json({ error: 'Missing invoice_id or status' }, { status: 400 });
+    if (typeof invoice_id !== 'string' || typeof status !== 'string') {
+      return NextResponse.json({ error: 'Invalid payload types' }, { status: 400 });
+    }
+
+    const sanitizedInvoiceId = invoice_id.trim();
+    const invoiceRegex = /^[a-zA-Z0-9_\-\.]+$/;
+    if (!invoiceRegex.test(sanitizedInvoiceId)) {
+      return NextResponse.json({ error: 'Invalid invoice_id format' }, { status: 400 });
     }
 
     if (status !== 'paid') {
@@ -37,11 +40,11 @@ export async function POST(request: Request) {
       }
     });
 
-    // 3. Update the payment
+    // 4. Update the payment (uses parametrized inputs via supabase query builder)
     const { data: updatedPayments, error: paymentError } = await supabase
       .from('payments')
       .update({ status: 'paid' })
-      .eq('qpay_invoice', invoice_id)
+      .eq('qpay_invoice', sanitizedInvoiceId)
       .select('*');
 
     if (paymentError) {
@@ -50,21 +53,27 @@ export async function POST(request: Request) {
     }
 
     if (!updatedPayments || updatedPayments.length === 0) {
-      return NextResponse.json({ error: `Payment record not found for invoice: ${invoice_id}` }, { status: 404 });
+      return NextResponse.json({ error: `Payment record not found for invoice: ${sanitizedInvoiceId}` }, { status: 404 });
     }
 
-    // 4. Update the corresponding visa applications to 'submitted'
+    // 5. Update the corresponding visa applications to 'submitted'
     const applicationIds = updatedPayments.map(p => p.application_id).filter(Boolean);
     
     if (applicationIds.length > 0) {
-      const { error: appError } = await supabase
-        .from('visa_applications')
-        .update({ status: 'submitted' })
-        .in('id', applicationIds);
+      // Validate that applicationIds are valid UUIDs before executing the DB query
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const validIds = applicationIds.filter(id => uuidRegex.test(id));
 
-      if (appError) {
-        console.error('Webhook database error (updating visa application status):', appError);
-        return NextResponse.json({ error: appError.message }, { status: 500 });
+      if (validIds.length > 0) {
+        const { error: appError } = await supabase
+          .from('visa_applications')
+          .update({ status: 'submitted' })
+          .in('id', validIds);
+
+        if (appError) {
+          console.error('Webhook database error (updating visa application status):', appError);
+          return NextResponse.json({ error: appError.message }, { status: 500 });
+        }
       }
     }
 

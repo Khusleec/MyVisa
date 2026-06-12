@@ -48,8 +48,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         Үндсэн контент руу очих
       </a>
       <Navbar />
-      <main id="main-content" className="flex-1 flex flex-col min-h-0 bg-surface mobile-nav-safe">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <main id="main-content" className="flex-1 flex flex-col min-h-0 mobile-nav-safe">
+        <div className="page-shell mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-10 min-w-0">
           {children}
         </div>
       </main>

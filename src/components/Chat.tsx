@@ -270,7 +270,7 @@ export default function Chat({ currentProfile }: ChatProps) {
     try {
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, name, role, company_id')
         .neq('role', 'visa_issuer')
         .order('name', { ascending: true });
 
@@ -307,7 +307,7 @@ export default function Chat({ currentProfile }: ChatProps) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, name, role, company_id')
         .eq('role', 'visa_issuer')
         .limit(1)
         .single();

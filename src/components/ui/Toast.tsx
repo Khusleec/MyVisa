@@ -55,7 +55,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={{ toast }}>
       {children}
       <div
-        className="fixed top-4 right-4 left-4 sm:left-auto z-[100] flex flex-col gap-2 sm:w-[min(100%,22rem)] pointer-events-none"
+        className="toast-container fixed z-[100] flex flex-col gap-2.5 pointer-events-none"
         aria-live="polite"
         aria-relevant="additions"
       >
@@ -66,10 +66,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               <motion.div
                 key={t.id}
                 layout
-                initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                initial={{ opacity: 0, y: 12, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 12, scale: 0.98 }}
-                className={`pointer-events-auto flex items-start gap-2.5 p-3.5 rounded-xl border shadow-lg backdrop-blur-md text-xs leading-relaxed ${styles[t.type]}`}
+                exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                className={`pointer-events-auto flex items-start gap-3 p-4 rounded-2xl border shadow-xl backdrop-blur-xl text-sm leading-relaxed bg-elevated/95 ${styles[t.type]}`}
               >
                 <Icon className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
                 <p className="flex-1 font-medium">{t.message}</p>

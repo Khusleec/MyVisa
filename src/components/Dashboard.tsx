@@ -10,6 +10,8 @@ import Link from "next/link";
 import { VisaApplication, Employee, EmployeeInvite } from "../types/visa";
 import PageHeader from "./ui/PageHeader";
 import EmptyState from "./ui/EmptyState";
+import StatusBadge from "./ui/StatusBadge";
+import ProgressStepper from "./ui/ProgressStepper";
 
 interface DashboardProps {
   userRole: 'individual' | 'business_admin' | 'visa_issuer';
@@ -101,6 +103,13 @@ export default function Dashboard({
       className="space-y-6 max-w-5xl"
     >
       <PageHeader
+        eyebrow={
+          userRole === "visa_issuer"
+            ? "ЭСЯ"
+            : userRole === "business_admin"
+            ? "Байгууллага"
+            : "Хувь хүн"
+        }
         title={
           userRole === "visa_issuer"
             ? "ЭСЯ-ны Шүүгчийн хянах хэсэг"
@@ -127,11 +136,13 @@ export default function Dashboard({
 
       {/* B2B Dynamic Banner Info Alert */}
       {userRole === 'business_admin' && (
-        <div className="p-4 rounded-xl border border-accent/20 bg-accent/5 flex gap-3 text-xs leading-relaxed text-muted animate-in fade-in duration-200">
-          <Info className="w-4.5 h-4.5 text-accent shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-bold text-foreground">Байгууллагын нэгдсэн нэхэмжлэх & цалин шалгалт</p>
-            <p className="text-xs text-muted">
+        <div className="p-4 sm:p-5 rounded-2xl border border-accent/20 bg-gradient-to-r from-accent/8 to-transparent flex gap-4 text-sm leading-relaxed">
+          <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/20 flex items-center justify-center shrink-0">
+            <Info className="w-5 h-5 text-accent" />
+          </div>
+          <div className="space-y-1 min-w-0">
+            <p className="font-bold text-foreground">Нэгдсэн нэхэмжлэх & ХУР шалгалт</p>
+            <p className="text-sm text-muted">
               Ажилчдын регистрээр ХУР-аар нийгмийн даатгал баталгаажуулж, бэлэн төлбөрүүдийг QPay нэгдсэн нэхэмжлэхээр төлнө.
             </p>
           </div>
@@ -139,43 +150,51 @@ export default function Dashboard({
       )}
 
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <motion.div 
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
+        variants={{
+          hidden: { opacity: 0 },
+          show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+        }}
+        initial="hidden"
+        animate="show"
+      >
         {userRole === 'visa_issuer' ? (
           <></>
         ) : userRole === 'business_admin' ? (
           <>
-            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }} className="premium-card p-5 space-y-2 bg-surface border border-line rounded-xl">
               <p className="text-xs text-muted font-mono uppercase tracking-wider">Идэвхтэй Ажилчид</p>
-              <p className="text-sm font-bold text-foreground">{employees.length} ажилтан</p>
-              <p className="text-xs text-positive font-mono">
+              <p className="text-2xl font-bold text-foreground">{employees.length} <span className="text-sm font-medium text-muted">ажилтан</span></p>
+              <p className="text-sm text-positive font-mono">
                 {employees.filter((e) => e.danVerified).length} нь DAN баталгаажсан
               </p>
-            </div>
-            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }} className="premium-card p-5 space-y-2 bg-surface border border-line rounded-xl">
               <p className="text-xs text-muted font-mono uppercase tracking-wider">Нэгдсэн Виз шийдвэрлэлт</p>
-              <p className="text-sm font-bold text-foreground">
-                {b2bApplications.length} мэдүүлэг
+              <p className="text-2xl font-bold text-foreground">
+                {b2bApplications.length} <span className="text-sm font-medium text-muted">мэдүүлэг</span>
               </p>
-              <p className="text-xs text-muted">
+              <p className="text-sm text-muted">
                 Төлбөр хүлээгдэж буй:{" "}
                 {b2bApplications.filter((a) => a.status === "payment_pending").length}
               </p>
-            </div>
-            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }} className="premium-card p-5 space-y-2 bg-surface border border-line rounded-xl">
               <p className="text-xs text-muted font-mono uppercase tracking-wider">Байгууллагын РД</p>
-              <p className="text-sm font-bold text-foreground">{companyRegistration}</p>
-              <p className="text-xs text-accent font-mono">Бизнес: {companyIndustry}</p>
-            </div>
+              <p className="text-xl font-bold text-foreground tracking-wide">{companyRegistration}</p>
+              <p className="text-sm text-accent font-mono">Бизнес: {companyIndustry}</p>
+            </motion.div>
           </>
         ) : (
           <>
-            <div className="premium-card p-5 space-y-1.5 bg-surface border border-line rounded-xl flex flex-col justify-between">
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }} className="premium-card p-5 space-y-2 bg-surface border border-line rounded-xl flex flex-col justify-between">
               <div>
                 <p className="text-xs text-muted font-mono uppercase tracking-wider">Биеийн Баталгаажуулалт</p>
-                <p className={`text-sm font-bold text-foreground ${!isUserVerified ? "animate-pulse" : ""}`}>
+                <p className={`text-xl font-bold text-foreground mt-1 ${!isUserVerified ? "animate-pulse" : ""}`}>
                   {isUserVerified ? "DAN Холбогдсон" : "DAN Холбогдоогүй"}
                 </p>
-                <p className={`text-xs font-mono ${isUserVerified ? "text-positive" : "text-amber-500"}`}>
+                <p className={`text-sm font-mono mt-1 ${isUserVerified ? "text-positive" : "text-amber-500"}`}>
                   {isUserVerified ? "Нийгмийн даатгал идэвхтэй" : "Лавлагаа татах боломжгүй"}
                 </p>
               </div>
@@ -183,29 +202,29 @@ export default function Dashboard({
                 <button
                   type="button"
                   onClick={onOpenDanModal}
-                  className="w-full mt-1.5 btn-primary text-xs py-1.5 min-h-[36px]"
+                  className="w-full mt-2 btn-primary text-sm py-2 min-h-[44px]"
                 >
                   DAN холбох
                 </button>
               )}
-            </div>
-            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }} className="premium-card p-5 space-y-2 bg-surface border border-line rounded-xl">
               <p className="text-xs text-muted font-mono uppercase tracking-wider">Миний мэдүүлгүүд</p>
-              <p className="text-sm font-bold text-foreground">
-                Нийт {b2cApplications.length} мэдүүлэг
+              <p className="text-2xl font-bold text-foreground">
+                {b2cApplications.length} <span className="text-sm font-medium text-muted">мэдүүлэг</span>
               </p>
-              <p className="text-xs text-muted">
+              <p className="text-sm text-muted">
                 Гэр бүл: {b2cApplications.filter((a) => a.applicantType === "family").length}
               </p>
-            </div>
-            <div className="premium-card p-5 space-y-1 bg-surface border border-line rounded-xl">
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } }} className="premium-card p-5 space-y-2 bg-surface border border-line rounded-xl">
               <p className="text-xs text-muted font-mono uppercase tracking-wider">Холбоо барих</p>
-              <p className="text-sm font-bold text-foreground">Зурвас суваг идэвхтэй</p>
-              <p className="text-xs text-accent font-mono">{userPhone}</p>
-            </div>
+              <p className="text-xl font-bold text-foreground mt-1">Зурвас суваг идэвхтэй</p>
+              <p className="text-sm text-accent font-mono mt-1">{userPhone}</p>
+            </motion.div>
           </>
         )}
-      </div>
+      </motion.div>
 
       {/* B2B Sections vs B2C Selection */}
       {userRole === 'business_admin' ? (
@@ -234,7 +253,7 @@ export default function Dashboard({
                 description="Эхлээд ажилтанд виз мэдүүлэг үүсгэж, төлбөр болон явцыг энд хянана."
                 action={
                   onGoToApply ? (
-                    <button type="button" onClick={onGoToApply} className="btn-primary min-h-[36px]">
+                    <button type="button" onClick={onGoToApply} className="btn-primary min-h-[44px]">
                       Виз мэдүүлэх
                     </button>
                   ) : undefined
@@ -242,8 +261,8 @@ export default function Dashboard({
               />
             ) : (
             <div className="premium-card overflow-hidden bg-surface border border-line rounded-xl">
-              <div className="overflow-x-auto text-xs">
-                <table className="w-full text-left border-collapse text-xs">
+              <div className="table-scroll text-sm">
+                <table className="w-full text-left border-collapse text-sm">
                   <thead>
                     <tr className="bg-elevated border-b border-line text-xs font-mono text-muted uppercase">
                       <th className="p-4 w-10">
@@ -257,9 +276,9 @@ export default function Dashboard({
                       <th className="p-4 font-semibold text-right">Үйлдэл</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-line text-xs">
+                  <tbody className="divide-y divide-line text-sm">
                     {b2bApplications.map((app) => (
-                      <tr key={app.id} className="hover:bg-elevated/50 transition-colors text-xs">
+                      <tr key={app.id} className="hover:bg-elevated/50 transition-colors text-sm">
                         <td className="p-4">
                           {app.paymentStatus === 'unpaid' ? (
                             <button 
@@ -276,35 +295,35 @@ export default function Dashboard({
                             <Check className="w-4 h-4 text-positive mx-auto" />
                           )}
                         </td>
-                        <td className="p-4 font-bold text-foreground text-xs">{app.applicantName}</td>
-                        <td className="p-4 text-xs">
-                          <span className="font-semibold text-foreground text-xs">{app.country}</span>
+                        <td className="p-4 font-bold text-foreground text-sm">{app.applicantName}</td>
+                        <td className="p-4 text-sm">
+                          <span className="font-semibold text-foreground text-sm">{app.country}</span>
                           <p className="text-xs text-muted mt-0.5">{app.visaType}</p>
                         </td>
-                        <td className="p-4 font-mono text-muted text-xs">{app.userRegister}</td>
-                        <td className="p-4 text-xs">
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded ${
+                        <td className="p-4 font-mono text-muted text-sm">{app.userRegister}</td>
+                        <td className="p-4 text-sm">
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                             app.paymentStatus === 'paid' ? 'bg-positive/15 text-positive' : 'bg-amber-500/10 text-amber-500'
                           }`}>
                             {app.paymentStatus === 'paid' ? 'Төлөгдсөн' : 'Нэхэмжлэх гарсан'}
                           </span>
                         </td>
-                        <td className="p-4 text-xs">
+                        <td className="p-4 text-sm">
                           {(() => {
                             const conf = getStatusConfig(app.status);
                             return (
-                              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold border ${conf.bg}`}>
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${conf.bg}`}>
                                 <span className={`w-1.5 h-1.5 rounded-full ${conf.bar}`}></span>
                                 {conf.text}
                               </span>
                             );
                           })()}
                         </td>
-                        <td className="p-4 text-right text-xs">
+                        <td className="p-4 text-right text-sm">
                           {app.paymentStatus === 'unpaid' && (
                             <button 
                               onClick={() => openQPayInvoice(app.id, app.embassyFee + app.serviceFee)}
-                              className="text-xs font-semibold text-white bg-accent hover:bg-opacity-95 px-2.5 py-1.5 rounded transition-all min-h-[36px]"
+                              className="text-sm font-semibold text-white bg-accent hover:bg-opacity-95 px-4 py-2 rounded-lg transition-all min-h-[44px]"
                             >
                               Төлөх
                             </button>
@@ -339,7 +358,7 @@ export default function Dashboard({
               </div>
             ) : (
               <div className="premium-card overflow-hidden bg-surface border border-line rounded-xl text-xs">
-                <div className="overflow-x-auto text-xs">
+                <div className="table-scroll text-xs">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="bg-elevated border-b border-line text-xs font-mono text-muted uppercase">
@@ -384,7 +403,7 @@ export default function Dashboard({
               <div className="space-y-2 pt-2">
                 <h5 className="text-xs font-bold uppercase tracking-wider text-muted font-mono">Хүлээгдэж буй урилгууд ({pendingInvites.length})</h5>
                 <div className="premium-card overflow-hidden bg-surface border border-line rounded-xl text-xs">
-                  <div className="overflow-x-auto text-xs">
+                  <div className="table-scroll text-xs">
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
                         <tr className="bg-elevated border-b border-line text-xs font-mono text-muted uppercase">
@@ -420,13 +439,11 @@ export default function Dashboard({
           {/* Invite Employee Modal */}
           {isInviteModalOpen && (
             <div
-              className="fixed inset-0 z-50 flex items-center justify-center p-4"
-              style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
+              className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 modal-overlay"
               onClick={(e) => { if (e.target === e.currentTarget) setIsInviteModalOpen(false); }}
             >
               <div
-                className="w-full max-w-md p-6 rounded-2xl shadow-2xl space-y-4"
-                style={{ background: "var(--bg-card)", border: "1px solid var(--color-border)" }}
+                className="w-full max-w-md p-6 rounded-t-3xl sm:rounded-2xl shadow-2xl space-y-4 bg-elevated border border-line"
               >
                 <div className="flex justify-between items-center pb-2 border-b border-line">
                   <h3 className="text-sm font-bold text-foreground">Шинэ ажилтан урих</h3>
@@ -509,10 +526,10 @@ export default function Dashboard({
       ) : userRole === 'visa_issuer' ? (
         <div className="space-y-6 animate-in fade-in duration-200">
           {/* Issuer CTA Section */}
-          <div className="premium-card p-6 md:p-8 bg-surface border border-line rounded-xl text-center space-y-4 relative overflow-hidden">
+          <div className="premium-card premium-card--interactive p-8 md:p-10 bg-surface border border-line rounded-2xl text-center space-y-5 relative overflow-hidden">
             <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-accent/5 blur-[100px] pointer-events-none"></div>
-            <h3 className="text-base font-bold text-foreground">ЭСЯ-ны Шүүх Хэсэг</h3>
-            <p className="text-xs text-muted max-w-lg mx-auto leading-relaxed">
+            <h3 className="text-lg font-bold text-foreground">ЭСЯ-ны Шүүх Хэсэг</h3>
+            <p className="text-sm text-muted max-w-lg mx-auto leading-relaxed">
               Шинээр ирсэн визний мэдүүлгийн материалуудыг хянаж шийдвэрлэх, зөвшөөрөх болон татгалзах үйлдлүүдийг хийнэ үү.
             </p>
             <Link
@@ -526,10 +543,10 @@ export default function Dashboard({
       ) : (
         <div className="space-y-6">
           {/* B2C Hero CTA Section */}
-          <div className="premium-card p-6 md:p-8 bg-surface border border-line rounded-xl text-center space-y-4 relative overflow-hidden animate-in fade-in duration-200">
+          <div className="premium-card premium-card--interactive p-8 md:p-10 bg-surface border border-line rounded-2xl text-center space-y-5 relative overflow-hidden">
             <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-accent/5 blur-[100px] pointer-events-none"></div>
-            <h3 className="text-base font-bold text-foreground">Цахим виз мэдүүлэг эхлүүлэх</h3>
-            <p className="text-xs text-muted max-w-lg mx-auto leading-relaxed">
+            <h3 className="text-lg font-bold text-foreground">Цахим виз мэдүүлэг эхлүүлэх</h3>
+            <p className="text-sm text-muted max-w-lg mx-auto leading-relaxed">
               БНСУ, Япон, Герман, Австрали улсын визний мэдүүлгийг ДАН баталгаажуулалт, ХУР системийн төрийн лавлагаатайгаар хялбар мэдүүлнэ үү.
             </p>
             <button
@@ -553,51 +570,46 @@ export default function Dashboard({
                   description="Дээрх 'Шинэ виз мэдүүлэх' товч дээр дарж эхний мэдүүлгээ эхлүүлнэ үү."
                 />
               ) : null}
-              {b2cApplications.map((app) => (
-                <div key={app.id} className="premium-card p-5 space-y-4 bg-surface border border-line rounded-xl">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div>
-                      <h5 className="text-sm font-bold text-foreground flex items-center gap-2">
-                        {app.country}
-                        <span className="text-xs font-normal text-muted">({app.applicantType === 'myself' ? 'Өөрийн мэдүүлэг' : `${app.applicantRelation}: ${app.applicantName}`})</span>
-                      </h5>
-                      <p className="text-xs text-muted mt-0.5">{app.visaType} • ID: {app.id}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {(() => {
-                        const conf = getStatusConfig(app.status);
-                        return (
-                          <span className={`px-2.5 py-0.5 rounded text-xs font-bold border ${conf.bg}`}>
-                            {conf.text}
-                          </span>
-                        );
-                      })()}
+              {b2cApplications.map((app) => {
+                const conf = getStatusConfig(app.status);
+                return (
+                  <div key={app.id} className="premium-card premium-card--interactive p-5 sm:p-6 space-y-4 bg-surface border border-line rounded-2xl">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h5 className="text-base font-bold text-foreground">{app.country}</h5>
+                          <StatusBadge text={conf.text} className={conf.bg} />
+                        </div>
+                        <p className="text-sm text-muted mt-1">
+                          {app.applicantType === 'myself' ? 'Өөрийн мэдүүлэг' : `${app.applicantRelation}: ${app.applicantName}`}
+                        </p>
+                        <p className="text-[11px] font-mono text-muted mt-0.5">{app.visaType}</p>
+                      </div>
                       {app.status === 'payment_pending' && (
-                        <button 
+                        <button
+                          type="button"
                           onClick={() => openQPayInvoice(app.id, app.embassyFee + app.serviceFee)}
-                          className="px-3 py-1.5 rounded bg-accent hover:bg-opacity-95 text-white text-xs font-bold transition-all shadow cursor-pointer min-h-[36px]"
+                          className="btn-primary text-sm shrink-0"
                         >
+                          <CreditCard className="w-4 h-4" />
                           Төлөх
                         </button>
                       )}
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-4 gap-2 pt-2 border-t border-line">
-                    {[
-                      { label: "Бүртгэл", active: true },
-                      { label: "Төрийн лавлагаа", active: app.status !== 'draft' },
-                      { label: "Төлбөр төлөлт", active: app.paymentStatus === 'paid' },
-                      { label: "ЭСЯ хяналт", active: app.status === 'approved', pulse: app.status === 'submitted' }
-                    ].map((s, i) => (
-                      <div key={i} className="space-y-1">
-                        <div className={`h-1 rounded ${s.pulse ? 'bg-accent animate-pulse' : s.active ? 'bg-positive' : 'bg-line'}`}></div>
-                        <span className="text-xs font-bold text-foreground block">{s.label}</span>
-                      </div>
-                    ))}
+                    <div className="pt-3 border-t border-line">
+                      <ProgressStepper
+                        steps={[
+                          { title: "Бүртгэл", active: true, complete: true },
+                          { title: "Лавлагаа", active: app.status !== 'draft', complete: app.status !== 'draft' },
+                          { title: "Төлбөр", active: app.paymentStatus === 'paid', complete: app.paymentStatus === 'paid', pulse: app.status === 'payment_pending' },
+                          { title: "ЭСЯ", active: app.status === 'approved', complete: app.status === 'approved', pulse: app.status === 'submitted' },
+                        ]}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

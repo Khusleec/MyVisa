@@ -29,7 +29,7 @@ export default function ApplyRoute() {
   } = useVisaAppContext();
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-3xl mx-auto page-with-form-footer">
       <ApplicationForm
         userRole={userRole as 'individual' | 'business_admin'}
         employees={employees}

@@ -763,55 +763,64 @@ export function useVisaApp() {
     );
   };
 
+  const completePayment = async (payload: Record<string, unknown>) => {
+    if (!session?.access_token) {
+      throw new Error('Та нэвтэрсэн байх шаардлагатай');
+    }
+
+    const response = await fetch('/api/payments/complete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || 'Төлбөр баталгаажуулахад алдаа гарлаа');
+    }
+
+    return result;
+  };
+
   const simulatePaymentSuccess = async () => {
     if (!profile) return;
 
     try {
       if (activePaymentId === 'bulk_invoice') {
         const unpaidApps = applications.filter(app => bulkSelectIds.includes(app.id));
-        
-        for (const app of unpaidApps) {
-          await supabase
-            .from('visa_applications')
-            .update({ status: 'submitted' })
-            .eq('id', app.id);
-          
-          await supabase
-            .from('payments')
-            .insert({
-              application_id: app.id,
-              company_id: profile.company_id || null,
-              amount: app.embassyFee + app.serviceFee,
-              qpay_invoice: `QPAY-INV-${Math.floor(100000 + Math.random() * 900000)}`,
-              status: 'paid'
-            });
-        }
-        
+
+        await completePayment({
+          applicationIds: unpaidApps.map(app => app.id),
+          payments: unpaidApps.map(app => ({
+            applicationId: app.id,
+            companyId: profile.company_id || null,
+            amount: app.embassyFee + app.serviceFee,
+            qpayInvoice: `QPAY-INV-${Math.floor(100000 + Math.random() * 900000)}`,
+          })),
+        });
+
         setBulkSelectIds([]);
       } else if (activePaymentId && activePaymentId !== 'new_app_invoice') {
         const app = applications.find(a => a.id === activePaymentId);
         if (app) {
-          await supabase
-            .from('visa_applications')
-            .update({ status: 'submitted' })
-            .eq('id', activePaymentId);
-
-          await supabase
-            .from('payments')
-            .insert({
-              application_id: activePaymentId,
-              company_id: profile.company_id || null,
+          await completePayment({
+            applicationIds: [activePaymentId],
+            payments: [{
+              applicationId: activePaymentId,
+              companyId: profile.company_id || null,
               amount: app.embassyFee + app.serviceFee,
-              qpay_invoice: `QPAY-INV-${Math.floor(100000 + Math.random() * 900000)}`,
-              status: 'paid'
-            });
+              qpayInvoice: `QPAY-INV-${Math.floor(100000 + Math.random() * 900000)}`,
+            }],
+          });
         }
       } else {
         const applicantRel = newApp.applicantType === 'myself' ? 'Self' : newApp.applicantType === 'employee' ? 'Employee' : newApp.applicantRelation;
 
-        const { data: newDbApp, error: appError } = await supabase
-          .from('visa_applications')
-          .insert({
+        await completePayment({
+          newApplication: {
             user_id: newApp.applicantType === 'myself' ? profile.id : null,
             created_by: profile.id,
             company_id: newApp.applicantType === 'employee' ? profile.company_id : (newApp.selectedCompanyId || null),
@@ -819,28 +828,16 @@ export function useVisaApp() {
             applicant_relation: applicantRel,
             country: newApp.country,
             country_code: newApp.countryCode,
-            status: 'submitted',
             khur_salary: newApp.khurSalary || null,
             khur_employer: newApp.khurEmployer || null,
             khur_insurance_months: newApp.khurInsuranceMonths || null,
             passport_url: newApp.passportFile,
             photo_url: newApp.photoFile,
             bank_statement_url: newApp.bankStatementFile,
-          })
-          .select('*')
-          .single();
-
-        if (appError) throw appError;
-
-        await supabase
-          .from('payments')
-          .insert({
-            application_id: newDbApp.id,
-            company_id: newApp.applicantType === 'employee' ? profile.company_id : (newApp.selectedCompanyId || null),
             amount: newApp.embassyFee + newApp.serviceFee,
             qpay_invoice: newApp.qpayInvoice || `QPAY-INV-${Math.floor(100000 + Math.random() * 900000)}`,
-            status: 'paid'
-          });
+          },
+        });
       }
 
       await loadApplications(profile);
