@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion, LayoutGroup, useReducedMotion } from "framer-motion";
+import { springGentle } from "../lib/motion";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -24,6 +26,7 @@ export default function Navbar() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   const {
     userRole,
@@ -117,27 +120,37 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Nav Links */}
+            <LayoutGroup>
             <nav className="hidden md:flex items-center gap-1.5" aria-label="Үндсэн цэс">
-              {navItems.map(({ href, icon: Icon, label, badge }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-150 ${
-                    isActive(href)
-                      ? "bg-accent/10 text-accent border border-accent/20 shadow-sm"
-                      : "text-muted hover:text-foreground hover:bg-overlay/60"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{label}</span>
-                  {badge !== undefined && badge > 0 && (
-                    <span className="ml-1 bg-accent/10 text-accent text-xs px-1.5 py-0.5 rounded-full font-mono font-bold">
-                      {badge}
-                    </span>
-                  )}
-                </Link>
-              ))}
+              {navItems.map(({ href, icon: Icon, label, badge }) => {
+                const active = isActive(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors duration-150 ${
+                      active ? "text-accent" : "text-muted hover:text-foreground"
+                    }`}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="desktop-nav-active"
+                        className="absolute inset-0 bg-accent/10 border border-accent/20 rounded-xl shadow-sm"
+                        transition={reduceMotion ? { duration: 0 } : springGentle}
+                      />
+                    )}
+                    <Icon className="w-3.5 h-3.5 relative z-10" />
+                    <span className="relative z-10">{label}</span>
+                    {badge !== undefined && badge > 0 && (
+                      <span className="relative z-10 ml-1 bg-accent/10 text-accent text-xs px-1.5 py-0.5 rounded-full font-mono font-bold">
+                        {badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </nav>
+            </LayoutGroup>
           </div>
 
           {/* Desktop Right: Controls & Profile */}
@@ -372,6 +385,7 @@ export default function Navbar() {
         style={{ height: "var(--mobile-nav-height)", marginBottom: "var(--safe-bottom)" }}
         aria-label="Гар утасны цэс"
       >
+        <LayoutGroup>
         {navItems
           .filter((item) => item.href !== "/settings")
           .map(({ href, icon: Icon, mobileLabel, badge }) => {
@@ -380,26 +394,32 @@ export default function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`flex flex-col items-center justify-center flex-1 min-h-[44px] min-w-[44px] rounded-xl transition-all relative ${
-                  active
-                    ? "text-accent bg-accent/10"
-                    : "text-muted hover:text-foreground hover:bg-overlay/50"
+                className={`flex flex-col items-center justify-center flex-1 min-h-[44px] min-w-[44px] rounded-xl transition-colors relative ${
+                  active ? "text-accent" : "text-muted hover:text-foreground"
                 }`}
               >
-                <div className="relative">
-                  <Icon className={`w-5 h-5 transition-transform ${active ? "scale-105" : ""}`} />
+                {active && (
+                  <motion.span
+                    layoutId="mobile-nav-active"
+                    className="absolute inset-0 bg-accent/10 rounded-xl"
+                    transition={reduceMotion ? { duration: 0 } : springGentle}
+                  />
+                )}
+                <div className="relative z-10">
+                  <Icon className="w-5 h-5" />
                   {badge !== undefined && badge > 0 && (
                     <span className="absolute -top-1.5 -right-2.5 bg-negative text-white text-[9px] min-w-[1rem] h-4 px-1 rounded-full font-mono font-bold leading-none flex items-center justify-center">
                       {badge > 9 ? "9+" : badge}
                     </span>
                   )}
                 </div>
-                <span className={`text-[10px] font-semibold mt-1 ${active ? "text-accent" : ""}`}>
+                <span className={`relative z-10 text-[10px] font-semibold mt-1 ${active ? "text-accent" : ""}`}>
                   {mobileLabel}
                 </span>
               </Link>
             );
           })}
+        </LayoutGroup>
       </nav>
     </div>
   );

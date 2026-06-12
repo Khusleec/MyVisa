@@ -136,7 +136,12 @@ export default function Dashboard({
 
       {/* B2B Dynamic Banner Info Alert */}
       {userRole === 'business_admin' && (
-        <div className="p-4 sm:p-5 rounded-2xl border border-accent/20 bg-gradient-to-r from-accent/8 to-transparent flex gap-4 text-sm leading-relaxed">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          className="p-4 sm:p-5 rounded-2xl border border-accent/20 bg-gradient-to-r from-accent/8 to-transparent flex gap-4 text-sm leading-relaxed"
+        >
           <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/20 flex items-center justify-center shrink-0">
             <Info className="w-5 h-5 text-accent" />
           </div>
@@ -146,7 +151,7 @@ export default function Dashboard({
               Ажилчдын регистрээр ХУР-аар нийгмийн даатгал баталгаажуулж, бэлэн төлбөрүүдийг QPay нэгдсэн нэхэмжлэхээр төлнө.
             </p>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Metric Cards Grid */}
@@ -570,10 +575,16 @@ export default function Dashboard({
                   description="Дээрх 'Шинэ виз мэдүүлэх' товч дээр дарж эхний мэдүүлгээ эхлүүлнэ үү."
                 />
               ) : null}
-              {b2cApplications.map((app) => {
+              {b2cApplications.map((app, index) => {
                 const conf = getStatusConfig(app.status);
                 return (
-                  <div key={app.id} className="premium-card premium-card--interactive p-5 sm:p-6 space-y-4 bg-surface border border-line rounded-2xl">
+                  <motion.div
+                    key={app.id}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 380, damping: 32, delay: index * 0.05 }}
+                    className="premium-card premium-card--interactive p-5 sm:p-6 space-y-4 bg-surface border border-line rounded-2xl"
+                  >
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
@@ -607,7 +618,7 @@ export default function Dashboard({
                         ]}
                       />
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>

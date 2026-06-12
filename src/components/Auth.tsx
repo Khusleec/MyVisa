@@ -1,8 +1,12 @@
+"use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
 import { Mail, Lock, User, Building, Phone, ArrowRight, RefreshCw, AlertCircle, CheckCircle2, Shield, FileCheck, Zap } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { fadeUp, slideInLeft, slideInRight, staggerContainer, staggerItem, motionTransition, springGentle } from "../lib/motion";
 
 
 interface AuthProps {
@@ -251,47 +255,82 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
     }
   };
 
+  const reduceMotion = useReducedMotion();
+
   return (
-    <div className="auth-shell min-h-screen bg-surface text-foreground relative overflow-hidden">
+    <div className="auth-shell bg-surface text-foreground relative overflow-hidden">
       <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-accent/10 blur-[150px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-500/10 blur-[150px] pointer-events-none" />
 
-      {/* Hero panel — desktop */}
-      <div className="auth-hero z-10">
-        <div className="max-w-md space-y-8">
-          <div className="space-y-4">
-            <div className="inline-flex bg-white p-3 rounded-2xl border border-accent/20 shadow-lg">
-              <Image src="/logo.png" alt="MyVisa.mn Logo" width={56} height={56} className="object-contain" priority />
-            </div>
-            <h1 className="text-4xl font-black text-foreground tracking-tight leading-tight">
-              MyVisa<span className="text-accent">.mn</span>
-            </h1>
-            <p className="text-base text-muted leading-relaxed">
-              ЭСЯ-ны нэгдсэн цахим виз мэдүүлгийн платформ — гэрээсээ бүрэн, аюулгүй, хялбар.
-            </p>
-          </div>
+      <motion.div
+        className="auth-centered"
+        initial="initial"
+        animate="animate"
+        variants={fadeUp}
+        transition={motionTransition(reduceMotion, springGentle)}
+      >
+        {/* Hero — desktop, sits beside form in center */}
+        <motion.div
+          className="auth-hero"
+          variants={slideInLeft}
+          initial="initial"
+          animate="animate"
+          transition={motionTransition(reduceMotion, { ...springGentle, delay: 0.05 })}
+        >
+          <motion.div
+            className="space-y-6 lg:space-y-8"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.div variants={staggerItem} className="space-y-3 lg:space-y-4">
+              <motion.div
+                whileHover={reduceMotion ? undefined : { scale: 1.03, rotate: -2 }}
+                transition={springGentle}
+                className="inline-flex bg-white p-3 rounded-2xl border border-accent/20 shadow-lg"
+              >
+                <Image src="/logo.png" alt="MyVisa.mn Logo" width={56} height={56} className="object-contain" priority />
+              </motion.div>
+              <h1 className="text-3xl lg:text-4xl font-black text-foreground tracking-tight leading-tight">
+                MyVisa<span className="text-accent">.mn</span>
+              </h1>
+              <p className="text-sm lg:text-base text-muted leading-relaxed max-w-sm">
+                ЭСЯ-ны нэгдсэн цахим виз мэдүүлгийн платформ — гэрээсээ бүрэн, аюулгүй, хялбар.
+              </p>
+            </motion.div>
 
-          <ul className="space-y-4">
-            {[
-              { icon: Shield, text: "256-бит шифрлэлт, ДАН баталгаажуулалт" },
-              { icon: FileCheck, text: "ХУР лавлагаа, баримт бичгийг нэг дороос" },
-              { icon: Zap, text: "QPay төлбөр, ЭСЯ руу шууд илгээх" },
-            ].map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-center gap-3 text-sm text-muted">
-                <div className="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
-                  <Icon className="w-4 h-4 text-accent" />
-                </div>
-                {text}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+            <motion.ul variants={staggerContainer} className="space-y-3 lg:space-y-4">
+              {[
+                { icon: Shield, text: "256-бит шифрлэлт, ДАН баталгаажуулалт" },
+                { icon: FileCheck, text: "ХУР лавлагаа, баримт бичгийг нэг дороос" },
+                { icon: Zap, text: "QPay төлбөр, ЭСЯ руу шууд илгээх" },
+              ].map(({ icon: Icon, text }) => (
+                <motion.li key={text} variants={staggerItem} className="flex items-center gap-3 text-sm text-muted">
+                  <div className="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
+                    <Icon className="w-4 h-4 text-accent" />
+                  </div>
+                  <span className="leading-snug">{text}</span>
+                </motion.li>
+              ))}
+            </motion.ul>
+          </motion.div>
+        </motion.div>
 
-      {/* Form panel */}
-      <div className="auth-form-panel z-10">
-        <div className="w-full max-w-md mx-auto space-y-4 sm:space-y-5 min-w-0">
-          <div className="text-center space-y-2 lg:hidden">
+        {/* Form */}
+        <motion.div
+          className="auth-form-panel"
+          variants={slideInRight}
+          initial="initial"
+          animate="animate"
+          transition={motionTransition(reduceMotion, { ...springGentle, delay: 0.1 })}
+        >
+        <div className="w-full space-y-4 sm:space-y-5 min-w-0">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={motionTransition(reduceMotion, springGentle)}
+            className="text-center space-y-2 lg:hidden"
+          >
             <div className="inline-flex bg-white p-2 rounded-2xl border border-accent/20 shadow-lg mb-1">
               <Image src="/logo.png" alt="MyVisa.mn Logo" width={44} height={44} className="object-contain" priority />
             </div>
@@ -299,23 +338,38 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
               MyVisa<span className="text-accent">.mn</span>
             </h1>
             <p className="text-sm text-muted">ЭСЯ-ны нэгдсэн цахим виз мэдүүлгийн платформ</p>
-          </div>
+          </motion.div>
 
           {errorMessage && (
-            <div className="auth-alert auth-alert--error" role="alert">
+            <motion.div
+              initial={{ opacity: 0, y: -8, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -8, height: 0 }}
+              className="auth-alert auth-alert--error"
+              role="alert"
+            >
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
-            </div>
+            </motion.div>
           )}
 
           {successMessage && (
-            <div className="auth-alert auth-alert--success" role="status">
+            <motion.div
+              initial={{ opacity: 0, y: -8, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -8, height: 0 }}
+              className="auth-alert auth-alert--success"
+              role="status"
+            >
               <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{successMessage}</span>
-            </div>
+            </motion.div>
           )}
 
-        <div className="premium-card p-5 sm:p-6 md:p-8 bg-elevated/60 border border-line rounded-2xl shadow-xl space-y-5 sm:space-y-6 min-w-0">
+        <motion.div
+          layout
+          className="premium-card p-5 sm:p-6 md:p-8 bg-elevated/60 border border-line rounded-2xl shadow-xl space-y-5 sm:space-y-6 min-w-0"
+        >
 
           {/* Signin vs Signup switch */}
           {activeTab === 'forgot_password' ? (
@@ -793,9 +847,10 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
             </form>
           )}
 
+        </motion.div>
         </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

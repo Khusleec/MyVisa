@@ -1,4 +1,8 @@
+"use client";
+
 import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { fadeUp, motionTransition, springGentle } from "../../lib/motion";
 
 interface PageHeaderProps {
   title: string;
@@ -8,16 +12,35 @@ interface PageHeaderProps {
 }
 
 export default function PageHeader({ title, description, action, eyebrow }: PageHeaderProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-4 pb-1">
+    <motion.div
+      initial="initial"
+      animate="animate"
+      variants={fadeUp}
+      transition={motionTransition(reduceMotion, springGentle)}
+      className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-4 pb-1"
+    >
       <div className="space-y-1.5 sm:space-y-2 min-w-0 flex-1">
         {eyebrow && (
-          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] sm:tracking-[0.14em] text-accent">
+          <motion.p
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={motionTransition(reduceMotion, { duration: 0.3, delay: 0.05 })}
+            className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] sm:tracking-[0.14em] text-accent"
+          >
             {eyebrow}
-          </p>
+          </motion.p>
         )}
         <div className="flex items-start sm:items-center gap-2.5 sm:gap-3">
-          <div className="w-1 h-6 sm:h-8 rounded-full bg-gradient-to-b from-accent to-accent/30 shrink-0 mt-1 sm:mt-0" aria-hidden />
+          <motion.div
+            initial={{ scaleY: 0 }}
+            animate={{ scaleY: 1 }}
+            transition={motionTransition(reduceMotion, { duration: 0.35, ease: "easeOut" })}
+            className="w-1 h-6 sm:h-8 rounded-full bg-gradient-to-b from-accent to-accent/30 shrink-0 mt-1 sm:mt-0 origin-top"
+            aria-hidden
+          />
           <div className="min-w-0 flex-1">
             <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground tracking-tight leading-snug break-words">
               {title}
@@ -30,7 +53,16 @@ export default function PageHeader({ title, description, action, eyebrow }: Page
           </div>
         </div>
       </div>
-      {action && <div className="shrink-0 w-full sm:w-auto [&_.btn-primary]:w-full sm:[&_.btn-primary]:w-auto">{action}</div>}
-    </div>
+      {action && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={motionTransition(reduceMotion, { ...springGentle, delay: 0.1 })}
+          className="shrink-0 w-full sm:w-auto [&_.btn-primary]:w-full sm:[&_.btn-primary]:w-auto"
+        >
+          {action}
+        </motion.div>
+      )}
+    </motion.div>
   );
 }

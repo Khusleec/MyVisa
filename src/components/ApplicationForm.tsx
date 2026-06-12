@@ -1,7 +1,8 @@
 import React from "react";
 import Link from "next/link";
 import { Check, ChevronRight, Info, HelpCircle, Lock, Upload, RefreshCw, AlertCircle, ArrowLeft } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { slideInRight, motionTransition, springGentle, staggerContainer, staggerItem } from "../lib/motion";
 import { Employee } from "../types/visa";
 import PageHeader from "./ui/PageHeader";
 import StepWizard from "./ui/StepWizard";
@@ -78,6 +79,7 @@ export default function ApplicationForm({
 }: ApplicationFormProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [activeUploadType, setActiveUploadType] = React.useState<'passport' | 'statement' | 'photo' | null>(null);
+  const reduceMotion = useReducedMotion();
 
   const handleUploadClick = (type: 'passport' | 'statement' | 'photo') => {
     setActiveUploadType(type);
@@ -161,34 +163,58 @@ export default function ApplicationForm({
         }}
       />
 
-      {formError && (
-        <div className="form-error-banner p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/5 text-xs text-rose-400 flex gap-2.5 items-start" role="alert">
-          <AlertCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" aria-hidden />
-          <span className="flex-1 leading-normal">{formError}</span>
-          {onClearFormError && (
-            <button type="button" onClick={onClearFormError} className="text-xs font-bold underline shrink-0 cursor-pointer">
-              Хаах
-            </button>
-          )}
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {formError && (
+          <motion.div
+            key="form-error"
+            initial={{ opacity: 0, y: -8, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -8, height: 0 }}
+            transition={motionTransition(reduceMotion, springGentle)}
+            className="form-error-banner p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/5 text-xs text-rose-400 flex gap-2.5 items-start overflow-hidden"
+            role="alert"
+          >
+            <AlertCircle className="w-4.5 h-4.5 shrink-0 mt-0.5" aria-hidden />
+            <span className="flex-1 leading-normal">{formError}</span>
+            {onClearFormError && (
+              <button type="button" onClick={onClearFormError} className="text-xs font-bold underline shrink-0 cursor-pointer">
+                Хаах
+              </button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="premium-card p-4 sm:p-6 md:p-8 bg-elevated/40 border border-line rounded-2xl space-y-5 sm:space-y-6 min-w-0">
-        
+      <div className="premium-card p-4 sm:p-6 md:p-8 bg-elevated/40 border border-line rounded-2xl space-y-5 sm:space-y-6 min-w-0 overflow-hidden">
+        <AnimatePresence mode="wait">
         {/* STEP 1: Country select */}
         {newApp.step === 1 && (
-          <div className="space-y-6">
+          <motion.div
+            key="step-1"
+            initial={{ opacity: 0, x: reduceMotion ? 0 : 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: reduceMotion ? 0 : -16 }}
+            transition={motionTransition(reduceMotion, springGentle)}
+            className="space-y-6"
+          >
             <StepSection
               title="Виз мэдүүлэх улсаа сонгоно уу"
               description="Визийн шаардлага болон хураамж улс бүрээр өөр өөр байна."
               hint="Улсаа сонгоод хураамж, шаардлагатай баримтуудтай танилцана уу."
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <motion.div
+              variants={staggerContainer}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+            >
               {allowedCountries.map((country) => (
-                <button 
+                <motion.button
                   key={country.code}
                   type="button"
+                  variants={staggerItem}
+                  whileTap={reduceMotion ? undefined : { scale: 0.98 }}
                   onClick={() => onCountryChange(country.name, country.code, country.eFee, country.sFee)}
                   className={`selection-card flex justify-between items-center cursor-pointer ${
                     newApp.countryCode === country.code ? "selection-card--selected" : ""
@@ -210,9 +236,9 @@ export default function ApplicationForm({
                   }`}>
                     {newApp.countryCode === country.code && <Check className="w-3 h-3" />}
                   </div>
-                </button>
+                </motion.button>
               ))}
-            </div>
+            </motion.div>
 
             {/* B2C Company Selector inside Wizard */}
             {userRole === 'individual' && newApp.countryCode && (
@@ -265,12 +291,19 @@ export default function ApplicationForm({
                 <p className="form-hint w-full text-center sm:text-right">Зуучлагч байгууллага сонгоно уу</p>
               )}
             </FormFooter>
-          </div>
+          </motion.div>
         )}
 
         {/* STEP 2: Citizen/Employee data pulling */}
         {newApp.step === 2 && (
-          <div className="space-y-6">
+          <motion.div
+            key="step-2"
+            initial={{ opacity: 0, x: reduceMotion ? 0 : 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: reduceMotion ? 0 : -16 }}
+            transition={motionTransition(reduceMotion, springGentle)}
+            className="space-y-6"
+          >
             <StepSection
               title="Мэдүүлэгчийн мэдээлэл"
               description="ЭСЯ руу илгээх хүний РД болон ХУР лавлагааг холбоно уу."
@@ -482,12 +515,19 @@ export default function ApplicationForm({
                 Үргэлжлүүлэх <ChevronRight className="w-4 h-4" />
               </button>
             </FormFooter>
-          </div>
+          </motion.div>
         )}
 
         {/* STEP 3: Material uploads with helpful B2C tips */}
         {newApp.step === 3 && (
-          <div className="space-y-6">
+          <motion.div
+            key="step-3"
+            initial={{ opacity: 0, x: reduceMotion ? 0 : 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: reduceMotion ? 0 : -16 }}
+            transition={motionTransition(reduceMotion, springGentle)}
+            className="space-y-6"
+          >
             <StepSection
               title="Баримт бичгүүдийг хуулах"
               description="ЭСЯ-ны шаардлагын дагуу дараах баримтуудыг зөв хуулна уу."
@@ -577,12 +617,19 @@ export default function ApplicationForm({
                 Дараах <ChevronRight className="w-4 h-4" />
               </button>
             </FormFooter>
-          </div>
+          </motion.div>
         )}
 
         {/* STEP 4: Checkout billing invoice breakdown */}
         {newApp.step === 4 && (
-          <div className="space-y-6 max-w-lg mx-auto py-2">
+          <motion.div
+            key="step-4"
+            initial={{ opacity: 0, x: reduceMotion ? 0 : 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: reduceMotion ? 0 : -16 }}
+            transition={motionTransition(reduceMotion, springGentle)}
+            className="space-y-6 max-w-lg mx-auto py-2"
+          >
             <div className="text-center space-y-2">
               <StepSection
                 title="Мэдүүлгийг хянах"
@@ -670,8 +717,9 @@ export default function ApplicationForm({
                 </button>
               </div>
             </FormFooter>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
       </div>
     </motion.div>

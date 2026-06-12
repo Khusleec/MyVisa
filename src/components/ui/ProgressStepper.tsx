@@ -1,5 +1,9 @@
+"use client";
+
 import React from "react";
 import { Check } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { motionTransition, springGentle } from "../../lib/motion";
 
 export interface ProgressStep {
   title: string;
@@ -14,6 +18,8 @@ interface ProgressStepperProps {
 }
 
 export default function ProgressStepper({ steps, className = "" }: ProgressStepperProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div className={`progress-stepper-scroll ${className}`}>
       <div
@@ -27,9 +33,24 @@ export default function ProgressStepper({ steps, className = "" }: ProgressStepp
           const isCurrent = step.pulse;
 
           return (
-            <div key={idx} className="stepper-item min-w-[4.5rem]" role="listitem">
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={motionTransition(reduceMotion, { ...springGentle, delay: idx * 0.05 })}
+              className="stepper-item min-w-[4.5rem]"
+              role="listitem"
+            >
               <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5">
-                <div
+                <motion.div
+                  animate={{
+                    scale: isCurrent ? [1, 1.08, 1] : 1,
+                  }}
+                  transition={
+                    isCurrent && !reduceMotion
+                      ? { duration: 1.6, repeat: Infinity, ease: "easeInOut" }
+                      : { duration: 0 }
+                  }
                   className={`stepper-dot shrink-0 ${
                     isComplete ? "stepper-dot--complete" : isCurrent ? "stepper-dot--current" : ""
                   }`}
@@ -39,10 +60,15 @@ export default function ProgressStepper({ steps, className = "" }: ProgressStepp
                   ) : (
                     <span className="text-[9px] font-bold">{idx + 1}</span>
                   )}
-                </div>
+                </motion.div>
                 {idx < steps.length - 1 && (
-                  <div
-                    className={`stepper-line flex-1 min-w-[0.5rem] ${isComplete ? "stepper-line--complete" : ""}`}
+                  <motion.div
+                    initial={false}
+                    animate={{ scaleX: isComplete ? 1 : 0.35 }}
+                    transition={motionTransition(reduceMotion, { duration: 0.3 })}
+                    className={`stepper-line flex-1 min-w-[0.5rem] origin-left ${
+                      isComplete ? "stepper-line--complete" : ""
+                    }`}
                     aria-hidden
                   />
                 )}
@@ -54,7 +80,7 @@ export default function ProgressStepper({ steps, className = "" }: ProgressStepp
               >
                 {step.title}
               </p>
-            </div>
+            </motion.div>
           );
         })}
       </div>
