@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyVisa - И-мэйл өөрчлөх баталгаажуулалт</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrapper {
+      width: 100%;
+      background-color: #F8FAFC;
+      padding: 40px 0;
+    }
+    .container {
+      max-width: 540px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      overflow: hidden;
+    }
+    .accent-bar {
+      height: 6px;
+      background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
+    }
+    .content {
+      padding: 40px 32px;
+    }
+    .logo-container {
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .logo-text {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #2563EB;
+      margin: 0;
+    }
+    .logo-sub {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #94A3B8;
+      margin-top: 4px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      background-color: #FEF3C7;
+      color: #D97706;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-top: 0;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    .subtitle {
+      font-size: 16px;
+      font-weight: 700;
+      color: #475569;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 24px;
+    }
+    .paragraph {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #334155;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    .btn-container {
+      margin: 32px 0;
+      text-align: center;
+    }
+    .btn {
+      display: inline-block;
+      background: #D97706;
+      color: #FFFFFF !important;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.2), 0 2px 4px -2px rgba(217, 119, 6, 0.2);
+    }
+    .otp-container {
+      margin: 24px 0;
+      text-align: center;
+      background: #F8FAFC;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #E2E8F0;
+    }
+    .otp-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 6px;
+      color: #0F172A;
+      margin: 0;
+    }
+    .otp-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 8px;
+    }
+    .divider {
+      height: 1px;
+      background-color: #E2E8F0;
+      margin: 32px 0;
+    }
+    .footer {
+      text-align: center;
+      padding: 0 32px 40px 32px;
+    }
+    .footer-text {
+      font-size: 12px;
+      color: #94A3B8;
+      line-height: 1.5;
+      margin: 0;
+    }
+    .footer-links {
+      margin-top: 12px;
+    }
+    .footer-link {
+      font-size: 12px;
+      color: #64748B;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+    .footer-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <div class="accent-bar"></div>
+      <div class="content">
+        <div class="logo-container">
+          <div class="logo-text">MyVisa</div>
+          <div class="logo-sub">Виз Мэдүүлгийн Нэгдсэн Систем</div>
+        </div>
+
+        <div style="text-align: center;">
+          <div class="badge">И-МЭЙЛ ӨӨРЧЛӨХ / EMAIL CHANGE</div>
+        </div>
+
+        <!-- Mongolian Section -->
+        <h1 class="title">И-мэйл хаягаа өөрчлөх үү?</h1>
+        <p class="paragraph">
+          Таны MyVisa системийн бүртгэлтэй и-мэйл хаягийг өөрчлөх хүсэлт ирлээ. Өөрчлөлтийг баталгаажуулахын тулд доорх товчлуур дээр дарж эсвэл нэг удаагийн кодыг ашиглана уу.
+        </p>
+
+        <div class="btn-container">
+          <a href="{{ .ConfirmationURL }}" class="btn">И-мэйл өөрчлөлтийг баталгаажуулах</a>
+        </div>
+
+        <div class="otp-container">
+          <div class="otp-code">{{ .Token }}</div>
+          <div class="otp-label">Нэг удаагийн баталгаажуулах код (OTP)</div>
+        </div>
+
+        <!-- English Section -->
+        <h2 class="subtitle">Confirm Email Address Change</h2>
+        <p class="paragraph">
+          We received a request to change the registered email address for your MyVisa account. To confirm this change, please click the button above or use the one-time verification code below.
+        </p>
+
+        <div class="otp-container">
+          <div class="otp-code">{{ .Token }}</div>
+          <div class="otp-label">One-Time Verification Code</div>
+        </div>
+
+        <p class="paragraph" style="font-size: 13px; color: #64748B; margin-top: 24px;">
+          Хэрэв та и-мэйл хаягаа өөрчлөх хүсэлт гаргаагүй бол энэ и-мэйлийг үл тоож болно. Таны бүртгэл найдвартай хамгаалагдсан хэвээр байна.<br><br>
+          Хэрэв та дээрх товчлуур дээр дарж чадахгүй байвал дараах холбоосыг хуулж хөтөч рүүгээ орно уу:<br>
+          <span style="word-break: break-all; color: #2563EB;">{{ .ConfirmationURL }}</span>
+        </p>
+      </div>
+      <div class="divider" style="margin: 0;"></div>
+      <div class="footer">
+        <p class="footer-text" style="margin-top: 32px;">
+          Энэхүү и-мэйл нь MyVisa системээс автоматаар илгээгдэж буй тул хариу бичих шаардлагагүй.<br>
+          &copy; 2026 MyVisa. Бүх эрх хуулиар хамгаалагдсан.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
